@@ -11,6 +11,10 @@ steps:
   inputs:
     version: '3.1.100'
 
+- task: NuGetToolInstaller@1
+  inputs:
+    checkLatest: true
+
 - task: UseDotNet@2
   displayName: "Use dotnet sdk 3.x"
   inputs:
