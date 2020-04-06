@@ -53,4 +53,4 @@ steps:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
     feedsToUse: 'config'
-    nugetConfigPath: '$src/nuget.config'
+    nugetConfigPath: 'src/nuget.config'
