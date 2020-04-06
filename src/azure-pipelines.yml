@@ -27,14 +27,14 @@ steps:
   inputs:
     command: restore
     verbosityRestore: Minimal
-    projects: "BASE/*.sln"
+    projects: "src/*.sln"
 
 - task: DotNetCoreCLI@2
   displayName: Build solution
   inputs:
     command: build
     arguments: --no-restore -c $(BuildConfiguration)
-    projects: "BASE/*.sln"
+    projects: "src/*.sln"
 
 - task: CopyFiles@1
   displayName: Collecting packages
