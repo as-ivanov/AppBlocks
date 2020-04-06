@@ -1,7 +1,4 @@
 
-trigger:
-- master
-
 pool:
   vmImage: 'windows-latest'
 
@@ -10,9 +7,15 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 steps:
-- task: DotNetCoreInstaller@0
+- task: DotNetCoreInstaller@1
   inputs:
     version: '3.1.100'
+
+- task: UseDotNet@2
+  displayName: "Use dotnet sdk 3.x"
+  inputs:
+    version: 3.x
+    includePreviewVersions: false
 
 - script: |
     dotnet tool install --tool-path . nbgv
@@ -24,12 +27,14 @@ steps:
   inputs:
     command: restore
     verbosityRestore: Minimal
+    projects: "BASE/*.sln"
 
 - task: DotNetCoreCLI@2
   displayName: Build solution
   inputs:
     command: build
     arguments: --no-restore -c $(BuildConfiguration)
+    projects: "BASE/*.sln"
 
 - task: CopyFiles@1
   displayName: Collecting packages
