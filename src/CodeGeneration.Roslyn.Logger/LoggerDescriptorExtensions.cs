@@ -50,18 +50,26 @@ namespace CodeGeneration.Roslyn.Logger
 			var attributeData = GetAttributeData(context, methodDeclarationSyntax);
 			var logSeverityAttributeData =
 			  attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.LoggerMethodStubAttribute));
+
+			Microsoft.Extensions.Logging.LogLevel level;
+			string message;
 			if (logSeverityAttributeData == null)
 			{
-				return null;
+				level = Microsoft.Extensions.Logging.LogLevel.Information;
+				message = methodDeclarationSyntax.Identifier.ToFullString();
+			}
+			else
+			{
+				var constructorArguments = logSeverityAttributeData.ConstructorArguments;
+				level = constructorArguments.Length > 0
+					? Enum.Parse<Microsoft.Extensions.Logging.LogLevel>(constructorArguments[0].Value.ToString())
+					: Microsoft.Extensions.Logging.LogLevel.Information;
+				message = constructorArguments.Length > 1 ? constructorArguments[1].Value as string : methodDeclarationSyntax.Identifier.ToFullString();
 			}
 
-			var constructorArguments = logSeverityAttributeData.ConstructorArguments;
-			var level = constructorArguments.Length > 0
-			  ? Enum.Parse<Microsoft.Extensions.Logging.LogLevel>(constructorArguments[0].Value.ToString())
-			  : Microsoft.Extensions.Logging.LogLevel.Information;
-			var message = constructorArguments.Length > 1 ? constructorArguments[1].Value as string : string.Empty;
 			var parameters = methodDeclarationSyntax.ParameterList.Parameters
-			  .Select(p => p.ToLoggerMethodParameter(context, exceptionType)).ToImmutableArray();
+				.Select(p => p.ToLoggerMethodParameter(context, exceptionType)).ToImmutableArray();
+
 			return new LoggerMethod(
 			  methodDeclarationSyntax,
 			  level,

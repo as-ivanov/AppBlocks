@@ -134,7 +134,7 @@ namespace CodeGeneration.Roslyn.Logger
 				var method = loggerDescriptor.Methods[index];
 				var defineMethodParameterTypes = GetLoggingDelegateParameterTypes(method, true);
 
-				var sb = new StringBuilder(method.Message ?? method.MethodDeclarationSyntax.ToFullString());
+				var sb = new StringBuilder(method.Message);
 				for (var i = 0; i < method.Parameters.Length; ++i)
 				{
 					var parameter = method.Parameters[i];
