@@ -36,16 +36,17 @@ steps:
     arguments: --no-restore -c $(BuildConfiguration)
     projects: "src/*.sln"
 
-- task: CopyFiles@1
-  displayName: Collecting packages
+- task: NuGetCommand@2
+  displayName: Pack solution
   inputs:
-    Contents: |
-      bin/$(BuildConfiguration)/*.nupkg
-    TargetFolder: $(Build.ArtifactStagingDirectory)/nugets
-    flattenFolders: true
+    command: 'pack'
+    packagesToPack: 'src/**/*.csproj'
+    packDestination: '$(Build.ArtifactStagingDirectory)'
 
-- task: PublishPipelineArtifact@0
-  displayName: Publish nuget artifacts
+- task: NuGetCommand@2
+  displayName: Publish to NuGet
   inputs:
-    artifactName: nugets
-    targetPath: $(Build.ArtifactStagingDirectory)/nugets
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+    feedsToUse: 'config'
+    nugetConfigPath: '$src/nuget.config'
