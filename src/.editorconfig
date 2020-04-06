@@ -1,0 +1,18 @@
+# http://EditorConfig.org
+
+# This file is the top-most EditorConfig file
+root = true
+
+# All Files
+[*]
+charset                  = utf-8
+end_of_line              = crlf
+indent_style             = tab
+indent_size              = 2
+insert_final_newline     = false
+trim_trailing_whitespace = true
+
+
+
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none

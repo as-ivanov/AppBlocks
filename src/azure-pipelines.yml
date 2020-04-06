@@ -1,0 +1,46 @@
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  BuildConfiguration: 'Release'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+steps:
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: '3.1.100'
+
+- script: |
+    dotnet tool install --tool-path . nbgv
+    .\nbgv cloud
+  displayName: Install NerdBank.GitVersioning
+
+- task: DotNetCoreCLI@2
+  displayName: Restore NuGet packages
+  inputs:
+    command: restore
+    verbosityRestore: Minimal
+
+- task: DotNetCoreCLI@2
+  displayName: Build solution
+  inputs:
+    command: build
+    arguments: --no-restore -c $(BuildConfiguration)
+
+- task: CopyFiles@1
+  displayName: Collecting packages
+  inputs:
+    Contents: |
+      bin/$(BuildConfiguration)/*.nupkg
+    TargetFolder: $(Build.ArtifactStagingDirectory)/nugets
+    flattenFolders: true
+
+- task: PublishPipelineArtifact@0
+  displayName: Publish nuget artifacts
+  inputs:
+    artifactName: nugets
+    targetPath: $(Build.ArtifactStagingDirectory)/nugets
