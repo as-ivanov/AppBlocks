@@ -17,6 +17,8 @@ ProjectSection(SolutionItems) = preProject
 	version.json = version.json
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration.Roslyn.Logger.Tests", "CodeGeneration.Roslyn.Logger.Tests\CodeGeneration.Roslyn.Logger.Tests.csproj", "{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{1EB5FD3D-92B3-447C-B853-13871712BC77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EB5FD3D-92B3-447C-B853-13871712BC77}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EB5FD3D-92B3-447C-B853-13871712BC77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

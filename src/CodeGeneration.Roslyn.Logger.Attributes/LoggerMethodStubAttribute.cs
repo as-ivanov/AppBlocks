@@ -1,23 +1,22 @@
 using System;
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
 
 namespace CodeGeneration.Roslyn.Logger.Attributes
 {
 	[AttributeUsage(AttributeTargets.Method)]
-	[Conditional("CodeGeneration")]
+	[Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
 	public class LoggerMethodStubAttribute : Attribute
 	{
-		private readonly LogLevel _logLevel;
+		private readonly Microsoft.Extensions.Logging.LogLevel _logLevel;
 		private readonly string _message;
 
-		public LoggerMethodStubAttribute(LogLevel logLevel, string message = null)
+		public LoggerMethodStubAttribute(Microsoft.Extensions.Logging.LogLevel logLevel, string message = null)
 		{
 			_logLevel = logLevel;
 			_message = message ?? string.Empty;
 		}
 
-		public LogLevel Level => _logLevel;
+		public Microsoft.Extensions.Logging.LogLevel Level => _logLevel;
 
 		public string Message => _message;
 	}
