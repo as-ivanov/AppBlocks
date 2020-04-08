@@ -171,7 +171,7 @@ namespace CodeGeneration.Roslyn.Logger
 								  Argument(
 									MemberAccessExpression(
 									  SyntaxKind.SimpleMemberAccessExpression,
-									  IdentifierName(nameof(Microsoft.Extensions.Logging.LogLevel)),
+									  IdentifierName(typeof(Microsoft.Extensions.Logging.LogLevel).FullName),
 									  IdentifierName(method.Level.ToString()))),
 								  Token(SyntaxKind.CommaToken),
 								  Argument(
@@ -216,7 +216,7 @@ namespace CodeGeneration.Roslyn.Logger
 
 			if (!definition)
 			{
-				result.Add(IdentifierName(nameof(ILogger)));
+				result.Add(IdentifierName(typeof(ILogger).FullName));
 			}
 
 			for (var index = 0; index < loggerMethod.Parameters.Length; index++)
@@ -268,7 +268,7 @@ namespace CodeGeneration.Roslyn.Logger
 					Parameter(
 						Identifier(loggerFactoryVariableName))
 					  .WithType(
-						IdentifierName(nameof(ILoggerFactory))))));
+						IdentifierName(typeof(ILoggerFactory).FullName)))));
 
 			if (loggerDescriptor.BaseClass != null)
 			{
@@ -348,7 +348,7 @@ namespace CodeGeneration.Roslyn.Logger
 						Argument(
 						  MemberAccessExpression(
 							SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName(nameof(Microsoft.Extensions.Logging.LogLevel)),
+							IdentifierName(typeof(Microsoft.Extensions.Logging.LogLevel).FullName),
 							IdentifierName(loggerMethod.Level.ToString())))))),
 				Block(
 				  SingletonList<StatementSyntax>(
