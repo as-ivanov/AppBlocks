@@ -55,7 +55,8 @@ steps:
     packDestination: '$(Build.ArtifactStagingDirectory)'
 - task: NuGetAuthenticate@0
   displayName: 'NuGet Authenticate'
-  nuGetServiceConnections: 'NugetCodeGenerationConnection'
+  inputs:
+    nuGetServiceConnections: 'NugetCodeGenerationConnection'
 - task: NuGetCommand@2
   displayName: Publish to NuGet
   inputs:
