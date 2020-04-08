@@ -3,6 +3,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  AzurePipelines: true
   BuildConfiguration: 'Release'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 

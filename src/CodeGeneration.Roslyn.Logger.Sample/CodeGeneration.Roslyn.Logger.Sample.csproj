@@ -3,11 +3,12 @@
 		<TargetFramework>netcoreapp3.0</TargetFramework>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
+	<ItemGroup Condition="$(AzurePipelines) == ''">
+		<PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.7.5-alpha" PrivateAssets="all"/>
+		<DotNetCliToolReference Include="dotnet-codegen" Version="0.7.5-alpha"/>
+	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.7.5-alpha" PrivateAssets="all" />
-
-		<DotNetCliToolReference Include="dotnet-codegen" Version="0.7.5-alpha" />
-		<PackageReference Include="CodeGeneration.Roslyn.Logger" Version="0.1.0-alpha" PrivateAssets="all" />
-		<PackageReference Include="CodeGeneration.Roslyn.Logger.Attributes" Version="0.1.0-alpha" PrivateAssets="all" />
+		<PackageReference Include="CodeGeneration.Roslyn.Logger" Version="0.1.0-alpha" PrivateAssets="all"/>
+		<PackageReference Include="CodeGeneration.Roslyn.Logger.Attributes" Version="0.1.0-alpha" PrivateAssets="all"/>
 	</ItemGroup>
 </Project>
