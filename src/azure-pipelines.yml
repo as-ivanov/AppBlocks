@@ -45,6 +45,7 @@ steps:
   inputs:
     command: test
     arguments: --no-build -c $(BuildConfiguration)
+    projects: "src/*.sln"
 
 - task: NuGetCommand@2
   displayName: Pack solution
