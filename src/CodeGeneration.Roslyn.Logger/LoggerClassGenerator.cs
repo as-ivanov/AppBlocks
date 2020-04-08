@@ -83,7 +83,7 @@ namespace CodeGeneration.Roslyn.Logger
 		{
 			var baseTypes = GetLoggerBaseList(loggerDescriptor, loggerDescriptor.InheritedInterfaceTypes);
 			var classDeclaration = ClassDeclaration(loggerDescriptor.ClassName)
-			  .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+			  .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.PartialKeyword)))
 			  .AddBaseListTypes(baseTypes)
 			  .AddMembers(GetGeneralLoggerFields(loggerDescriptor))
 			  .AddMembers(GetLoggingDelegateLoggerFields(loggerDescriptor))
