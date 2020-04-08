@@ -54,10 +54,10 @@ steps:
     command: 'pack'
     packagesToPack: 'src/**/*.csproj'
     packDestination: '$(Build.ArtifactStagingDirectory)'
-- task: NuGetAuthenticate@0
-  displayName: 'NuGet Authenticate'
-  inputs:
-    nuGetServiceConnections: 'NugetCodeGenerationConnection'
+#- task: NuGetAuthenticate@0
+#  displayName: 'NuGet Authenticate'
+#  inputs:
+#    nuGetServiceConnections: 'NugetCodeGenerationConnection'
 - task: NuGetCommand@2
   displayName: Publish to NuGet
   inputs:
