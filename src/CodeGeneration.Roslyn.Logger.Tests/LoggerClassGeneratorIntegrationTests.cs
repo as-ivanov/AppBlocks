@@ -162,6 +162,12 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 		{
 			get
 			{
+				yield return new object[]
+				{
+					$"{Environment.NewLine} void MethodWithoutAttribute();", "MethodWithoutAttribute", "MethodWithoutAttribute", Microsoft.Extensions.Logging.LogLevel.Information, Array.Empty<MethodParameter>()
+				};
+
+
 				var logLevels = Enum.GetValues(typeof(Microsoft.Extensions.Logging.LogLevel))
 					.Cast<Microsoft.Extensions.Logging.LogLevel>();
 
