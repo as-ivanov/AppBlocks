@@ -30,7 +30,7 @@ steps:
   displayName: Restore NuGet packages
   inputs:
     command: restore
-    verbosityRestore: Minimal
+    verbosityRestore: Detailed
     projects: "src/*.sln"
 
 - task: DotNetCoreCLI@2
