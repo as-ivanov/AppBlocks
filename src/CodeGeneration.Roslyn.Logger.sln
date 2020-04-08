@@ -19,6 +19,8 @@ EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration.Roslyn.Logger.Tests", "CodeGeneration.Roslyn.Logger.Tests\CodeGeneration.Roslyn.Logger.Tests.csproj", "{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration.Roslyn.Logger.Sample", "CodeGeneration.Roslyn.Logger.Sample\CodeGeneration.Roslyn.Logger.Sample.csproj", "{B5FB94CC-7E36-4DCB-8B06-86D6A4D9BA54}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21BFA54A-8927-4FE0-8D9F-A5976C1F1CE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5FB94CC-7E36-4DCB-8B06-86D6A4D9BA54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5FB94CC-7E36-4DCB-8B06-86D6A4D9BA54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5FB94CC-7E36-4DCB-8B06-86D6A4D9BA54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5FB94CC-7E36-4DCB-8B06-86D6A4D9BA54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
