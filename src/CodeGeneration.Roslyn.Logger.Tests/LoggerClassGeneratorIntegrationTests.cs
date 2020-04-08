@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace CodeGeneration.Roslyn.Logger.Tests
@@ -38,7 +39,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 
 		[Theory]
 		[MemberData(nameof(MethodSignatureGenerator))]
-		public async Task LoggerMethodGenerationTest(string methodSignature, string methodName, string message, LogLevel logLevel,
+		public async Task LoggerMethodGenerationTest(string methodSignature, string methodName, string message, Microsoft.Extensions.Logging.LogLevel logLevel,
 			MethodParameter[] methodParameters)
 		{
 			const string loggerTypeName = "ITestLogger";
@@ -81,16 +82,17 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			{
 				throw new Exception($"Logger type not found in emitted assembly");
 			}
-
-			var loggerFactory = new TestLoggerFactory(null);
+			var internalLogger = new TestLogger(new EventId(1, methodName), methodSignature, methodName, message,  logLevel, methodParameters);
+			var loggerFactory = new TestLoggerFactory(internalLogger);
 			var logger = Activator.CreateInstance(loggerType, loggerFactory);
 			var loggerMethod = loggerType.GetTypeInfo().GetDeclaredMethod(methodName);
 			if (loggerMethod == null)
 			{
 				throw new Exception($"Logger method not found in emitted assembly");
 			}
-			var parameters = methodParameters.Select(p => Activator.CreateInstance(p.Type)).ToArray();
+			var parameters = methodParameters.Select(p => p.Value).ToArray();
 			loggerMethod.Invoke(logger, parameters);
+			internalLogger.Verify();
 		}
 
 		private static SyntaxList<UsingDirectiveSyntax> GetUsingDirectives()

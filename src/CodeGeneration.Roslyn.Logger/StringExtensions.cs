@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace CodeGeneration.Roslyn.Logger
 {
-	public static class StringExtensions
+	internal static class StringExtensions
 	{
 		public static string ToPascalCase(this string word)
 		{
