@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeGeneration.Roslyn.Logger
 {
@@ -29,14 +31,15 @@ namespace CodeGeneration.Roslyn.Logger
 			return word;
 		}
 
-		public static string EscapeCSharpString(this string input)
+		public static LiteralExpressionSyntax GetLiteralExpression(this string str)
 		{
-			if (string.IsNullOrEmpty(input))
-			{
-				return "\"\"";
-			}
-
-			return "@\"" + input.Replace("\"", "\"\"") + "\"";
+			var text = str == null ? "\"\"" : "@\"" + str.Replace("\"", "\"\"") + "\"";
+			var syntaxToken = SyntaxFactory.Literal(
+				SyntaxFactory.TriviaList(),
+				text,
+				str,
+				SyntaxFactory.TriviaList());
+			return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, syntaxToken);
 		}
 	}
 }

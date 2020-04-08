@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -247,7 +248,8 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			var extraReferences = new MetadataReference[]
 			{
 				MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Logging.LogLevel).GetTypeInfo().Assembly.Location),
-				MetadataReference.CreateFromFile(typeof(Attributes.LoggerStubAttribute).GetTypeInfo().Assembly.Location)
+				MetadataReference.CreateFromFile(typeof(Attributes.LoggerStubAttribute).GetTypeInfo().Assembly.Location),
+				MetadataReference.CreateFromFile(typeof(GeneratedCodeAttribute).GetTypeInfo().Assembly.Location)
 			};
 			return coreMetaReferences.Concat(extraReferences);
 		}
