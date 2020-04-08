@@ -12,6 +12,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 		private readonly string _message;
 		private readonly Microsoft.Extensions.Logging.LogLevel _logLevel;
 		private readonly MethodParameter[] _methodParameters;
+		private readonly bool _logEnabled;
 		private bool _isEnabledCalled;
 		private bool _logCalled;
 
@@ -23,13 +24,14 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 
 		public TestLogger(EventId eventId, string methodSignature, string methodName, string message,
 			Microsoft.Extensions.Logging.LogLevel logLevel,
-			MethodParameter[] methodParameters)
+			MethodParameter[] methodParameters, bool logEnabled)
 		{
 			_eventId = eventId;
 			_methodSignature = methodSignature;
 			_methodName = methodName;
 			_logLevel = logLevel;
 			_methodParameters = methodParameters;
+			_logEnabled = logEnabled;
 			var sb = new StringBuilder(message);
 			foreach (var methodParameter in methodParameters)
 			{
@@ -56,7 +58,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 		{
 			_isEnabledCalled = true;
 			_actualIsEnabledLogLevel = logLevel;
-			return true;
+			return _logEnabled;
 		}
 
 		public IDisposable BeginScope<TState>(TState state)
@@ -69,6 +71,15 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			if (!_isEnabledCalled)
 			{
 				throw new Exception($"{nameof(IsEnabled)} was not called");
+			}
+
+			if (!_logEnabled)
+			{
+				if (_logCalled)
+				{
+					throw new Exception($"{nameof(Log)} was called with disabled logging");
+				}
+				return;
 			}
 
 			if (_actualIsEnabledLogLevel != _logLevel)

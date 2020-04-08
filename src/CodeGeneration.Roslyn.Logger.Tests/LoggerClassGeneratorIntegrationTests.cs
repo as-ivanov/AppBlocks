@@ -39,8 +39,27 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 
 		[Theory]
 		[MemberData(nameof(MethodSignatureGenerator))]
-		public async Task LoggerMethodGenerationTest(string methodSignature, string methodName, string message, Microsoft.Extensions.Logging.LogLevel logLevel,
+		public Task PositiveLoggingLogEnabledTest(string methodSignature, string methodName, string message,
+			Microsoft.Extensions.Logging.LogLevel logLevel,
 			MethodParameter[] methodParameters)
+		{
+			return LoggerMethodGenerationTest(methodSignature, methodName, message,
+				logLevel, methodParameters, true);
+		}
+
+		[Theory]
+		[MemberData(nameof(MethodSignatureGenerator))]
+		public Task NegativeLoggingLogDisabledTest(string methodSignature, string methodName, string message,
+			Microsoft.Extensions.Logging.LogLevel logLevel,
+			MethodParameter[] methodParameters)
+		{
+			return LoggerMethodGenerationTest(methodSignature, methodName, message,
+				logLevel, methodParameters, false);
+		}
+
+
+		private async Task LoggerMethodGenerationTest(string methodSignature, string methodName, string message, Microsoft.Extensions.Logging.LogLevel logLevel,
+			MethodParameter[] methodParameters, bool logEnabled)
 		{
 			const string loggerTypeName = "ITestLogger";
 			const string loggerTypeNamespace = "TestNamespace";
@@ -82,7 +101,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			{
 				throw new Exception($"Logger type not found in emitted assembly");
 			}
-			var internalLogger = new TestLogger(new EventId(1, methodName), methodSignature, methodName, message,  logLevel, methodParameters);
+			var internalLogger = new TestLogger(new EventId(1, methodName), methodSignature, methodName, message,  logLevel, methodParameters, logEnabled);
 			var loggerFactory = new TestLoggerFactory(internalLogger);
 			var logger = Activator.CreateInstance(loggerType, loggerFactory);
 			var loggerMethod = loggerType.GetTypeInfo().GetDeclaredMethod(methodName);
