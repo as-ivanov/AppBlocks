@@ -40,6 +40,12 @@ steps:
     arguments: --no-restore -c $(BuildConfiguration)
     projects: "src/*.sln"
 
+- task: DotNetCoreCLI@2
+  displayName: Run tests
+  inputs:
+    command: test
+    arguments: --no-build -c $(BuildConfiguration)
+
 - task: NuGetCommand@2
   displayName: Pack solution
   inputs:
