@@ -4,20 +4,26 @@
 		<TargetFramework>netcoreapp2.1</TargetFramework>
 		<IsTool>true</IsTool>
 		<DevelopmentDependency>True</DevelopmentDependency>
-		<Description>Utility for generating high-performance logger types using LoggerMessage pattern.</Description>
+		<Description>Utility for generating high-performance metrics collectors.</Description>
 	</PropertyGroup>
-	<ItemGroup>
-		<Compile Include="..\CodeGeneration.Roslyn.Logger.Attributes\LoggerMethodStubAttribute.cs" Link="LoggerMethodStubAttribute.cs" />
-		<Compile Include="..\CodeGeneration.Roslyn.Logger.Attributes\LoggerStubAttribute.cs" Link="LoggerStubAttribute.cs" />
-		<Compile Include="..\CodeGeneration.Roslyn.Attributes.Common\CodeGenerationAttributesConsts.cs" Link="CodeGenerationAttributesConsts.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-	</ItemGroup>
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>CodeGeneration.Roslyn.Logger.Tests</_Parameter1>
 		</AssemblyAttribute>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Include="..\CodeGeneration.Roslyn.MetricsCollector.Attributes\MetricsCollectorStubAttribute.cs">
+	    <Link>Links\MetricsCollectorStubAttribute.cs</Link>
+	  </Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\IMetricsProvider.cs">
+			<Link>Links\IMetricsProvider.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\IMeter.cs">
+			<Link>Links\IMeter.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\Tags.cs">
+			<Link>Links\Tags.cs</Link>
+		</Compile>
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\CodeGeneration.Roslyn.Attributes.Common\CodeGeneration.Roslyn.Attributes.Common.csproj" />

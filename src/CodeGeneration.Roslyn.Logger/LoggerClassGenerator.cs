@@ -1,10 +1,8 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using CodeGeneration.Roslyn.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,126 +11,38 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeGeneration.Roslyn.Logger
 {
-	public class LoggerClassGenerator : IRichCodeGenerator
+	public class LoggerClassGenerator : InterfaceImplementationGenerator<LoggerDescriptor>
 	{
 		private const string LoggerFieldName = "_logger";
-		private readonly AttributeData _attributeData;
 
-		public LoggerClassGenerator(AttributeData attributeData)
+		public LoggerClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
 		{
-			_attributeData = attributeData ?? throw new ArgumentNullException(nameof(attributeData));
 		}
 
-		public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(
-			TransformationContext context,
-			IProgress<Diagnostic> progress,
-			CancellationToken cancellationToken)
+		protected override string[] GetNamespaces()
 		{
-			throw new NotImplementedException();
+			return new[] {typeof(Action).Namespace, typeof(ILogger).Namespace};
 		}
 
-		public Task<RichGenerationResult> GenerateRichAsync(TransformationContext context, IProgress<Diagnostic> progress,
-			CancellationToken cancellationToken)
-		{
-			if (!(context.ProcessingNode is TypeDeclarationSyntax tds) || !tds.IsKind(SyntaxKind.InterfaceDeclaration))
-			{
-				throw new Exception($"{nameof(Attributes.LoggerStubAttribute)} must be declared on interface.");
-			}
-
-			return GenerateAsync(tds, context, _attributeData);
-		}
-
-		private static Task<RichGenerationResult> GenerateAsync(TypeDeclarationSyntax typeDeclaration,
+		protected override LoggerDescriptor GetImplementationDescriptor(TypeDeclarationSyntax typeDeclaration,
 			TransformationContext context, AttributeData attributeData)
 		{
-			var descriptor = typeDeclaration.ToLoggerDescriptor(context, attributeData);
-
-
-			if (!(context.ProcessingNode.Parent is NamespaceDeclarationSyntax namespaceDeclarationSyntax))
-			{
-				throw new Exception($"Failed to determine namespace for type:'{context.ProcessingNode.Parent}'.");
-			}
-
-			var usingDirectives = GetUsingDirectives();
-
-			var loggerClass = GetLoggerClass(descriptor);
-
-			var @namespace = NamespaceDeclaration(namespaceDeclarationSyntax.Name)
-				.AddUsings(usingDirectives)
-				.AddMembers(loggerClass);
-
-			var generatedMembers = new List<MemberDeclarationSyntax> {@namespace};
-			var result = new RichGenerationResult {Members = new SyntaxList<MemberDeclarationSyntax>(generatedMembers)};
-
-			return Task.FromResult(result);
+			return typeDeclaration.ToLoggerDescriptor(context, attributeData);
 		}
 
-		private static UsingDirectiveSyntax[] GetUsingDirectives()
+		protected override MemberDeclarationSyntax[] GetFields(LoggerDescriptor loggerDescriptor)
 		{
-			var list =
-				List(
-					new[]
-					{
-						UsingDirective(ParseName(typeof(Action).Namespace)),
-						UsingDirective(ParseName(typeof(ILogger).Namespace))
-					});
-
-			return list.ToArray();
-		}
-
-		private static ClassDeclarationSyntax GetLoggerClass(LoggerDescriptor loggerDescriptor)
-		{
-			var baseTypes = GetLoggerBaseList(loggerDescriptor, loggerDescriptor.InheritedInterfaceTypes);
-			var classDeclaration = ClassDeclaration(loggerDescriptor.ClassName)
-				.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.PartialKeyword)))
-				.AddAttributeLists(GetAttributeList())
-				.AddBaseListTypes(baseTypes)
-				.AddMembers(GetGeneralLoggerFields(loggerDescriptor))
-				.AddMembers(GetLoggingDelegateLoggerFields(loggerDescriptor))
-				.AddMembers(GetLoggerConstructor(loggerDescriptor, loggerDescriptor.ClassName))
-				.AddMembers(GetLoggerMethods(loggerDescriptor));
-
-			return classDeclaration;
-		}
-
-		private static AttributeListSyntax GetAttributeList()
-		{
-			return AttributeList(SingletonSeparatedList(GetGeneratedCodeAttributeSyntax()));
-		}
-
-		private static AttributeSyntax GetGeneratedCodeAttributeSyntax()
-		{
-			var version = new Version(1,0, 0);
-			return Attribute(ParseName(typeof(GeneratedCodeAttribute).FullName))
-				.AddArgumentListArguments(AttributeArgument("CodeGeneration.Roslyn.Logger".GetLiteralExpression()), AttributeArgument(version.ToString().GetLiteralExpression()));
-		}
-
-		private static BaseTypeSyntax[] GetLoggerBaseList(LoggerDescriptor loggerDescriptor,
-			string[] inheritedInterfaceTypes)
-		{
-			var baseTypeList = new List<BaseTypeSyntax>();
-
-			if (loggerDescriptor.BaseClass != null)
-			{
-				baseTypeList.Add(SimpleBaseType(IdentifierName(loggerDescriptor.BaseClass)));
-			}
-
-			baseTypeList.Add(SimpleBaseType(IdentifierName(loggerDescriptor.DeclarationSyntax.Identifier)));
-			if (inheritedInterfaceTypes != null)
-			{
-				foreach (var inheritedInterfaceType in inheritedInterfaceTypes)
-				{
-					baseTypeList.Add(SimpleBaseType(IdentifierName(inheritedInterfaceType)));
-				}
-			}
-
-			return baseTypeList.ToArray();
+			var generalLoggerFields = GetGeneralLoggerFields(loggerDescriptor);
+			var loggingDelegateLoggerFields = GetLoggingDelegateLoggerFields(loggerDescriptor);
+			return generalLoggerFields.Union(loggingDelegateLoggerFields).ToArray();
 		}
 
 		private static MemberDeclarationSyntax[] GetGeneralLoggerFields(LoggerDescriptor loggerDescriptor)
 		{
-			if (loggerDescriptor.BaseClass != null)
+			if (loggerDescriptor.BaseClassName != null)
+			{
 				return new MemberDeclarationSyntax[0];
+			}
 
 			return new MemberDeclarationSyntax[]
 			{
@@ -270,12 +180,11 @@ namespace CodeGeneration.Roslyn.Logger
 			return TypeArgumentList(SeparatedList<TypeSyntax>(result));
 		}
 
-		private static ConstructorDeclarationSyntax GetLoggerConstructor(LoggerDescriptor loggerDescriptor,
-			string className)
+		protected override ConstructorDeclarationSyntax[] GetConstructors(LoggerDescriptor loggerDescriptor)
 		{
 			const string loggerFactoryVariableName = "loggerFactory";
 			var constructorDeclaration = ConstructorDeclaration(
-					Identifier(className))
+					Identifier(loggerDescriptor.ClassName))
 				.WithModifiers(
 					TokenList(
 						Token(SyntaxKind.PublicKeyword)))
@@ -287,7 +196,7 @@ namespace CodeGeneration.Roslyn.Logger
 								.WithType(
 									IdentifierName(typeof(ILoggerFactory).FullName)))));
 
-			if (loggerDescriptor.BaseClass != null)
+			if (loggerDescriptor.BaseClassName != null)
 			{
 				constructorDeclaration = constructorDeclaration
 					.WithInitializer(
@@ -326,10 +235,10 @@ namespace CodeGeneration.Roslyn.Logger
 									)))));
 			}
 
-			return constructorDeclaration;
+			return new[] {constructorDeclaration};
 		}
 
-		private static MemberDeclarationSyntax[] GetLoggerMethods(LoggerDescriptor loggerDescriptor)
+		protected override MemberDeclarationSyntax[] GetMethods(LoggerDescriptor loggerDescriptor)
 		{
 			var publicKeywordToken = Token(SyntaxKind.PublicKeyword);
 

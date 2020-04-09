@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeGeneration.Roslyn.Logger
 {
-	internal class LoggerMethod
+	public class LoggerMethod
 	{
 		private readonly Microsoft.Extensions.Logging.LogLevel _logLevel;
 		private readonly string _message;

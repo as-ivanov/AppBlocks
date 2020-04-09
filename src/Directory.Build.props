@@ -7,7 +7,7 @@
 		<RepositoryUrl>https://github.com/as-ivanov/CodeGeneration.Roslyn.Logger</RepositoryUrl>
 		<PackageTags>roslyn logger .net core performance generator code generation</PackageTags>
 		<CurrentYear>$([System.DateTime]::Now.ToString(yyyy))</CurrentYear>
-		<PackageVersion>0.1.0-alpha</PackageVersion>
+		<PackageVersion>0.2.0-alpha</PackageVersion>
 	</PropertyGroup>
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>

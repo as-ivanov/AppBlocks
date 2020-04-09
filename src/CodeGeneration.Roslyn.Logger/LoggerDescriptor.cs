@@ -1,9 +1,10 @@
 using System.Collections.Immutable;
+using CodeGeneration.Roslyn.Common;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeGeneration.Roslyn.Logger
 {
-	internal class LoggerDescriptor
+	public class LoggerDescriptor : IInterfaceImplementationDescriptor
 	{
 		private readonly string _className;
 		private readonly string[] _inheritedInterfaceTypes;
@@ -20,7 +21,7 @@ namespace CodeGeneration.Roslyn.Logger
 			_methods = methods;
 		}
 
-		public string BaseClass => _baseClass;
+		public string BaseClassName => _baseClass;
 		public ImmutableArray<LoggerMethod> Methods => _methods;
 
 		public string[] InheritedInterfaceTypes => _inheritedInterfaceTypes;

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using CodeGeneration.Roslyn.Attributes.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.Extensions.Logging;
@@ -38,28 +39,32 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			typeof(object),
 		};
 
+
 		[Theory]
 		[MemberData(nameof(MethodSignatureGenerator))]
-		public Task PositiveLoggingLogEnabledTest(string methodSignature, string methodName, string message,
+		public Task PositiveLoggingLogEnabledTest(string[] baseInterfaceList, string methodSignature, string methodName,
+			string message,
 			Microsoft.Extensions.Logging.LogLevel logLevel,
 			MethodParameter[] methodParameters)
 		{
-			return LoggerMethodGenerationTest(methodSignature, methodName, message,
+			return LoggerMethodGenerationTest(baseInterfaceList, methodSignature, methodName, message,
 				logLevel, methodParameters, true);
 		}
 
 		[Theory]
 		[MemberData(nameof(MethodSignatureGenerator))]
-		public Task NegativeLoggingLogDisabledTest(string methodSignature, string methodName, string message,
+		public Task NegativeLoggingLogDisabledTest(string[] baseInterfaceList, string methodSignature, string methodName,
+			string message,
 			Microsoft.Extensions.Logging.LogLevel logLevel,
 			MethodParameter[] methodParameters)
 		{
-			return LoggerMethodGenerationTest(methodSignature, methodName, message,
+			return LoggerMethodGenerationTest(baseInterfaceList, methodSignature, methodName, message,
 				logLevel, methodParameters, false);
 		}
 
 
-		private async Task LoggerMethodGenerationTest(string methodSignature, string methodName, string message, Microsoft.Extensions.Logging.LogLevel logLevel,
+		private async Task LoggerMethodGenerationTest(string[] baseInterfaceList, string methodSignature, string methodName,
+			string message, Microsoft.Extensions.Logging.LogLevel logLevel,
 			MethodParameter[] methodParameters, bool logEnabled)
 		{
 			const string loggerTypeName = "ITestLogger";
@@ -70,11 +75,17 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 				$"using {typeof(ILogger).Namespace};{Environment.NewLine}" +
 				$"using {typeof(Attributes.LoggerStubAttribute).Namespace};{Environment.NewLine}" +
 				$"namespace {loggerTypeNamespace}{{ {Environment.NewLine}" +
-				$"[{nameof(Attributes.LoggerStubAttribute)}]{Environment.NewLine}" +
+				$"[{nameof(Attributes.LoggerStubAttribute)}({string.Join(',', baseInterfaceList.Select(_ => $"\"{loggerTypeNamespace}.{_}\""))})]{Environment.NewLine}" +
 				$"public interface {loggerTypeName} {Environment.NewLine}{{{Environment.NewLine} {string.Join(Environment.NewLine, methodSignature)} {Environment.NewLine}}} {Environment.NewLine}}}");
 			var compilation = CreateCompilation(interfaceSyntaxTree);
-			var inputSemanticModel = compilation.GetSemanticModel(interfaceSyntaxTree);
-			var attributeData = compilation.GetAttributeData(inputSemanticModel, interfaceSyntaxTree.GetRoot()).First();
+
+			var interfaceNode = interfaceSyntaxTree.GetRoot()
+				.DescendantNodesAndSelf()
+				.OfType<InterfaceDeclarationSyntax>().First();
+
+			var inputSemanticModel = compilation.GetSemanticModel(interfaceNode.SyntaxTree);
+
+			var attributeData = inputSemanticModel.GetDeclaredSymbol(interfaceNode).GetAttributes().First();
 
 			var generator = new LoggerClassGenerator(attributeData);
 
@@ -89,8 +100,16 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 						default, usings, default,
 						SyntaxFactory.List(emitted.Members))
 					.NormalizeWhitespace();
-			var loggerSyntaxTree = CSharpSyntaxTree.ParseText(compilationUnit.SyntaxTree.GetText()); //TODO fixes compilation error if using compilation.AddSyntaxTrees(compilationUnit.SyntaxTree)
+			var loggerSyntaxTree =
+				CSharpSyntaxTree.ParseText(compilationUnit.SyntaxTree
+					.GetText()); //TODO fixes compilation error if using compilation.AddSyntaxTrees(compilationUnit.SyntaxTree)
 			compilation = compilation.AddSyntaxTrees(loggerSyntaxTree);
+
+			foreach (var baseInterface in baseInterfaceList)
+			{
+				var emptyInterfaceSyntax = GetEmptyInterfaceSyntax(loggerTypeNamespace, baseInterface);
+				compilation = compilation.AddSyntaxTrees(emptyInterfaceSyntax);
+			}
 
 			var assembly = CompileAndLoadAssembly(compilation);
 
@@ -102,7 +121,9 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			{
 				throw new Exception($"Logger type not found in emitted assembly");
 			}
-			var internalLogger = new TestLogger(new EventId(1, methodName), methodSignature, methodName, message,  logLevel, methodParameters, logEnabled);
+
+			var internalLogger = new TestLogger(new EventId(1, methodName), methodSignature, methodName, message, logLevel,
+				methodParameters, logEnabled);
 			var loggerFactory = new TestLoggerFactory(internalLogger);
 			var logger = Activator.CreateInstance(loggerType, loggerFactory);
 			var loggerMethod = loggerType.GetTypeInfo().GetDeclaredMethod(methodName);
@@ -110,9 +131,15 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			{
 				throw new Exception($"Logger method not found in emitted assembly");
 			}
+
 			var parameters = methodParameters.Select(p => p.Value).ToArray();
 			loggerMethod.Invoke(logger, parameters);
 			internalLogger.Verify();
+		}
+
+		private static SyntaxTree GetEmptyInterfaceSyntax(string namespaceName, string interfaceName)
+		{
+			return CSharpSyntaxTree.ParseText($"namespace {namespaceName} {{ public interface {interfaceName} {{ }} }}");
 		}
 
 		private static SyntaxList<UsingDirectiveSyntax> GetUsingDirectives()
@@ -164,7 +191,15 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			{
 				yield return new object[]
 				{
-					$"{Environment.NewLine} void MethodWithoutAttribute();", "MethodWithoutAttribute", "MethodWithoutAttribute", Microsoft.Extensions.Logging.LogLevel.Information, Array.Empty<MethodParameter>()
+					new[] {"ITestInterface"}, $"{Environment.NewLine} void MethodWithoutAttribute();",
+					"MethodWithoutAttribute", "MethodWithoutAttribute", Microsoft.Extensions.Logging.LogLevel.Information,
+					Array.Empty<MethodParameter>()
+				};
+
+				yield return new object[]
+				{
+					Array.Empty<string>(), $"{Environment.NewLine} void MethodWithoutAttribute();", "MethodWithoutAttribute",
+					"MethodWithoutAttribute", Microsoft.Extensions.Logging.LogLevel.Information, Array.Empty<MethodParameter>()
 				};
 
 
@@ -174,8 +209,9 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 				var combinations = from logLevel in logLevels
 					from paramsCount in Enumerable.Range(0, 2)
 					from type in _types
+					from baseTypeCount in Enumerable.Range(0, 2)
 					from addException in Enumerable.Range(0, 1)
-					select new {logLevel, paramsCount, type, addException};
+					select new {logLevel, paramsCount, type, addException, baseTypeCount};
 
 				var index = 0;
 				foreach (var combination in combinations)
@@ -188,6 +224,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 					index++;
 					yield return new object[]
 					{
+						Enumerable.Range(0, combination.baseTypeCount).Select(_ => $"ITestInterface{_}").ToArray(),
 						$"[{nameof(Attributes.LoggerMethodStubAttribute)}({typeof(Microsoft.Extensions.Logging.LogLevel).FullName}.{combination.logLevel}, \"{message}\")] {Environment.NewLine} void {methodName}({parametersString});",
 						methodName, message, combination.logLevel, parameters
 					};
@@ -255,6 +292,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			{
 				MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Logging.LogLevel).GetTypeInfo().Assembly.Location),
 				MetadataReference.CreateFromFile(typeof(Attributes.LoggerStubAttribute).GetTypeInfo().Assembly.Location),
+				MetadataReference.CreateFromFile(typeof(ImplementInterfaceAttribute).GetTypeInfo().Assembly.Location),
 				MetadataReference.CreateFromFile(typeof(GeneratedCodeAttribute).GetTypeInfo().Assembly.Location)
 			};
 			return coreMetaReferences.Concat(extraReferences);

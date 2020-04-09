@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using CodeGeneration.Roslyn.Common;
 using Microsoft.Extensions.Logging;
 
 namespace CodeGeneration.Roslyn.Logger.Tests
