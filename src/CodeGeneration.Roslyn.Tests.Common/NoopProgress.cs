@@ -1,7 +1,7 @@
 using System;
 using Microsoft.CodeAnalysis;
 
-namespace CodeGeneration.Roslyn.Logger.Tests
+namespace CodeGeneration.Roslyn.Tests.Common
 {
 	public class NoopProgress : IProgress<Diagnostic>
 	{

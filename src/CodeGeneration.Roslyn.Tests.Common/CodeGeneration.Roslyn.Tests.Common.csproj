@@ -15,6 +15,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\CodeGeneration.Roslyn.Logger\CodeGeneration.Roslyn.Logger.csproj" />
-		<ProjectReference Include="..\CodeGeneration.Roslyn.Tests.Common\CodeGeneration.Roslyn.Tests.Common.csproj" />
 	</ItemGroup>
 </Project>

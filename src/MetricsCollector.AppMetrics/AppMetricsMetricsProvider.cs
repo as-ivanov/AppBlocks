@@ -23,5 +23,10 @@ namespace MetricsCollector.AppMetrics
 			};
 			return new Meter(_metrics.Provider.Meter, _metrics.Measure.Meter, meterOptions, tags.ToMetricsTags());
 		}
+
+		public bool IsEnabled(string contextName, string name)
+		{
+			return true;
+		}
 	}
 }
