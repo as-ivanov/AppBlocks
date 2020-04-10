@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using CodeGeneration.Roslyn.Attributes.Common;
 
 namespace CodeGeneration.Roslyn.MetricsCollector.Attributes
@@ -11,14 +10,5 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Attributes
     public MetricsCollectorStubAttribute(string contextName, params string[] inheritedInterfaceTypes) : base(inheritedInterfaceTypes)
     {
     }
-  }
-
-  [Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
-  [AttributeUsage(AttributeTargets.Method)]
-  public class MetricsCollectorMethodStubAttribute : Attribute
-  {
-	  public MetricsCollectorMethodStubAttribute()
-	  {
-	  }
   }
 }

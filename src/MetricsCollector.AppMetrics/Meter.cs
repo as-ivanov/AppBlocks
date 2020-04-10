@@ -6,37 +6,39 @@ namespace MetricsCollector.AppMetrics
 {
   internal class Meter : IMeter
   {
-    private readonly IProvideMeterMetrics _providerMeter;
-    private readonly IMeasureMeterMetrics _measureMeter;
-    internal MeterOptions Options { get; }
-    internal MetricTags Tags { get; }
+	  private readonly IMetrics _metrics;
+    private readonly MeterOptions _options;
+    private readonly MetricTags _tags;
 
-    public Meter(IProvideMeterMetrics providerMeter, IMeasureMeterMetrics measureMeter, MeterOptions meterOptions, in MetricTags metricTags)
+    public Meter(IMetrics metrics, in MeterOptions meterOptions, in MetricTags metricTags)
     {
-      _providerMeter = providerMeter;
-      _measureMeter = measureMeter;
-      Options = meterOptions;
-      Tags = metricTags;
+	    _metrics = metrics;
+	    _options = meterOptions;
+      _tags = metricTags;
     }
+
+    public MeterOptions Options => _options;
+
+    public MetricTags Tags => _tags;
 
     public void Mark()
     {
-      _measureMeter.Mark(Options, Tags);
+	    _metrics.Measure.Meter.Mark(Options, Tags);
     }
 
     public void Mark(string item)
     {
-      _measureMeter.Mark(Options, Tags, item);
+	    _metrics.Measure.Meter.Mark(Options, Tags, item);
     }
 
     public void Mark(long amount)
     {
-      _measureMeter.Mark(Options, Tags, amount);
+	    _metrics.Measure.Meter.Mark(Options, Tags, amount);
     }
 
     public void Reset()
     {
-      _providerMeter.Instance(Options, Tags).Reset();
+	    _metrics.Provider.Meter.Instance(Options, Tags).Reset();
     }
   }
 }

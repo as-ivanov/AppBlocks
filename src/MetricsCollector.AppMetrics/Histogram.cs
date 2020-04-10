@@ -6,26 +6,26 @@ namespace MetricsCollector.AppMetrics
 {
   internal class Histogram : IHistogram
   {
-    private readonly IMeasureHistogramMetrics _measureHistogram;
-    private readonly HistogramOptions _histogramOptions;
+	  private readonly IMetrics _metrics;
+	  private readonly HistogramOptions _histogramOptions;
     private readonly MetricTags _metricTags;
 
-    public Histogram(IMeasureHistogramMetrics measureHistogram, HistogramOptions histogramOptions, in MetricTags metricTags)
+    public Histogram(IMetrics metrics, HistogramOptions histogramOptions, in MetricTags metricTags)
     {
-      _measureHistogram = measureHistogram;
-      _histogramOptions = histogramOptions;
+	    _metrics = metrics;
+	    _histogramOptions = histogramOptions;
       _metricTags = metricTags;
     }
 
 
     public void Update(long value)
     {
-      _measureHistogram.Update(_histogramOptions, _metricTags, value);
+	    _metrics.Measure.Histogram.Update(_histogramOptions, _metricTags, value);
     }
 
     public void Update(long value, string userValue)
     {
-      _measureHistogram.Update(_histogramOptions, _metricTags, value, userValue);
+	    _metrics.Measure.Histogram.Update(_histogramOptions, _metricTags, value, userValue);
     }
   }
 }

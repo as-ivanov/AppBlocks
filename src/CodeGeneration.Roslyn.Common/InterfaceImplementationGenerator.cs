@@ -50,15 +50,12 @@ namespace CodeGeneration.Roslyn.Common
 				throw new Exception($"Failed to determine namespace for type:'{context.ProcessingNode.Parent}'.");
 			}
 
-			var usingDirectives = GetUsingDirectives();
+			var descriptor = GetImplementationDescriptor(typeDeclaration, context, attributeData);
 
-			TImplementationDescriptor descriptor = GetImplementationDescriptor(typeDeclaration, context, attributeData);
-
-			var loggerClass = GetImplementation(descriptor);
+			var implementationMemberDeclaration = GetImplementation(descriptor);
 
 			var @namespace = NamespaceDeclaration(namespaceDeclarationSyntax.Name)
-				.AddUsings(usingDirectives)
-				.AddMembers(loggerClass);
+				.AddMembers(implementationMemberDeclaration);
 
 			var generatedMembers = new List<MemberDeclarationSyntax> {@namespace};
 			var result = new RichGenerationResult {Members = new SyntaxList<MemberDeclarationSyntax>(generatedMembers)};
@@ -69,14 +66,7 @@ namespace CodeGeneration.Roslyn.Common
 		protected abstract TImplementationDescriptor GetImplementationDescriptor(TypeDeclarationSyntax typeDeclaration,
 			TransformationContext context, AttributeData attributeData);
 
-		protected abstract string[] GetNamespaces();
-
-		private UsingDirectiveSyntax[] GetUsingDirectives()
-		{
-			return List(GetNamespaces().Select(_ => UsingDirective(ParseName(_))).ToArray()).ToArray();
-		}
-
-		protected MemberDeclarationSyntax GetImplementation(TImplementationDescriptor implementationDescriptor)
+		private MemberDeclarationSyntax GetImplementation(TImplementationDescriptor implementationDescriptor)
 		{
 			var baseTypes = GetLoggerBaseList(implementationDescriptor, implementationDescriptor.InheritedInterfaceTypes);
 			var classDeclaration = ClassDeclaration(implementationDescriptor.ClassName)
@@ -90,23 +80,23 @@ namespace CodeGeneration.Roslyn.Common
 			return classDeclaration;
 		}
 
-		protected abstract MemberDeclarationSyntax[] GetFields(TImplementationDescriptor loggerDescriptor);
+		protected abstract MemberDeclarationSyntax[] GetFields(TImplementationDescriptor descriptor);
 
-		protected abstract ConstructorDeclarationSyntax[] GetConstructors(TImplementationDescriptor loggerDescriptor);
+		protected abstract ConstructorDeclarationSyntax[] GetConstructors(TImplementationDescriptor descriptor);
 
-		protected abstract MemberDeclarationSyntax[] GetMethods(TImplementationDescriptor loggerDescriptor);
+		protected abstract MemberDeclarationSyntax[] GetMethods(TImplementationDescriptor descriptor);
 
-		private static BaseTypeSyntax[] GetLoggerBaseList(TImplementationDescriptor loggerDescriptor,
+		private static BaseTypeSyntax[] GetLoggerBaseList(TImplementationDescriptor descriptor,
 			string[] inheritedInterfaceTypes)
 		{
 			var baseTypeList = new List<BaseTypeSyntax>();
 
-			if (loggerDescriptor.BaseClassName != null)
+			if (descriptor.BaseClassName != null)
 			{
-				baseTypeList.Add(SimpleBaseType(IdentifierName(loggerDescriptor.BaseClassName)));
+				baseTypeList.Add(SimpleBaseType(IdentifierName(descriptor.BaseClassName)));
 			}
 
-			baseTypeList.Add(SimpleBaseType(IdentifierName(loggerDescriptor.DeclarationSyntax.Identifier)));
+			baseTypeList.Add(SimpleBaseType(IdentifierName(descriptor.DeclarationSyntax.Identifier)));
 			if (inheritedInterfaceTypes != null)
 			{
 				foreach (var inheritedInterfaceType in inheritedInterfaceTypes)

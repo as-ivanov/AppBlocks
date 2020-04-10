@@ -10,251 +10,379 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeGeneration.Roslyn.MetricsCollector
 {
-  public class MetricsCollectorClassGenerator : InterfaceImplementationGenerator<MetricsCollectorDescriptor>
-  {
-    private const string LoggerFieldName = "_metricsProvider";
-    public MetricsCollectorClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
-    {
-    }
+	public class MetricsCollectorClassGenerator : InterfaceImplementationGenerator<MetricsCollectorDescriptor>
+	{
+		private const string MetricsProviderFieldName = "MetricsProvider";
+		private const string ContextNameFieldName = "ContextName";
+		const string tagsVariableName = "tags";
+		const string valuesVariableName = "values";
 
-    protected override MetricsCollectorDescriptor GetImplementationDescriptor(TypeDeclarationSyntax typeDeclaration,
-	    TransformationContext context, AttributeData attributeData)
-    {
-	    return typeDeclaration.ToMetricsCollectorDescriptor(context, attributeData);
-    }
+		public MetricsCollectorClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
+		{
+		}
 
-    protected override string[] GetNamespaces()
-    {
-	    return new []{ typeof(IMetricsProvider).Namespace };
-    }
+		protected override MetricsCollectorDescriptor GetImplementationDescriptor(TypeDeclarationSyntax typeDeclaration,
+			TransformationContext context, AttributeData attributeData)
+		{
+			return typeDeclaration.ToMetricsCollectorDescriptor(context, attributeData);
+		}
 
-    protected override MemberDeclarationSyntax[] GetFields(MetricsCollectorDescriptor loggerDescriptor)
-    {
-	    throw new NotImplementedException();
-    }
+		protected override MemberDeclarationSyntax[] GetFields(MetricsCollectorDescriptor metricsCollectorDescriptor)
+		{
+			var generalMetricsCollectorFields = GetGeneralMetricsCollectorFields(metricsCollectorDescriptor);
+			var metricsCollectorTagKeyFields = GetMetricsCollectorTagKeyFields(metricsCollectorDescriptor);
+			return generalMetricsCollectorFields.Union(metricsCollectorTagKeyFields).ToArray();
+		}
 
-    protected override ConstructorDeclarationSyntax[] GetConstructors(MetricsCollectorDescriptor loggerDescriptor)
-    {
-	    throw new NotImplementedException();
-    }
+		protected override ConstructorDeclarationSyntax[] GetConstructors(
+			MetricsCollectorDescriptor metricsCollectorDescriptor)
+		{
+			const string metricsProviderVariableName = "metricsProvider";
+			var constructorDeclaration = ConstructorDeclaration(
+					Identifier(metricsCollectorDescriptor.ClassName))
+				.WithModifiers(
+					TokenList(
+						Token(SyntaxKind.PublicKeyword)))
+				.WithParameterList(
+					ParameterList(
+						SingletonSeparatedList(
+							Parameter(
+									Identifier(metricsProviderVariableName))
+								.WithType(
+									IdentifierName(typeof(IMetricsProvider).FullName)))))
+				.WithBody(
+					Block(
+						SingletonList<StatementSyntax>(
+							ExpressionStatement(
+								AssignmentExpression(
+									SyntaxKind.SimpleAssignmentExpression,
+									IdentifierName(MetricsProviderFieldName),
+									IdentifierName(metricsProviderVariableName))))));
+			return new[] {constructorDeclaration};
+		}
 
-    protected override MemberDeclarationSyntax[] GetMethods(MetricsCollectorDescriptor loggerDescriptor)
-    {
-	    throw new NotImplementedException();
-    }
+		protected override MemberDeclarationSyntax[] GetMethods(MetricsCollectorDescriptor metricsCollectorDescriptor)
+		{
+			var publicKeywordToken = Token(SyntaxKind.PublicKeyword);
+
+			var members = new List<MemberDeclarationSyntax>();
+			foreach (var method in metricsCollectorDescriptor.Methods)
+			{
+				var methodDeclaration =
+					MethodDeclaration(method.MethodDeclarationSyntax.ReturnType, method.MethodDeclarationSyntax.Identifier)
+						.WithTypeParameterList(method.MethodDeclarationSyntax.TypeParameterList)
+						.WithConstraintClauses(method.MethodDeclarationSyntax.ConstraintClauses)
+						.WithModifiers(method.MethodDeclarationSyntax.Modifiers)
+						.AddModifiers(publicKeywordToken)
+						.WithParameterList(method.MethodDeclarationSyntax.ParameterList)
+						.WithBody(GetMetricsCollectorMethodBody(method));
+
+				members.Add(methodDeclaration);
+			}
+
+			return members.ToArray();
+		}
+
+		private static BlockSyntax GetMetricsCollectorMethodBody(MetricsCollectorMethod metricsCollectorMethodDescriptor)
+		{
+			const string metricNameVariableName = "metricName";
+			const string metricUnitVariableName = "metricUnit";
+
+			var tagsInitialization = new List<StatementSyntax>();
+
+			static LocalDeclarationStatementSyntax GetLocalStringDeclarationStatement(string variableName,
+				string variableValue)
+			{
+				return LocalDeclarationStatement(
+						VariableDeclaration(
+								PredefinedType(
+									Token(SyntaxKind.StringKeyword)))
+							.WithVariables(
+								SingletonSeparatedList(
+									VariableDeclarator(
+											Identifier(variableName))
+										.WithInitializer(
+											EqualsValueClause(
+												variableValue == null
+													? LiteralExpression(SyntaxKind.NullLiteralExpression)
+													: LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(variableValue)))))))
+					.WithModifiers(
+						TokenList(
+							Token(SyntaxKind.ConstKeyword)));
+			}
+
+			tagsInitialization.Add(GetLocalStringDeclarationStatement(metricNameVariableName,
+				metricsCollectorMethodDescriptor.MetricName));
+			tagsInitialization.Add(
+				GetLocalStringDeclarationStatement(metricUnitVariableName, metricsCollectorMethodDescriptor.UnitName));
+
+			StatementSyntax GetEnabledCheckStatement()
+			{
+				return IfStatement(
+					PrefixUnaryExpression(
+						SyntaxKind.LogicalNotExpression,
+						InvocationExpression(
+								MemberAccessExpression(
+									SyntaxKind.SimpleMemberAccessExpression,
+									IdentifierName(MetricsProviderFieldName),
+									IdentifierName(nameof(IMetricsProvider.IsEnabled))))
+							.WithArgumentList(
+								ArgumentList(
+									SeparatedList<ArgumentSyntax>(
+										new SyntaxNodeOrToken[]
+										{
+											Argument(
+												IdentifierName(ContextNameFieldName)),
+											Token(SyntaxKind.CommaToken),
+											Argument(
+												IdentifierName(metricNameVariableName))
+										})))),
+					Block(
+						SingletonList<StatementSyntax>(
+							ReturnStatement(
+								MemberAccessExpression(
+									SyntaxKind.SimpleMemberAccessExpression,
+									IdentifierName(typeof(IMetricsProvider).Namespace + ".Null" +
+									               metricsCollectorMethodDescriptor.MetricsCollectorType),
+									IdentifierName("Instance"))))));
+			}
+
+			tagsInitialization.Add(GetEnabledCheckStatement());
+
+			if (metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters.Any())
+			{
+				static ExpressionSyntax GetToStringExpression(string parameterName)
+				{
+					return InvocationExpression(
+						MemberAccessExpression(
+							SyntaxKind.SimpleMemberAccessExpression,
+							IdentifierName(parameterName),
+							IdentifierName(nameof(ToString))));
+				}
 
 
-    // private static MemberDeclarationSyntax GenerateLoggerImplementation(MetricsCollectorDescriptor descriptor,
-    //   string className)
-    // {
-    //   var publicKeywordToken = Token(SyntaxKind.PublicKeyword);
-    //
-    //   var members = new List<MemberDeclarationSyntax>();
-    //   foreach (var method in descriptor.Methods)
-    //   {
-    //     var methodParameters = method.Parameters.Select(CreateParameter).ToArray();
-    //     var methodDeclaration = MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), method.Identifier)
-    //       .WithTypeParameterList(method.TypeParameterList)
-    //       .WithConstraintClauses(method.ConstraintClauses)
-    //       .AddModifiers(publicKeywordToken)
-    //       .AddParameterListParameters(methodParameters)
-    //       .WithBody(Block(GetMethodBody(method)));
-    //     members.Add(methodDeclaration);
-    //   }
-    //
-    //   var classDeclaration = CreateClass(descriptor, className, members.ToArray());
-    //   return classDeclaration;
-    // }
+				IEnumerable<LocalDeclarationStatementSyntax> tagsInitializationStatements;
+				if (metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters.Count == 1)
+				{
+					tagsInitializationStatements = GetSingleTagInitializationStatement(metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters[0]);
+				}
+				else
+				{
+					var values = metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters
+						.Select(_ => GetToStringExpression(_.Identifier.WithoutTrivia().Text)).ToSeparatedList();
+					tagsInitializationStatements =
+						GetMultipleTagsInitializationStatement(metricsCollectorMethodDescriptor, values);
+				}
 
-    // private static SyntaxList<StatementSyntax> GetMethodBody(MetricsCollectorMethod method)
-    // {
-    //   return SingletonList<StatementSyntax>(
-    //     IfStatement(
-    //       InvocationExpression(
-    //           MemberAccessExpression(
-    //             SyntaxKind.SimpleMemberAccessExpression,
-    //             IdentifierName(LoggerFieldName),
-    //             IdentifierName("IsEnabled")))
-    //         .WithArgumentList(
-    //           ArgumentList()),
-    //       Block(
-    //         SingletonList<StatementSyntax>(
-    //           ExpressionStatement(
-    //             InvocationExpression(
-    //                 IdentifierName("_" + method.Identifier.ToCamelCase()))
-    //               .WithArgumentList(GetCallArgumentList(method)))))));
-    // }
-
-    // private static ArgumentListSyntax GetCallArgumentList(MetricsCollectorMethod method)
-    // {
-    //   var arguments = new List<SyntaxNodeOrToken> { Argument(IdentifierName(LoggerFieldName)) };
-    //   foreach (var parameter in method.Parameters)
-    //   {
-    //     if (arguments.Any())
-    //     {
-    //       arguments.Add(Token(SyntaxKind.CommaToken));
-    //     }
-    //
-    //     arguments.Add(Argument(IdentifierName(parameter.Identifier.ToCamelCase())));
-    //   }
-    //
-    //   var lastParameter = method.Parameters.LastOrDefault();
-    //
-    //   return ArgumentList(SeparatedList<ArgumentSyntax>(arguments));
-    // }
+				foreach (var tagsDeclarationStatement in tagsInitializationStatements)
+				{
+					tagsInitialization.Add(tagsDeclarationStatement);
+				}
+			}
+			else
+			{
+				tagsInitialization.Add(LocalDeclarationStatement(
+					VariableDeclaration(
+							IdentifierName("var"))
+						.WithVariables(
+							SingletonSeparatedList(
+								VariableDeclarator(
+										Identifier(tagsVariableName))
+									.WithInitializer(
+										EqualsValueClause(
+											MemberAccessExpression(
+												SyntaxKind.SimpleMemberAccessExpression,
+												IdentifierName(typeof(Tags).FullName),
+												IdentifierName(nameof(Tags.Empty)))))))));
+			}
 
 
-    // private static ParameterSyntax CreateParameter(MetricsCollectorMethodParameter entry)
-    // {
-    //   var typeSyntax = entry.TypeSyntax;
-    //   SyntaxList<AttributeListSyntax> attributes =
-    //     new SyntaxList<AttributeListSyntax>(Array.Empty<AttributeListSyntax>());
-    //   return Parameter(attributes, entry.Modifiers, typeSyntax, entry.Identifier, null);
-    // }
+			StatementSyntax GetReturnStatement()
+			{
+				return ReturnStatement(
+					InvocationExpression(
+							MemberAccessExpression(
+								SyntaxKind.SimpleMemberAccessExpression,
+								IdentifierName(MetricsProviderFieldName),
+								IdentifierName("Create" + metricsCollectorMethodDescriptor.MetricsCollectorType)))
+						.WithArgumentList(
+							ArgumentList(
+								SeparatedList<ArgumentSyntax>(
+									new SyntaxNodeOrToken[]
+									{
+										Argument(
+											IdentifierName(ContextNameFieldName)),
+										Token(SyntaxKind.CommaToken),
+										Argument(
+											IdentifierName(metricNameVariableName)),
+										Token(SyntaxKind.CommaToken),
+										Argument(
+											IdentifierName(metricUnitVariableName)),
+										Token(SyntaxKind.CommaToken),
+										Argument(
+											IdentifierName(tagsVariableName))
+									}))));
+			}
 
-    private static MemberDeclarationSyntax[] GenerateGeneralFields(MetricsCollectorDescriptor descriptor)
-    {
-      return new MemberDeclarationSyntax[]
-      {
-         FieldDeclaration(
-             VariableDeclaration(
-                 IdentifierName(typeof(IMetricsProvider).FullName))
-               .WithVariables(
-                 SingletonSeparatedList<VariableDeclaratorSyntax>(
-                   VariableDeclarator(
-                     Identifier(LoggerFieldName)))))
-           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)))
-      };
-    }
+			tagsInitialization.Add(GetReturnStatement());
 
-    private static ConstructorDeclarationSyntax GenerateConstructor(MetricsCollectorDescriptor descriptor,
-      string className)
-    {
-      var constructorDeclaration = ConstructorDeclaration(
-          Identifier(className))
-        .WithModifiers(
-          TokenList(
-            Token(SyntaxKind.PublicKeyword)));
+			return Block(tagsInitialization.ToArray());
+		}
 
-      return constructorDeclaration;
-    }
+		private static IEnumerable<LocalDeclarationStatementSyntax> GetSingleTagInitializationStatement(ParameterSyntax parameter)
+		{
+			yield return LocalDeclarationStatement(
+				VariableDeclaration(
+						IdentifierName("var"))
+					.WithVariables(
+						SingletonSeparatedList(
+							VariableDeclarator(
+									Identifier(tagsVariableName))
+								.WithInitializer(
+									EqualsValueClause(
+										ObjectCreationExpression(
+												IdentifierName(typeof(Tags).FullName))
+											.WithArgumentList(
+												ArgumentList(SeparatedList<ArgumentSyntax>(
+													new SyntaxNodeOrToken[]
+													{
+														Argument(
+															LiteralExpression(
+																SyntaxKind.StringLiteralExpression,
+																Literal(parameter.Identifier.WithoutTrivia().Text))),
+														Token(SyntaxKind.CommaToken),
+														Argument(
+															InvocationExpression(
+																MemberAccessExpression(
+																	SyntaxKind.SimpleMemberAccessExpression,
+																	IdentifierName(parameter.Identifier),
+																	IdentifierName(nameof(ToString)))))
+													}))))))));
+		}
 
-    // private static ClassDeclarationSyntax CreateClass(MetricsCollectorDescriptor descriptor, string className,
-    //   MemberDeclarationSyntax[] members)
-    // {
-    //   var classDeclaration = ClassDeclaration(className).WithModifiers(
-    //       TokenList(Token(SyntaxKind.PublicKeyword)))
-    //     .WithBaseList(GenerateBaseList(descriptor))
-    //     .AddMembers(GenerateGeneralFields(descriptor))
-    //     .AddMembers(GenerateLoggerFields(descriptor))
-    //     .AddMembers(GenerateConstructor(descriptor, className))
-    //     .AddMembers(members)
-    //     .NormalizeWhitespace();
-    //
-    //   return classDeclaration;
-    // }
+		private static IEnumerable<LocalDeclarationStatementSyntax> GetMultipleTagsInitializationStatement(
+			MetricsCollectorMethod metricsCollectorMethodDescriptor, SeparatedSyntaxList<ExpressionSyntax> values)
+		{
+			yield return LocalDeclarationStatement(
+				VariableDeclaration(
+						IdentifierName("var"))
+					.WithVariables(
+						SingletonSeparatedList(
+							VariableDeclarator(
+									Identifier(valuesVariableName))
+								.WithInitializer(
+									EqualsValueClause(
+										ArrayCreationExpression(
+												ArrayType(
+														PredefinedType(
+															Token(SyntaxKind.StringKeyword)))
+													.WithRankSpecifiers(
+														SingletonList(
+															ArrayRankSpecifier(
+																SingletonSeparatedList<ExpressionSyntax>(
+																	OmittedArraySizeExpression())))))
+											.WithInitializer(
+												InitializerExpression(SyntaxKind.ArrayInitializerExpression, values)))))));
 
-    private static BaseListSyntax GenerateBaseList(MetricsCollectorDescriptor descriptor)
-    {
-      var syntaxNodeOrTokenList = new List<SyntaxNodeOrToken>();
+			yield return LocalDeclarationStatement(
+				VariableDeclaration(
+						IdentifierName("var"))
+					.WithVariables(
+						SingletonSeparatedList(
+							VariableDeclarator(
+									Identifier(tagsVariableName))
+								.WithInitializer(
+									EqualsValueClause(
+										ObjectCreationExpression(
+												IdentifierName(typeof(Tags).FullName))
+											.WithArgumentList(
+												ArgumentList(
+													SeparatedList<ArgumentSyntax>(
+														new SyntaxNodeOrToken[]
+														{
+															Argument(
+																IdentifierName("_" + metricsCollectorMethodDescriptor.MethodNameCamelCase)),
+															Token(SyntaxKind.CommaToken),
+															Argument(
+																IdentifierName(valuesVariableName))
+														}))))))));
+		}
 
-      // if (descriptor.BaseClass != null)
-      // {
-      //   //Debugger.Launch();
-      //   syntaxNodeOrTokenList.AddRange(
-      //     new SyntaxNodeOrToken[]
-      //     {
-      //        SimpleBaseType(
-      //          IdentifierName(descriptor.BaseClass)),
-      //        Token(SyntaxKind.CommaToken)
-      //     });
-      // }
+		private static MemberDeclarationSyntax[] GetGeneralMetricsCollectorFields(
+			MetricsCollectorDescriptor metricsCollectorDescriptor)
+		{
+			if (metricsCollectorDescriptor.BaseClassName != null)
+			{
+				return Array.Empty<MemberDeclarationSyntax>();
+			}
 
-      syntaxNodeOrTokenList.AddRange(
-        new SyntaxNodeOrToken[]
-        {
-           SimpleBaseType(
-             IdentifierName(descriptor.DeclarationSyntax.Identifier)),
-           Token(SyntaxKind.CommaToken),
-           SimpleBaseType(
-             IdentifierName("MetricsCollectorBase")),
-           Token(SyntaxKind.CommaToken),
-           SimpleBaseType(
-             IdentifierName("ISingletonDependency"))
-        });
+			var contextNameFieldDeclaration = FieldDeclaration(
+					VariableDeclaration(PredefinedType(Token(SyntaxKind.StringKeyword)))
+						.WithVariables(
+							SingletonSeparatedList(
+								VariableDeclarator(
+										Identifier(ContextNameFieldName))
+									.WithInitializer(
+										EqualsValueClause(
+											LiteralExpression(
+												SyntaxKind.StringLiteralExpression,
+												Literal(metricsCollectorDescriptor.ContextName)))))))
+				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ConstKeyword)));
 
-      return BaseList(SeparatedList<BaseTypeSyntax>(syntaxNodeOrTokenList.ToArray()));
-    }
+			var metricsProviderFieldDeclaration = FieldDeclaration(
+					VariableDeclaration(IdentifierName(typeof(IMetricsProvider).FullName))
+						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsProviderFieldName)))))
+				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 
-    // private static MemberDeclarationSyntax[] GenerateLoggerFields(MetricsCollectorDescriptor descriptor)
-    // {
-    //   var result = new List<MemberDeclarationSyntax>();
-    //   for (var index = 0; index < descriptor.Methods.Length; index++)
-    //   {
-    //     var method = descriptor.Methods[index];
-    //
-    //     var list = new List<SyntaxNodeOrToken>();
-    //     foreach (var methodParameter in method.Parameters)
-    //     {
-    //       if (list.Count > 0)
-    //       {
-    //         list.Add(Token(SyntaxKind.CommaToken));
-    //       }
-    //
-    //       list.Add(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(methodParameter.Identifier.Text)));
-    //     }
-    //
-    //     var arrayInitializerExpression = InitializerExpression(SyntaxKind.ArrayInitializerExpression,
-    //       SeparatedList<ExpressionSyntax>(list));
-    //
-    //     var declaration = FieldDeclaration(
-    //         VariableDeclaration(
-    //             ArrayType(
-    //                 PredefinedType(
-    //                   Token(SyntaxKind.StringKeyword)))
-    //               .WithRankSpecifiers(
-    //                 SingletonList<ArrayRankSpecifierSyntax>(
-    //                   ArrayRankSpecifier(
-    //                     SingletonSeparatedList<ExpressionSyntax>(
-    //                       OmittedArraySizeExpression())))))
-    //           .WithVariables(
-    //             SingletonSeparatedList<VariableDeclaratorSyntax>(
-    //               VariableDeclarator(
-    //                   Identifier($"_{method.Identifier.ToCamelCase()}Keys"))
-    //                 .WithInitializer(
-    //                   EqualsValueClause(
-    //                     arrayInitializerExpression)))))
-    //       .WithModifiers(
-    //         TokenList(
-    //           new[]
-    //           {
-    //              Token(SyntaxKind.PrivateKeyword),
-    //              Token(SyntaxKind.StaticKeyword),
-    //              Token(SyntaxKind.ReadOnlyKeyword)
-    //           }));
-    //
-    //     result.Add(declaration);
-    //   }
-    //
-    //   return result.ToArray();
-    // }
+			return new MemberDeclarationSyntax[]
+			{
+				contextNameFieldDeclaration,
+				metricsProviderFieldDeclaration
+			};
+		}
 
-    private static string EscapeString(string input)
-    {
-      if (string.IsNullOrEmpty(input))
-      {
-        return "\"\"";
-      }
+		private static MemberDeclarationSyntax[] GetMetricsCollectorTagKeyFields(
+			MetricsCollectorDescriptor metricsCollectorDescriptor)
+		{
+			var fieldMemberDeclarations = new List<MemberDeclarationSyntax>(metricsCollectorDescriptor.Methods.Length);
+			for (var index = 0; index < metricsCollectorDescriptor.Methods.Length; index++)
+			{
+				var method = metricsCollectorDescriptor.Methods[index];
 
-      return "@\"" + input.Replace("\"", "\"\"") + "\"";
-    }
+				if (method.MethodDeclarationSyntax.ParameterList.Parameters.Count <= 1) // use Tags(string key, string value) constructor with constant key instead
+				{
+					continue;
+				}
 
-    private static string GetClassName(in SyntaxToken syntaxToken)
-    {
-      if (syntaxToken.Text.StartsWith("I"))
-        return syntaxToken.Text.Substring(1);
-      else
-        return syntaxToken.Text;
-    }
-  }
+				var values = method.MethodDeclarationSyntax.ParameterList.Parameters
+					.Select(_ => _.Identifier.WithoutTrivia().Text.GetLiteralExpression()).ToSeparatedList<ExpressionSyntax>();
+
+				var declaration = FieldDeclaration(
+						VariableDeclaration(
+								ArrayType(
+										PredefinedType(
+											Token(SyntaxKind.StringKeyword)))
+									.WithRankSpecifiers(
+										SingletonList(
+											ArrayRankSpecifier(
+												SingletonSeparatedList<ExpressionSyntax>(
+													OmittedArraySizeExpression())))))
+							.WithVariables(
+								SingletonSeparatedList(
+									VariableDeclarator(
+											Identifier("_" + method.MethodNameCamelCase))
+										.WithInitializer(
+											EqualsValueClause(
+												InitializerExpression(
+													SyntaxKind.ArrayInitializerExpression,
+													values))))))
+					.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.StaticKeyword),
+						Token(SyntaxKind.ReadOnlyKeyword)));
+
+				fieldMemberDeclarations.Add(declaration);
+			}
+
+			return fieldMemberDeclarations.ToArray();
+		}
+	}
 }

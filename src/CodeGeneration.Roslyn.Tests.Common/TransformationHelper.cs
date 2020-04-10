@@ -13,14 +13,6 @@ using Microsoft.CodeAnalysis.Emit;
 
 namespace CodeGeneration.Roslyn.Tests.Common
 {
-	public static class SyntaxTreeHelper
-	{
-		public static SyntaxTree GetEmptyInterfaceSyntax(string namespaceName, string interfaceName)
-		{
-			return CSharpSyntaxTree.ParseText($"namespace {namespaceName} {{ public interface {interfaceName} {{ }} }}");
-		}
-	}
-
 	public static class TransformationHelper
 	{
 		public static async Task<Assembly> ProcessTransformationAndCompile<TGenerator>(this SyntaxTree root,
@@ -87,7 +79,8 @@ namespace CodeGeneration.Roslyn.Tests.Common
 
 		private static SyntaxList<UsingDirectiveSyntax> GetUsingDirectives(IEnumerable<Type> extraTypes)
 		{
-			var directives = extraTypes.Select(_ => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(_.Namespace)));
+			var distinctNamespaces = extraTypes.Select(_ => _.Namespace).Distinct();
+			var directives = distinctNamespaces.Select(_ => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(_)));
 			return SyntaxFactory.List(directives);
 		}
 

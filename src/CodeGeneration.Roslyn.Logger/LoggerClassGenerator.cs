@@ -19,10 +19,10 @@ namespace CodeGeneration.Roslyn.Logger
 		{
 		}
 
-		protected override string[] GetNamespaces()
-		{
-			return new[] {typeof(Action).Namespace, typeof(ILogger).Namespace};
-		}
+		// protected override string[] GetNamespaces()
+		// {
+		// 	return new[] {typeof(Action).Namespace, typeof(ILogger).Namespace};
+		// }
 
 		protected override LoggerDescriptor GetImplementationDescriptor(TypeDeclarationSyntax typeDeclaration,
 			TransformationContext context, AttributeData attributeData)
@@ -41,7 +41,7 @@ namespace CodeGeneration.Roslyn.Logger
 		{
 			if (loggerDescriptor.BaseClassName != null)
 			{
-				return new MemberDeclarationSyntax[0];
+				return Array.Empty<MemberDeclarationSyntax>();
 			}
 
 			return new MemberDeclarationSyntax[]
@@ -81,12 +81,12 @@ namespace CodeGeneration.Roslyn.Logger
 						IdentifierName(nameof(LoggerMessage.Define)));
 				var declaration = FieldDeclaration(
 						VariableDeclaration(
-								GenericName(Identifier(nameof(Action)))
+								GenericName(Identifier(typeof(Action).FullName))
 									.WithTypeArgumentList(GetLoggingDelegateParameterTypes(method, false)))
 							.WithVariables(
 								SingletonSeparatedList(
 									VariableDeclarator(
-											Identifier("_" + method.MethodDeclarationSyntax.Identifier.WithoutTrivia().ToCamelCase()))
+											Identifier("_" + method.MethodNameCamelCase))
 										.WithInitializer(
 											EqualsValueClause(
 												InvocationExpression(definitionMethodExpression)
@@ -281,7 +281,7 @@ namespace CodeGeneration.Roslyn.Logger
 						SingletonList<StatementSyntax>(
 							ExpressionStatement(
 								InvocationExpression(
-										IdentifierName("_" + loggerMethod.MethodDeclarationSyntax.Identifier.WithoutTrivia().ToCamelCase()))
+										IdentifierName("_" + loggerMethod.MethodNameCamelCase))
 									.WithArgumentList(GetLoggingDelegateCallArgumentList(loggerMethod)))))));
 		}
 

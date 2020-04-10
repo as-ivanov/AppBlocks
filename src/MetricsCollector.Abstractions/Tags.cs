@@ -37,13 +37,13 @@ namespace MetricsCollector.Abstractions
 				throw new ArgumentNullException(nameof(keys), "values cannot be null");
 			if (keys.Length != values.Length)
 				throw new InvalidOperationException("keys length must be equal to values length");
-			if (((IEnumerable<string>) keys).Any<string>((Func<string, bool>) (t => t == null)))
+			if (((IEnumerable<string>) keys).Any((Func<string, bool>) (t => t == null)))
 				throw new InvalidOperationException("keys keys cannot contains nulls");
-			if (((IEnumerable<string>) values).Any<string>((Func<string, bool>) (t => t == null)))
+			if (((IEnumerable<string>) values).Any((Func<string, bool>) (t => t == null)))
 				throw new InvalidOperationException("values values cannot contains nulls");
-			if (((IEnumerable<string>) keys).Any<string>(new Func<string, bool>(string.IsNullOrWhiteSpace)))
+			if (((IEnumerable<string>) keys).Any(new Func<string, bool>(string.IsNullOrWhiteSpace)))
 				throw new InvalidOperationException("keys keys cannot contains empty or whitespace strings");
-			if (((IEnumerable<string>) values).Any<string>(new Func<string, bool>(string.IsNullOrWhiteSpace)))
+			if (((IEnumerable<string>) values).Any(new Func<string, bool>(string.IsNullOrWhiteSpace)))
 				throw new InvalidOperationException("values keys cannot contains empty or whitespace strings");
 			this._key = (string) null;
 			this._value = (string) null;

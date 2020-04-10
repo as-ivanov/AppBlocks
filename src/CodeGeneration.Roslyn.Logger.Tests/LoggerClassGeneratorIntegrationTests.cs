@@ -94,14 +94,14 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 		{
 			get
 			{
-				yield return new object[]
+				yield return new object[] // Method without attribute with one base class
 				{
 					new[] {"ITestInterface"}, $"{Environment.NewLine} void MethodWithoutAttribute();",
 					"MethodWithoutAttribute", "MethodWithoutAttribute", Microsoft.Extensions.Logging.LogLevel.Information,
 					Array.Empty<MethodParameter>()
 				};
 
-				yield return new object[]
+				yield return new object[] // Method without attribute without base classes
 				{
 					Array.Empty<string>(), $"{Environment.NewLine} void MethodWithoutAttribute();", "MethodWithoutAttribute",
 					"MethodWithoutAttribute", Microsoft.Extensions.Logging.LogLevel.Information, Array.Empty<MethodParameter>()

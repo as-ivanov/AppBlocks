@@ -21,23 +21,5 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 		public Type Type => _type;
 
 		public object Value => _value;
-
-		public string FormattedValue
-		{
-			get
-			{
-				if (_value == null)
-				{
-					return "(null)";
-				}
-
-				if (_value is DateTime dateTime)
-				{
-					return dateTime.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-				}
-
-				return _value.ToString();
-			}
-		}
 	}
 }

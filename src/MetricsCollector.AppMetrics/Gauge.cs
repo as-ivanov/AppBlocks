@@ -6,20 +6,20 @@ namespace MetricsCollector.AppMetrics
 {
   public class Gauge : IGauge
   {
-    private readonly IMeasureGaugeMetrics _measureGauge;
-    private readonly GaugeOptions _gaugeOptions;
+	  private readonly IMetrics _metrics;
+	  private readonly GaugeOptions _gaugeOptions;
     private readonly MetricTags _metricTags;
 
-    public Gauge(IMeasureGaugeMetrics measureGauge, GaugeOptions gaugeOptions, in MetricTags metricTags)
+    public Gauge(IMetrics metrics, GaugeOptions gaugeOptions, in MetricTags metricTags)
     {
-      _measureGauge = measureGauge;
-      _gaugeOptions = gaugeOptions;
+	    _metrics = metrics;
+	    _gaugeOptions = gaugeOptions;
       _metricTags = metricTags;
     }
 
     public void SetValue(double value)
     {
-      _measureGauge.SetValue(_gaugeOptions, _metricTags, value);
+	    _metrics.Measure.Gauge.SetValue(_gaugeOptions, _metricTags, value);
     }
   }
 }
