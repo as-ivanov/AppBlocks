@@ -66,13 +66,13 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 		public Type[] InterfaceMethodReturnTypes => _interfaceMethodReturnTypes;
 
-		public int[] InterfaceNumbers => _interfaceNumbers;
+		public int[] InterfaceCounts => _interfaceNumbers;
 
-		public int[] InheritedInterfaceNumbers => _inheritedInterfaceNumbers;
+		public int[] InheritedInterfaceCounts => _inheritedInterfaceNumbers;
 
-		public int[] InterfaceMethodsNumbers => _interfaceMethodsNumbers;
+		public int[] InterfaceMethodsCounts => _interfaceMethodsNumbers;
 
-		public int[] MethodParameterNumbers => _methodParameterNumbers;
+		public int[] MethodParameterCounts => _methodParameterNumbers;
 
 		public Type[] MethodParameterTypes => _methodParameterTypes;
 

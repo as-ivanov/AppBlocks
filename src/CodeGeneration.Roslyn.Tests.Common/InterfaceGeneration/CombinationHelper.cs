@@ -5,7 +5,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
 	public static class CombinationHelper
 	{
-		public static IEnumerable<IEnumerable<T>> Combinations<T>(this IList<T> elements, int k)
+		public static IEnumerable<IEnumerable<T>> GetPossibleCombinations<T>(this IList<T> elements, int k)
 		{
 			if (k == 0)
 			{

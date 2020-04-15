@@ -47,14 +47,14 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			var interfaceAttributeDataCombinations = options.InterfaceAttributeDataBuilder.GetCombinations(options);
 			foreach (var attributeData in interfaceAttributeDataCombinations)
 			{
-				foreach (var inheritedInterfaceCount in options.InheritedInterfaceNumbers)
+				foreach (var inheritedInterfaceCount in options.InheritedInterfaceCounts)
 				{
 					var inheritedInterfaces = options.InheritanceListBuilder.GetInheritedInterfaces(options, inheritedInterfaceCount);
 
-					foreach (var methodsCount in options.InterfaceMethodsNumbers)
+					foreach (var methodsCount in options.InterfaceMethodsCounts)
 					{
 						foreach (var methods in interfaceMethodPossibleVariations
-							.Combinations(methodsCount))
+							.GetPossibleCombinations(methodsCount))
 						{
 
 							yield return (context) => { return new InterfaceData("ITestInterface" + context.NextId(), options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true); };

@@ -8,10 +8,10 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		IAttributeDataBuilder InterfaceAttributeDataBuilder { get; }
 		IAttributeDataBuilder MethodAttributeDataBuilder { get; }
 		Type[] InterfaceMethodReturnTypes { get; }
-		int[] InterfaceNumbers { get; }
-		int[] InheritedInterfaceNumbers { get; }
-		int[] InterfaceMethodsNumbers { get; }
-		int[] MethodParameterNumbers { get; }
+		int[] InterfaceCounts { get; }
+		int[] InheritedInterfaceCounts { get; }
+		int[] InterfaceMethodsCounts { get; }
+		int[] MethodParameterCounts { get; }
 		Type[] MethodParameterTypes { get; }
 		string InterfaceNamespace { get; }
 		IInheritanceListBuilder InheritanceListBuilder { get; }

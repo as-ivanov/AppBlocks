@@ -17,11 +17,11 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		public IEnumerable<ITestGenerationContext> Build()
 		{
 			var interfaceVariations = InterfaceData.GetPossibleVariations(_options).ToList();
-			foreach (var interfaceNumber in _options.InterfaceNumbers)
+			foreach (var interfaceNumber in _options.InterfaceCounts)
 			{
 				if (interfaceNumber == 1)
 				{
-					var interfaceCombinations = interfaceVariations.Combinations(interfaceNumber);
+					var interfaceCombinations = interfaceVariations.GetPossibleCombinations(interfaceNumber);
 					foreach (var interfaceCombination in interfaceCombinations)
 					{
 						var generationContext = GetInterfaceCombinationData(interfaceCombination);

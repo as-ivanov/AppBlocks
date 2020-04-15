@@ -38,10 +38,10 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			{
 				foreach (var returnType in options.InterfaceMethodReturnTypes)
 				{
-					foreach (var parametersCount in options.MethodParameterNumbers)
+					foreach (var parametersCount in options.MethodParameterCounts)
 					{
 						foreach (var parameters in methodParameterPossibleVariations
-							.Combinations(parametersCount))
+							.GetPossibleCombinations(parametersCount))
 						{
 							yield return (context) => new InterfaceMethodData(returnType, "Method" + context.NextId(),
 								attributeData(context).ToArray(), parameters.ToArray());
