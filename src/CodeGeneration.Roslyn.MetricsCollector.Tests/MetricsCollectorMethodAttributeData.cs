@@ -16,8 +16,8 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 		public override string ToString()
 		{
-			var metricNameParameter = "metricName = " + _metricName == null ? "null" : $"\"{_metricName}\"";
-			var unitNameParameter = "unitName = " + _unit == null ? "null" : $"\"{_unit}\"";
+			var metricNameParameter = "metricName = " + (_metricName == null ? "null" : $"\"{_metricName}\"");
+			var unitNameParameter = "unitName = " + (_unit == null ? "null" : $"\"{_unit}\"");
 			return $"[{Name}({metricNameParameter}, {unitNameParameter})]";
 		}
 	}

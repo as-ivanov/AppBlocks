@@ -18,12 +18,16 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public object Value => _value;
 
+		public string Name => _name;
+
+		public Type Type1 => _type;
+
 		public override string ToString()
 		{
-			return $"{_type} {_name}";
+			return $"{Type1} {Name}";
 		}
 
-		public static IEnumerable<MethodParameterData> GetAllCombinations(ITestInterfaceGenerationOptions options)
+		public static IEnumerable<MethodParameterData> GetPossibleVariations(ITestInterfaceGenerationOptions options)
 		{
 			var index = 0;
 			foreach (var type in options.MethodParameterTypes)

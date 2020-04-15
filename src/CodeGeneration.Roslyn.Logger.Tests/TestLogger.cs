@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using CodeGeneration.Roslyn.Common;
+using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using Microsoft.Extensions.Logging;
 
 namespace CodeGeneration.Roslyn.Logger.Tests
@@ -8,11 +9,10 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 	public class TestLogger : ILogger
 	{
 		private readonly EventId _eventId;
-		private readonly string _methodSignature;
 		private readonly string _methodName;
 		private readonly string _message;
 		private readonly Microsoft.Extensions.Logging.LogLevel _logLevel;
-		private readonly MethodParameter[] _methodParameters;
+		private readonly MethodParameterData[] _methodParameters;
 		private readonly bool _logEnabled;
 		private bool _isEnabledCalled;
 		private bool _logCalled;
@@ -23,12 +23,11 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 		private string _actualMessage;
 
 
-		public TestLogger(EventId eventId, string methodSignature, string methodName, string message,
+		public TestLogger(EventId eventId, string methodName, string message,
 			Microsoft.Extensions.Logging.LogLevel logLevel,
-			MethodParameter[] methodParameters, bool logEnabled)
+			MethodParameterData[] methodParameters, bool logEnabled)
 		{
 			_eventId = eventId;
-			_methodSignature = methodSignature;
 			_methodName = methodName;
 			_logLevel = logLevel;
 			_methodParameters = methodParameters;
@@ -36,7 +35,8 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			var sb = new StringBuilder(message);
 			foreach (var methodParameter in methodParameters)
 			{
-				sb.Append($". {methodParameter.Name.ToPascalCase()}: \"{methodParameter.FormattedValue}\"");
+				var formattedValue =
+				sb.Append($". {methodParameter.Name.ToPascalCase()}: \"{methodParameter.GetFormattedValue()}\"");
 			}
 			_message = sb.ToString();
 		}
@@ -85,7 +85,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 
 			if (_actualIsEnabledLogLevel != _logLevel)
 			{
-				throw new Exception($"{nameof(IsEnabled)} was called with unexpected log level:{_actualIsEnabledLogLevel}");
+				throw new Exception($"{nameof(IsEnabled)} was called with unexpected log level:{_actualIsEnabledLogLevel}. Expected:{_logLevel}");
 			}
 
 			if (!_logCalled)
@@ -95,17 +95,17 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 
 			if (_actualLogLogLevel != _logLevel)
 			{
-				throw new Exception($"{nameof(Log)} was called with unexpected log level:{_actualIsEnabledLogLevel}");
+				throw new Exception($"{nameof(Log)} was called with unexpected log level:{_actualIsEnabledLogLevel}. Expected:{_logLevel}");
 			}
 
 			if (_actualMessage != _message)
 			{
-				throw new Exception($"{nameof(Log)} was called with unexpected log message:{_actualMessage}");
+				throw new Exception($"{nameof(Log)} was called with unexpected log message:{_actualMessage}. Expected:{_message}");
 			}
 
 			if (_actualEventId != _eventId)
 			{
-				throw new Exception($"{nameof(Log)} was called with unexpected log eventId:{_actualEventId}");
+				throw new Exception($"{nameof(Log)} was called with unexpected log eventId:{_actualEventId}. Expected:{_eventId}");
 			}
 		}
 

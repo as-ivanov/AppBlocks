@@ -1,0 +1,66 @@
+using System;
+using System.Linq;
+using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
+using Microsoft.Extensions.Logging;
+
+namespace CodeGeneration.Roslyn.Logger.Tests
+{
+	public class LoggerInterfaceGeneratorOptions : ITestInterfaceGenerationOptions
+	{
+		private readonly string[] _usingNamespaces =
+		{
+			typeof(Action).Namespace,
+			typeof(Attributes.LoggerStubAttribute).Namespace,
+			typeof(ILogger).Namespace
+		};
+
+		private readonly IAttributeDataBuilder _interfaceAttributeDataBuilder = new LoggerInterfaceAttributeDataBuilder();
+		private readonly IAttributeDataBuilder _methodAttributeDataBuilder = new LoggerInterfaceMethodAttributeDataBuilder();
+		private readonly Type[] _interfaceMethodReturnTypes = new Type[] {typeof(void)};
+		private readonly int[] _interfaceNumbers = Enumerable.Range(1, 2).ToArray();
+		private readonly int[] _inheritedInterfaceNumbers = Enumerable.Range(0, 2).ToArray();
+		private readonly int[] _interfaceMethodsNumbers = Enumerable.Range(0, 2).ToArray();
+		private readonly int[] _methodParameterNumbers = Enumerable.Range(0, 3).ToArray();
+
+
+		private readonly Type[] _methodParameterTypes =
+		{
+			typeof(string),
+			typeof(char),
+			typeof(byte),
+			typeof(short),
+			typeof(long),
+			typeof(float),
+			typeof(decimal),
+			typeof(DateTime),
+			typeof(object),
+			typeof(Exception)
+		};
+
+		private const string _interfaceNamespace = "TestNamespace";
+
+		private readonly IInheritanceListBuilder _inheritanceListBuilder = new LoggerInterfaceInheritanceListBuilder();
+
+		public string[] UsingNamespaces => _usingNamespaces;
+
+		public IAttributeDataBuilder InterfaceAttributeDataBuilder => _interfaceAttributeDataBuilder;
+
+		public IAttributeDataBuilder MethodAttributeDataBuilder => _methodAttributeDataBuilder;
+
+		public Type[] InterfaceMethodReturnTypes => _interfaceMethodReturnTypes;
+
+		public int[] InterfaceNumbers => _interfaceNumbers;
+
+		public int[] InheritedInterfaceNumbers => _inheritedInterfaceNumbers;
+
+		public int[] InterfaceMethodsNumbers => _interfaceMethodsNumbers;
+
+		public int[] MethodParameterNumbers => _methodParameterNumbers;
+
+		public Type[] MethodParameterTypes => _methodParameterTypes;
+
+		public string InterfaceNamespace => _interfaceNamespace;
+
+		public IInheritanceListBuilder InheritanceListBuilder => _inheritanceListBuilder;
+	}
+}

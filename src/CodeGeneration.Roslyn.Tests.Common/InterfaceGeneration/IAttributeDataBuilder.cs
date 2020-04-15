@@ -8,5 +8,4 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 	{
 		IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetCombinations(ITestInterfaceGenerationOptions options);
 	}
-
 }

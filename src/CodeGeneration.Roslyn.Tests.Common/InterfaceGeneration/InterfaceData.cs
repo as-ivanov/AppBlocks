@@ -38,9 +38,12 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public AttributeData[] AttributeDataList => _attributeDataList;
 
-		public static IEnumerable<Func<ITestGenerationContext, InterfaceData>> GetAllCombinations(ITestInterfaceGenerationOptions options)
+		public InterfaceMethodData[] Methods => _methods;
+
+		public static IEnumerable<Func<ITestGenerationContext, InterfaceData>> GetPossibleVariations(ITestInterfaceGenerationOptions options)
 		{
-			var index = 0;
+			var interfaceMethodPossibleVariations = InterfaceMethodData.GetPossibleVariations(options).ToList();
+
 			var interfaceAttributeDataCombinations = options.InterfaceAttributeDataBuilder.GetCombinations(options);
 			foreach (var attributeData in interfaceAttributeDataCombinations)
 			{
@@ -50,12 +53,11 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 					foreach (var methodsCount in options.InterfaceMethodsNumbers)
 					{
-						foreach (var methods in InterfaceMethodData
-							.GetAllCombinations(options).ToList()
+						foreach (var methods in interfaceMethodPossibleVariations
 							.Combinations(methodsCount))
 						{
-							index++;
-							yield return (context) => { return new InterfaceData("ITestInterface" + index, options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true); };
+
+							yield return (context) => { return new InterfaceData("ITestInterface" + context.NextId(), options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true); };
 						}
 					}
 				}
@@ -72,7 +74,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			}
 			using (sb.Block($"interface {_name}" + (InheritedInterfaces.Any() ? $" : {string.Join(",", InheritedInterfaces.Select(_ => _.Namespace + "." + _.Name))}" : string.Empty)))
 			{
-				foreach (var method in _methods)
+				foreach (var method in Methods)
 				{
 					sb.AppendLine(method.ToString());
 				}

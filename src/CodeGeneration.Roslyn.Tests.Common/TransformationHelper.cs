@@ -26,7 +26,7 @@ namespace CodeGeneration.Roslyn.Tests.Common
 			{
 
 				var nodes = (await syntaxTree.GetRootAsync(cancellationToken))
-					.DescendantNodesAndSelf();
+					.DescendantNodesAndSelf().OfType<CSharpSyntaxNode>();
 
 				foreach (var node in nodes)
 				{
@@ -36,8 +36,7 @@ namespace CodeGeneration.Roslyn.Tests.Common
 					var generators = FindCodeGenerators(attributeData);
 					foreach (var generator in generators)
 					{
-
-						var transformationContext = CreateTransformationContext(syntaxTree, inputSemanticModel, compilation);
+						var transformationContext = CreateTransformationContext(syntaxTree, node, inputSemanticModel, compilation);
 						var progress = new NoopProgress();
 
 						var emitted = await generator.GenerateRichAsync(transformationContext, progress, CancellationToken.None);
@@ -175,7 +174,7 @@ namespace CodeGeneration.Roslyn.Tests.Common
 			return SyntaxFactory.List(directives);
 		}
 
-		private static TransformationContext CreateTransformationContext(this SyntaxTree root,
+		private static TransformationContext CreateTransformationContext(this SyntaxTree root, CSharpSyntaxNode processingNode,
 			SemanticModel inputSemanticModel,
 			CSharpCompilation compilation)
 		{
@@ -191,12 +190,9 @@ namespace CodeGeneration.Roslyn.Tests.Common
 				.Select(x => x.WithoutTrivia())
 				.ToImmutableArray();
 
-			var interfaceNode = root.GetRoot()
-				.DescendantNodesAndSelf()
-				.OfType<InterfaceDeclarationSyntax>().FirstOrDefault();
 
 			var context = new TransformationContext(
-				interfaceNode,
+				processingNode,
 				inputSemanticModel,
 				compilation,
 				string.Empty,

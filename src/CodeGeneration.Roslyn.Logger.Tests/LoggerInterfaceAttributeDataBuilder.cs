@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 
-namespace CodeGeneration.Roslyn.MetricsCollector.Tests
+namespace CodeGeneration.Roslyn.Logger.Tests
 {
-
-	public class MetricsCollectorInterfaceAttributeDataBuilder : IAttributeDataBuilder
+	public class LoggerInterfaceAttributeDataBuilder : IAttributeDataBuilder
 	{
 		public IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetCombinations(ITestInterfaceGenerationOptions options)
 		{
@@ -17,7 +16,6 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 				{
 					var interfacesToInherit = Enumerable.Range(context.NextId(), attributeToInheritInterfacesNumber)
 						.Select(GetBaseTypeInterfaceData).ToArray();
-					var contextName = "Context_" + context.NextId();
 
 					foreach (var interfaceToInherit in interfacesToInherit)
 					{
@@ -25,7 +23,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 						var compilationEntryData = new CompilationEntryData(options.UsingNamespaces, namespaceData);
 						context.AddEntry(compilationEntryData);
 					}
-					return new AttributeData[] { new MetricsCollectorInterfaceAttributeData(contextName, interfacesToInherit) };
+					return new AttributeData[] { new LoggerInterfaceAttributeData(interfacesToInherit) };
 				};
 			}
 		}

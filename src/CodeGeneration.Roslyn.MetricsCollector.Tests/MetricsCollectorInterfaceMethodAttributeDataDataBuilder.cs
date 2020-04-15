@@ -4,10 +4,11 @@ using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 
 namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 {
-	public class MetricsCollectorMethodAttributeDataDataBuilder : IAttributeDataBuilder
+	public class MetricsCollectorInterfaceMethodAttributeDataDataBuilder : IAttributeDataBuilder
 	{
 		public IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetCombinations(ITestInterfaceGenerationOptions options)
 		{
+			yield return c => { return new AttributeData[0]; };
 			yield return c =>
 			{
 				var metricName = "Metric" + Guid.NewGuid();
@@ -19,7 +20,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 				var metricName = "Metric" + Guid.NewGuid();
 				return new AttributeData[] {new MetricsCollectorMethodAttributeData(metricName, null)};
 			};
-			
+
 			yield return c =>
 			{
 				var unitName = "Unit" + Guid.NewGuid();

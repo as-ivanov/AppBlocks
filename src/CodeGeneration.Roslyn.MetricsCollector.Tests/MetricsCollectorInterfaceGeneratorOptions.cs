@@ -5,7 +5,7 @@ using MetricsCollector.Abstractions;
 
 namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 {
-	public class MetricsCollectorStubGeneratorOptions : ITestInterfaceGenerationOptions
+	public class MetricsCollectorInterfaceGeneratorOptions : ITestInterfaceGenerationOptions
 	{
 		private readonly string[] _usingNamespaces =
 		{
@@ -17,25 +17,25 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 		private readonly Type[] _interfaceMethodReturnTypes =
 		{
 			typeof(ICounter),
-			//typeof(IHistogram),
-			//typeof(IHitPercentageGauge),
-			//typeof(IMeter),
-			//typeof(IGauge),
-			//typeof(ITimer)
+			// typeof(IHistogram),
+			// typeof(IHitPercentageGauge),
+			// typeof(IMeter),
+			// typeof(IGauge),
+			// typeof(ITimer)
 		};
 
 		private readonly int[] _interfaceNumbers = Enumerable.Range(1, 2).ToArray();
 		private readonly int[] _inheritedInterfaceNumbers = Enumerable.Range(0, 2).ToArray();
 		private readonly int[] _interfaceMethodsNumbers = Enumerable.Range(0, 2).ToArray();
-		private readonly int[] _methodParameterNumbers = Enumerable.Range(0, 2).ToArray();
+		private readonly int[] _methodParameterNumbers = Enumerable.Range(0, 3).ToArray();
 
-		private const string _namespace = "TestNamespace";
+		private const string _interfaceNamespace = "TestNamespace";
 
 		private readonly IAttributeDataBuilder _interfaceAttributeDataBuilder =
 			new MetricsCollectorInterfaceAttributeDataBuilder();
 
 		private readonly IAttributeDataBuilder _methodAttributeDataBuilder =
-			new MetricsCollectorMethodAttributeDataDataBuilder();
+			new MetricsCollectorInterfaceMethodAttributeDataDataBuilder();
 
 		private readonly Type[] _methodParameterTypes = {
 			typeof(string),
@@ -56,7 +56,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			//typeof(Exception),
 		};
 
-		private readonly IInheritanceListBuilder _inheritanceListBuilder = new MetricsCollectorStubInheritanceListBuilder();
+		private readonly IInheritanceListBuilder _inheritanceListBuilder = new MetricsCollectorInterfaceInheritanceListBuilder();
 
 		public string[] UsingNamespaces => _usingNamespaces;
 
@@ -76,7 +76,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 		public Type[] MethodParameterTypes => _methodParameterTypes;
 
-		public string InterfaceNamespace => _namespace;
+		public string InterfaceNamespace => _interfaceNamespace;
 
 		public IInheritanceListBuilder InheritanceListBuilder => _inheritanceListBuilder;
 	}

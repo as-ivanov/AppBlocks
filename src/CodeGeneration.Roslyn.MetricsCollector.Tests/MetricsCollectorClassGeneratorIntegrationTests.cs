@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CodeGeneration.Roslyn.Attributes.Common;
@@ -19,7 +20,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 	{
 		public static IEnumerable<object[]> Generate()
 		{
-			var options = new MetricsCollectorStubGeneratorOptions();
+			var options = new MetricsCollectorInterfaceGeneratorOptions();
 			var compilationUnitDataBuilder = new CompilationUnitDataBuilder(options);
 			var combinations = compilationUnitDataBuilder.Build();
 			return combinations.Select(_ => new object[] { _ });
@@ -41,15 +42,6 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 		private static async Task MetricsCollectorMethodGenerationTest(ITestGenerationContext generationContext, bool metricEnabled)
 		{
-			//var interfaces = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).OfType<InterfaceData>();
-
-			//var inheritedInterfaces = interfaces.SelectMany(_ => _.InheritedInterfaces);
-			//var interfacesFromAttributes = interfaces.SelectMany(_ => _.AttributeDataList).OfType<MetricsCollectorInterfaceAttributeData>().SelectMany(_ => _.InheritedInterfaces);
-
-			//var extraEntries = inheritedInterfaces.Concat(interfacesFromAttributes).Select(_ => new NamespaceData(_.Namespace, _)).Select(_ => new CompilationEntryData(Array.Empty<string>(), _));
-
-			//var entries = generationContext.Entries.Concat(extraEntries);
-
 			var syntaxTrees = generationContext.Entries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString())).ToArray();
 
 			var extraTypes = new[]
@@ -60,25 +52,33 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 				typeof(IMetricsProvider)
 			};
 
-			var assembly =
-				await syntaxTrees.ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
-
-			var metricsCollectorInterfaceMembers = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).Where(_ => _.IsSut);
-
-			foreach (var metricsCollectorInterface in metricsCollectorInterfaceMembers)
+			Assembly assembly = null;
+			try
 			{
-				var metricsCollectorInterfaceType =
-					assembly.GetType(metricsCollectorInterface.Namespace + "." + metricsCollectorInterface.Name, true);
-				var metricsCollectorType = assembly.GetTypes()
-					.SingleOrDefault(_ => metricsCollectorInterfaceType.IsAssignableFrom(_) && !_.IsAbstract);
+				assembly = await syntaxTrees.ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
+			}
+			catch (Exception e)
+			{
+				var t = 0;
+			}
+
+			var sutMembers = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).Where(_ => _.IsSut);
+
+			foreach (var sutMember in sutMembers)
+			{
+				var metricsCollectorType =
+					assembly.GetType(sutMember.Namespace + "." + sutMember.Name.TrimStart('I'), true);
 				if (metricsCollectorType == null)
 				{
 					throw new Exception(
-						$"MetricsCollector implementation for '{metricsCollectorInterface}' not found in emitted assembly");
+						$"MetricsCollector implementation for '{sutMember}' not found in emitted assembly");
 				}
+				BuildAndVerify(metricsCollectorType);
 			}
+		}
 
-
+		private static void BuildAndVerify(Type type)
+		{
 			// var parameters = methodParameters.Select(p => p.Value).ToArray();
 			//
 			// var metricsProvider = GetMetricsProvider();

@@ -8,6 +8,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 	{
 		private readonly ITestInterfaceGenerationOptions _options;
 		private readonly List<CompilationEntryData> _entries = new List<CompilationEntryData>();
+		private int _currentId = 1;
 
 		public TestGenerationContext(ITestInterfaceGenerationOptions options)
 		{
@@ -22,6 +23,10 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		public ITestInterfaceGenerationOptions Options => _options;
 
 		public IReadOnlyList<CompilationEntryData> Entries => _entries;
+		public int NextId()
+		{
+			return _currentId++;
+		}
 
 		public override string ToString()
 		{

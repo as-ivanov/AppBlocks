@@ -10,9 +10,9 @@ namespace CodeGeneration.Roslyn.Common
 		public static string ToPascalCase(this string input)
 		{
 			return string.Join(" ", input.Split(' ')
-			  .Select(w => w.Trim())
-			  .Where(w => w.Length > 0)
-			  .Select(w => w.Substring(0, 1).ToUpper() + w.Substring(1)));
+				.Select(w => w.Trim())
+				.Where(w => w.Length > 0)
+				.Select(w => w.Substring(0, 1).ToUpper() + w.Substring(1)));
 		}
 
 		public static string ToCamelCase(this string input)
@@ -35,24 +35,24 @@ namespace CodeGeneration.Roslyn.Common
 			var index = input.LastIndexOf(".", StringComparison.Ordinal);
 			if (index == -1)
 			{
-				return input;
+				return string.Empty;
 			}
 			return input.Substring(0, index);
 		}
 
 		public static string GetClassNameFromInterfaceName(this string input, bool fullName = true)
 		{
-			input = input.GetTypeNameWithoutNamespaces();
-			if (input.StartsWith('I'))
+			var typeName = input.GetTypeNameWithoutNamespaces();
+			if (typeName.StartsWith('I'))
 			{
-				input = input.Substring(1);
+				typeName = typeName.Substring(1);
 			}
 			if (!fullName)
 			{
-				return input;
+				return typeName;
 			}
 			var namespaces = input.GetNamespacesWithoutTypeName();
-			return namespaces + "." + input;
+			return string.IsNullOrEmpty(namespaces) ? typeName : namespaces + "." + typeName;
 		}
 
 		public static LiteralExpressionSyntax GetLiteralExpression(this string input)

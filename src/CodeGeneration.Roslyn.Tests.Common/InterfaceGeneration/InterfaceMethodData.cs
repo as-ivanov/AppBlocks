@@ -21,20 +21,30 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			_parameters = parameters;
 		}
 
-		public static IEnumerable<Func<ITestGenerationContext, InterfaceMethodData>> GetAllCombinations(ITestInterfaceGenerationOptions options)
+		public string Name => _name;
+
+		public Type ReturnType => _returnType;
+
+		public AttributeData[] AttributeDataList => _attributeDataList;
+
+		public MethodParameterData[] Parameters => _parameters;
+
+		public static IEnumerable<Func<ITestGenerationContext, InterfaceMethodData>> GetPossibleVariations(
+			ITestInterfaceGenerationOptions options)
 		{
-			var index = 0;
-			var methodAttributeCombinations =  options.MethodAttributeDataBuilder.GetCombinations(options);
+			var methodAttributeCombinations = options.MethodAttributeDataBuilder.GetCombinations(options);
+			var methodParameterPossibleVariations = MethodParameterData.GetPossibleVariations(options).ToList();
 			foreach (var attributeData in methodAttributeCombinations)
 			{
 				foreach (var returnType in options.InterfaceMethodReturnTypes)
 				{
 					foreach (var parametersCount in options.MethodParameterNumbers)
 					{
-						foreach (var parameters in MethodParameterData.GetAllCombinations(options).ToList().Combinations(parametersCount))
+						foreach (var parameters in methodParameterPossibleVariations
+							.Combinations(parametersCount))
 						{
-							index++;
-							yield return (context) => new InterfaceMethodData(returnType, "Method" + index, attributeData(context).ToArray(), parameters.ToArray());
+							yield return (context) => new InterfaceMethodData(returnType, "Method" + context.NextId(),
+								attributeData(context).ToArray(), parameters.ToArray());
 						}
 					}
 				}
@@ -44,11 +54,12 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			foreach (var attributeData in _attributeDataList)
+			foreach (var attributeData in AttributeDataList)
 			{
 				sb.AppendLine(attributeData.ToString());
 			}
-			sb.AppendLine($"{_returnType} {_name}({string.Join(",", _parameters.Select(_ => _.ToString()))});");
+			var returnType = ReturnType == typeof(void) ? "void" : ReturnType.FullName;
+			sb.AppendLine($"{returnType} {Name}({string.Join(",", Parameters.Select(_ => _.ToString()))});");
 			return sb.ToString();
 		}
 	}

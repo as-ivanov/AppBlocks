@@ -7,5 +7,6 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		void AddEntry(CompilationEntryData compilationEntryData);
 		ITestInterfaceGenerationOptions Options { get; }
 		IReadOnlyList<CompilationEntryData> Entries { get; }
+		int NextId();
 	}
 }
