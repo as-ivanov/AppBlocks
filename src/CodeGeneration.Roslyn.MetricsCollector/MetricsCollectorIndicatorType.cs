@@ -1,6 +1,6 @@
 ﻿namespace CodeGeneration.Roslyn.MetricsCollector
 {
-	public enum MetricsCollectorType
+	public enum MetricsCollectorIndicatorType
   {
     Counter,
     Gauge,

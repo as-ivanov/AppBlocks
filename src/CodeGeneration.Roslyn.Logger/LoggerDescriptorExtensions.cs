@@ -14,13 +14,13 @@ namespace CodeGeneration.Roslyn.Logger
 		public static LoggerDescriptor ToLoggerDescriptor(this TypeDeclarationSyntax typeDeclarationSyntax,
 			TransformationContext context, AttributeData attributeData)
 		{
-			string baseClass = typeDeclarationSyntax.GetBaseClassName();
+			var baseClass = typeDeclarationSyntax.GetBaseClassName();
 
 			var compilation = context.Compilation;
 
 			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
 
-			var className = typeDeclarationSyntax.GetClassName();
+			var className = typeDeclarationSyntax.GetClassNameFromInterfaceDeclaration();
 
 			var exceptionType = compilation.GetTypeByMetadataName(typeof(Exception).FullName);
 

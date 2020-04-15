@@ -63,7 +63,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 				baseInterfaceList.Select(_ => SyntaxTreeHelper.GetEmptyInterfaceSyntax(loggerTypeNamespace, _));
 			var extraTypes = new[] { typeof(GeneratedCodeAttribute), typeof(Attributes.LoggerStubAttribute), typeof(ImplementInterfaceAttribute), typeof(ILogger) };
 
-			var assembly = await interfaceSyntaxTree.ProcessTransformationAndCompile<LoggerClassGenerator>(extraInterfaces, extraTypes);
+			var assembly = await extraInterfaces.Concat(new SyntaxTree[] {interfaceSyntaxTree}).ToArray().ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
 
 
 			var loggerInterfaceType = assembly.GetType(loggerTypeNamespace + "." + loggerTypeName, true);

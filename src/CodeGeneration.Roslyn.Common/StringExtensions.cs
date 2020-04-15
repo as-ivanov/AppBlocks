@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -6,9 +7,9 @@ namespace CodeGeneration.Roslyn.Common
 {
 	public static class StringExtensions
 	{
-		public static string ToPascalCase(this string word)
+		public static string ToPascalCase(this string input)
 		{
-			return string.Join(" ", word.Split(' ')
+			return string.Join(" ", input.Split(' ')
 			  .Select(w => w.Trim())
 			  .Where(w => w.Length > 0)
 			  .Select(w => w.Substring(0, 1).ToUpper() + w.Substring(1)));
@@ -19,22 +20,48 @@ namespace CodeGeneration.Roslyn.Common
 			return char.ToLowerInvariant(input[0]) + input.Substring(1);
 		}
 
-		public static string GetClassName(this string word)
+		public static string GetTypeNameWithoutNamespaces(this string input)
 		{
-			if (word.StartsWith('I'))
+			var index = input.LastIndexOf(".", StringComparison.Ordinal);
+			if (index == -1)
 			{
-				word = word.Substring(1);
+				return input;
 			}
-			return word;
+			return input.Substring(index + 1);
 		}
 
-		public static LiteralExpressionSyntax GetLiteralExpression(this string str)
+		public static string GetNamespacesWithoutTypeName(this string input)
 		{
-			var text = str == null ? "\"\"" : "@\"" + str.Replace("\"", "\"\"") + "\"";
+			var index = input.LastIndexOf(".", StringComparison.Ordinal);
+			if (index == -1)
+			{
+				return input;
+			}
+			return input.Substring(0, index);
+		}
+
+		public static string GetClassNameFromInterfaceName(this string input, bool fullName = true)
+		{
+			input = input.GetTypeNameWithoutNamespaces();
+			if (input.StartsWith('I'))
+			{
+				input = input.Substring(1);
+			}
+			if (!fullName)
+			{
+				return input;
+			}
+			var namespaces = input.GetNamespacesWithoutTypeName();
+			return namespaces + "." + input;
+		}
+
+		public static LiteralExpressionSyntax GetLiteralExpression(this string input)
+		{
+			var text = input == null ? "\"\"" : "@\"" + input.Replace("\"", "\"\"") + "\"";
 			var syntaxToken = SyntaxFactory.Literal(
 				SyntaxFactory.TriviaList(),
 				text,
-				str,
+				input,
 				SyntaxFactory.TriviaList());
 			return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, syntaxToken);
 		}

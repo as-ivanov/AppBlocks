@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using CodeGeneration.Roslyn.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,47 +16,137 @@ namespace CodeGeneration.Roslyn.Tests.Common
 {
 	public static class TransformationHelper
 	{
-		public static async Task<Assembly> ProcessTransformationAndCompile<TGenerator>(this SyntaxTree root,
-			IEnumerable<SyntaxTree> extraNodes, IEnumerable<Type> extraTypes
-		)
-			where TGenerator : IRichCodeGenerator //TODO Get generator type from attribute
+		public static async Task<Assembly> ProcessTransformationAndCompile(this SyntaxTree[] syntaxTrees, IEnumerable<Type> extraTypes, CancellationToken cancellationToken)
 		{
 			var references = GetAssemblyReferences(extraTypes);
-			var compilation = TransformationHelper.CreateCompilation(root, references);
+			var compilation = CreateCompilation(syntaxTrees, references);
 
-			var interfaceNode = root.GetRoot()
-				.DescendantNodesAndSelf()
-				.OfType<InterfaceDeclarationSyntax>().First();
 
-			var inputSemanticModel = compilation.GetSemanticModel(interfaceNode.SyntaxTree);
-
-			var attributeData = inputSemanticModel.GetDeclaredSymbol(interfaceNode).GetAttributes().First();
-
-			var generator = (TGenerator) Activator.CreateInstance(typeof(TGenerator), attributeData);
-
-			var transformationContext = CreateTransformationContext(root, inputSemanticModel, compilation);
-			var progress = new NoopProgress();
-
-			var emitted = await generator.GenerateRichAsync(transformationContext, progress, CancellationToken.None);
-
-			var usings = GetUsingDirectives(extraTypes);
-
-			var compilationUnit =
-				SyntaxFactory.CompilationUnit(
-						default, usings, default,
-						SyntaxFactory.List<MemberDeclarationSyntax>(emitted.Members))
-					.NormalizeWhitespace();
-			var loggerSyntaxTree =
-				CSharpSyntaxTree.ParseText(compilationUnit.SyntaxTree
-					.GetText()); //TODO fixes compilation error if using compilation.AddSyntaxTrees(compilationUnit.SyntaxTree)
-			compilation = compilation.AddSyntaxTrees(loggerSyntaxTree);
-
-			foreach (var extraNode in extraNodes)
+			foreach (var syntaxTree in compilation.SyntaxTrees)
 			{
-				compilation = compilation.AddSyntaxTrees(extraNode);
+
+				var nodes = (await syntaxTree.GetRootAsync(cancellationToken))
+					.DescendantNodesAndSelf();
+
+				foreach (var node in nodes)
+				{
+					var inputSemanticModel = compilation.GetSemanticModel(node.SyntaxTree);
+
+					var attributeData = GetAttributeData(compilation, inputSemanticModel, node);
+					var generators = FindCodeGenerators(attributeData);
+					foreach (var generator in generators)
+					{
+
+						var transformationContext = CreateTransformationContext(syntaxTree, inputSemanticModel, compilation);
+						var progress = new NoopProgress();
+
+						var emitted = await generator.GenerateRichAsync(transformationContext, progress, CancellationToken.None);
+
+						var usings = GetUsingDirectives(extraTypes);
+
+						var compilationUnit =
+							SyntaxFactory.CompilationUnit(
+									default, usings, default,
+									SyntaxFactory.List<MemberDeclarationSyntax>(emitted.Members))
+								.NormalizeWhitespace();
+
+						var syntaxTreeText = await compilationUnit.SyntaxTree.GetTextAsync(cancellationToken);
+
+						var emittedSyntaxTree =
+							CSharpSyntaxTree.ParseText(syntaxTreeText); //TODO fixes compilation error if using compilation.AddSyntaxTrees(compilationUnit.SyntaxTree)
+						compilation = compilation.AddSyntaxTrees(emittedSyntaxTree);
+					}
+				}
 			}
 
 			return compilation.CompileAndLoadAssembly();
+		}
+
+		private static ImmutableArray<AttributeData> GetAttributeData(Compilation compilation, SemanticModel document, SyntaxNode syntaxNode)
+		{
+			switch (syntaxNode)
+			{
+				case CompilationUnitSyntax syntax:
+					return compilation.Assembly.GetAttributes().Where(x => x.ApplicationSyntaxReference.SyntaxTree == syntax.SyntaxTree).ToImmutableArray();
+				default:
+					return document.GetDeclaredSymbol(syntaxNode)?.GetAttributes() ?? ImmutableArray<AttributeData>.Empty;
+			}
+		}
+
+		private static IEnumerable<IRichCodeGenerator> FindCodeGenerators(ImmutableArray<AttributeData> nodeAttributes)
+		{
+			foreach (var attributeData in nodeAttributes)
+			{
+				var generatorType = GetCodeGeneratorTypeForAttribute(attributeData.AttributeClass);
+				if (generatorType != null)
+				{
+					IRichCodeGenerator generator;
+					try
+					{
+						generator = (IRichCodeGenerator)Activator.CreateInstance(generatorType, attributeData);
+					}
+					catch (MissingMethodException)
+					{
+						throw new InvalidOperationException(
+							$"Failed to instantiate {generatorType}. ICodeGenerator implementations must have" +
+							$" a constructor accepting Microsoft.CodeAnalysis.AttributeData argument.");
+					}
+					yield return generator;
+				}
+			}
+		}
+
+		private static Type GetCodeGeneratorTypeForAttribute(INamedTypeSymbol attributeType)
+		{
+			if (attributeType == null)
+			{
+				return null;
+			}
+
+			foreach (var generatorCandidateAttribute in attributeType.GetAttributes())
+			{
+				if (generatorCandidateAttribute.AttributeClass.Name != typeof(CodeGenerationAttributeAttribute).Name)
+				{
+					continue;
+				}
+
+				string assemblyName = null;
+				string fullTypeName = null;
+				var firstArg = generatorCandidateAttribute.ConstructorArguments.Single();
+				if (firstArg.Value is string typeName)
+				{
+					// This string is the full name of the type, which MAY be assembly-qualified.
+					int commaIndex = typeName.IndexOf(',');
+					bool isAssemblyQualified = commaIndex >= 0;
+					if (isAssemblyQualified)
+					{
+						fullTypeName = typeName.Substring(0, commaIndex);
+						assemblyName = typeName.Substring(commaIndex + 1).Trim();
+					}
+					else
+					{
+						fullTypeName = typeName;
+						assemblyName = generatorCandidateAttribute.AttributeClass.ContainingAssembly.Name;
+					}
+				}
+				else if (firstArg.Value is INamedTypeSymbol typeOfValue)
+				{
+					// This was a typeof(T) expression
+					fullTypeName = typeOfValue.GetFullTypeName();
+					assemblyName = typeOfValue.ContainingAssembly.Name;
+				}
+
+				if (assemblyName != null)
+				{
+					var assembly = Assembly.Load(new AssemblyName(assemblyName));
+					if (assembly != null)
+					{
+						return assembly.GetType(fullTypeName);
+					}
+				}
+			}
+
+			return null;
 		}
 
 		private static IEnumerable<MetadataReference> GetAssemblyReferences(IEnumerable<Type> extraTypes)
@@ -115,13 +206,13 @@ namespace CodeGeneration.Roslyn.Tests.Common
 			return context;
 		}
 
-		private static CSharpCompilation CreateCompilation(SyntaxTree syntaxTrees,
+		private static CSharpCompilation CreateCompilation(SyntaxTree[] syntaxTrees,
 			IEnumerable<MetadataReference> references)
 		{
 			var assemblyName = Guid.NewGuid().ToString();
 			var compilation = CSharpCompilation.Create(
 				assemblyName,
-				new[] {syntaxTrees},
+				syntaxTrees,
 				references,
 				new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
 					assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
@@ -143,7 +234,8 @@ namespace CodeGeneration.Roslyn.Tests.Common
 						var firstError = compilationErrors.First();
 						var errorNumber = firstError.Id;
 						var errorDescription = firstError.GetMessage();
-						var firstErrorMessage = $"{errorNumber}: {errorDescription};";
+						var text = firstError.Location.SourceTree.GetText();
+						var firstErrorMessage = $"{errorNumber}: {errorDescription}; {Environment.NewLine} {text}";
 						throw new Exception($"Compilation failed, first error is: {firstErrorMessage}");
 					}
 				}

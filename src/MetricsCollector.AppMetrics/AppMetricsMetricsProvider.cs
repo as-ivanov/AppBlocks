@@ -1,3 +1,4 @@
+using System;
 using App.Metrics;
 using App.Metrics.Counter;
 using App.Metrics.Gauge;
@@ -22,77 +23,74 @@ namespace MetricsCollector.AppMetrics
 			_metrics = metrics;
 		}
 
-		public IMeter CreateMeter(string contextName, string name, in Tags tags)
-		{
-			var meterOptions = new MeterOptions
-			{
-				Context = contextName,
-				Name = name
-			};
-			return new Meter(_metrics, meterOptions, tags.ToMetricsTags());
-		}
 
-		public ICounter CreateCounter(string contextName, string name, string metricUnit, in Tags tags)
+		public ICounter CreateCounter(string contextName, string indicatorName, string measurementUnit, in Tags tags)
 		{
 			var counterOptions = new CounterOptions
 			{
 				Context = contextName,
-				Name = name
+				Name = indicatorName,
+				MeasurementUnit = measurementUnit
 			};
 			return new Counter(_metrics, counterOptions, tags.ToMetricsTags());
 		}
 
-		public IHistogram CreateHistogram(string contextName, string name, string metricUnit, in Tags tags)
+		public IHistogram CreateHistogram(string contextName, string indicatorName, string measurementUnit, in Tags tags)
 		{
 			var histogramOptions = new HistogramOptions
 			{
 				Context = contextName,
-				Name = name
+				Name = indicatorName,
+				MeasurementUnit = measurementUnit
 			};
 			return new Histogram(_metrics, histogramOptions, tags.ToMetricsTags());
 		}
 
-		public IHitPercentageGauge CreateHitPercentageGauge(string contextName, string name, string metricUnit, in Tags tags)
+		public IHitPercentageGauge CreateHitPercentageGauge(string contextName, string indicatorName, string measurementUnit, in Tags tags)
 		{
 			var gaugeOptions = new GaugeOptions
 			{
 				Context = contextName,
-				Name = name
+				Name = indicatorName,
+				MeasurementUnit = measurementUnit
 			};
 			return new HitPercentageGauge(_metrics, gaugeOptions, tags.ToMetricsTags());
 		}
 
-		public IMeter CreateMeter(string contextName, string name, string metricUnit, in Tags tags)
+		public IMeter CreateMeter(string contextName, string indicatorName, string measurementUnit, in Tags tags)
 		{
 			var meterOptions = new MeterOptions
 			{
 				Context = contextName,
-				Name = name
+				Name = indicatorName,
+				MeasurementUnit = measurementUnit
 			};
 			return new Meter(_metrics, meterOptions, tags.ToMetricsTags());
 		}
 
-		public ITimer CreateTimer(string contextName, string name, string metricUnit, in Tags tags)
+		public ITimer CreateTimer(string contextName, string indicatorName, string measurementUnit, in Tags tags)
 		{
 			var timerOptions = new TimerOptions
 			{
 				Context = contextName,
-				Name = name
+				Name = indicatorName,
+				MeasurementUnit = measurementUnit
 			};
 			return new Timer(_metrics, timerOptions, tags.ToMetricsTags());
 		}
 
-		public IGauge CreateGauge(string contextName, string name, string metricUnit, in Tags tags)
+		public IGauge CreateGauge(string contextName, string indicatorName, string measurementUnit, in Tags tags)
 		{
 			var gaugeOptions = new GaugeOptions
 			{
 				Context = contextName,
-				Name = name
+				Name = indicatorName,
+				MeasurementUnit = measurementUnit
 			};
 			return new Gauge(_metrics, gaugeOptions, tags.ToMetricsTags());
 		}
 
-		public bool IsEnabled(string contextName, string name)
+		public bool IsEnabled(string contextName, string indicatorName)
 		{
 			return true;
 		}

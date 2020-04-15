@@ -12,4 +12,8 @@
 		<PackageReference Include="xunit" />
 		<PackageReference Include="xunit.runner.visualstudio" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\CodeGeneration.Roslyn.Common\CodeGeneration.Roslyn.Common.csproj" />
+	</ItemGroup>
 </Project>

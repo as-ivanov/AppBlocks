@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,9 +16,9 @@ namespace CodeGeneration.Roslyn.Common
 			return id.ToCamelCase();
 		}
 
-		public static string GetClassName(this TypeDeclarationSyntax typeDeclarationSyntax)
+		public static string GetClassNameFromInterfaceDeclaration(this TypeDeclarationSyntax typeDeclarationSyntax, bool fullName = true)
 		{
-			return typeDeclarationSyntax.Identifier.WithoutTrivia().Text.GetClassName();
+			return typeDeclarationSyntax.Identifier.WithoutTrivia().Text.GetClassNameFromInterfaceName(fullName);
 		}
 
 		public static string GetBaseClassName(this TypeDeclarationSyntax typeDeclarationSyntax)
@@ -28,7 +29,7 @@ namespace CodeGeneration.Roslyn.Common
 			{
 				var firstOne = baseList.Value.First();
 				var fullName = firstOne.Type.ToString();
-				return fullName.GetClassName();
+				return fullName.GetClassNameFromInterfaceName();
 			}
 
 			return null;
@@ -39,6 +40,24 @@ namespace CodeGeneration.Roslyn.Common
 		{
 			var nodesArray = nodes == null ? new T[0] : nodes.ToArray();
 			return SyntaxFactory.SeparatedList(nodesArray, Enumerable.Repeat(SyntaxFactory.Token(separator), Math.Max(nodesArray.Length - 1, 0)));
+		}
+
+		public static string GetFullTypeName(this INamedTypeSymbol symbol)
+		{
+			var nameBuilder = new StringBuilder();
+			ISymbol symbolOrParent = symbol;
+			while (symbolOrParent != null && !string.IsNullOrEmpty(symbolOrParent.Name))
+			{
+				if (nameBuilder.Length > 0)
+				{
+					nameBuilder.Insert(0, ".");
+				}
+
+				nameBuilder.Insert(0, symbolOrParent.Name);
+				symbolOrParent = symbolOrParent.ContainingSymbol;
+			}
+
+			return nameBuilder.ToString();
 		}
 	}
 }

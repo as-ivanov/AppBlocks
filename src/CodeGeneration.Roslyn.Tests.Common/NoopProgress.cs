@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace CodeGeneration.Roslyn.Tests.Common

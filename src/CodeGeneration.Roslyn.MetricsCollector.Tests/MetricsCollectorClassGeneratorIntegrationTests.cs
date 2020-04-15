@@ -1,126 +1,130 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CodeGeneration.Roslyn.Attributes.Common;
 using CodeGeneration.Roslyn.Tests.Common;
+using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using MetricsCollector.Abstractions;
 using Microsoft.CodeAnalysis.CSharp;
+using Moq;
 using Xunit;
 
 namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 {
 	public class MetricsCollectorClassGeneratorIntegrationTests
 	{
-		[Theory]
-		[MemberData(nameof(MethodSignatureGenerator))]
-		public Task PositiveReportingMetricsEnabledTest(string[] baseInterfaceList, string methodSignature, string methodName, string metricsContext,
-			MetricsCollectorType metricsCollectorType, MethodParameter[] methodParameters)
+		public static IEnumerable<object[]> Generate()
 		{
-			return MetricsCollectorMethodGenerationTest(baseInterfaceList, methodSignature, methodName,
-				metricsContext, metricsCollectorType, methodParameters, true);
+			var options = new MetricsCollectorStubGeneratorOptions();
+			var compilationUnitDataBuilder = new CompilationUnitDataBuilder(options);
+			var combinations = compilationUnitDataBuilder.Build();
+			return combinations.Select(_ => new object[] { _ });
 		}
 
 		[Theory]
-		[MemberData(nameof(MethodSignatureGenerator))]
-		public Task NegativeReportingMetricsDisabledTest(string[] baseInterfaceList, string methodSignature, string methodName, string metricsContext,
-			MetricsCollectorType metricsCollectorType, MethodParameter[] methodParameters)
+		[MemberData(nameof(Generate))]
+		public Task PositiveReportingMetricsEnabledTest(ITestGenerationContext generationContext)
 		{
-			return MetricsCollectorMethodGenerationTest(baseInterfaceList, methodSignature, methodName, metricsContext,
-				metricsCollectorType, methodParameters, false);
+			return MetricsCollectorMethodGenerationTest(generationContext, true);
 		}
 
-
-		private async Task MetricsCollectorMethodGenerationTest(string[] baseInterfaceList, string methodSignature, string methodName, string metricsContext,
-			MetricsCollectorType metricsCollectorType, MethodParameter[] methodParameters, bool metricEnabled)
+		[Theory]
+		[MemberData(nameof(Generate))]
+		public Task NegativeReportingMetricsDisabledTest(ITestGenerationContext generationContext)
 		{
-			const string metricsCollectorTypeName = "ITestMetricsCollector";
-			const string metricsCollectorTypeNamespace = "TestNamespace";
+			return MetricsCollectorMethodGenerationTest(generationContext, false);
+		}
 
-			var baseInterfaceListLeadingComma = baseInterfaceList.Any() ? "," : string.Empty;
-			var interfaceSyntaxTree = CSharpSyntaxTree.ParseText(
-				$"using {typeof(Action).Namespace};{Environment.NewLine}" +
-				$"using {typeof(Attributes.MetricsCollectorStubAttribute).Namespace};{Environment.NewLine}" +
-				$"using {typeof(ICounter).Namespace};{Environment.NewLine}" +
-				$"namespace {metricsCollectorTypeNamespace}{{ {Environment.NewLine}" +
-				$"[{nameof(Attributes.MetricsCollectorStubAttribute)}(\"{metricsContext}\" {baseInterfaceListLeadingComma} {string.Join(',', baseInterfaceList.Select(_ => $"\"{metricsCollectorTypeNamespace}.{_}\""))})]{Environment.NewLine}" +
-				$"public interface {metricsCollectorTypeName} {Environment.NewLine}{{{Environment.NewLine} {string.Join(Environment.NewLine, methodSignature)} {Environment.NewLine}}} {Environment.NewLine}}}");
+		private static async Task MetricsCollectorMethodGenerationTest(ITestGenerationContext generationContext, bool metricEnabled)
+		{
+			//var interfaces = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).OfType<InterfaceData>();
 
-			var extraInterfaces =
-				baseInterfaceList.Select(_ => SyntaxTreeHelper.GetEmptyInterfaceSyntax(metricsCollectorTypeNamespace, _));
+			//var inheritedInterfaces = interfaces.SelectMany(_ => _.InheritedInterfaces);
+			//var interfacesFromAttributes = interfaces.SelectMany(_ => _.AttributeDataList).OfType<MetricsCollectorInterfaceAttributeData>().SelectMany(_ => _.InheritedInterfaces);
+
+			//var extraEntries = inheritedInterfaces.Concat(interfacesFromAttributes).Select(_ => new NamespaceData(_.Namespace, _)).Select(_ => new CompilationEntryData(Array.Empty<string>(), _));
+
+			//var entries = generationContext.Entries.Concat(extraEntries);
+
+			var syntaxTrees = generationContext.Entries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString())).ToArray();
 
 			var extraTypes = new[]
 			{
 				typeof(GeneratedCodeAttribute),
 				typeof(Attributes.MetricsCollectorStubAttribute),
 				typeof(ImplementInterfaceAttribute),
-				typeof(IMetricsProvider),
-				typeof(IGauge),
-				typeof(IHistogram),
-				typeof(IHitPercentageGauge),
-				typeof(IMeter),
-				typeof(ITimer)
+				typeof(IMetricsProvider)
 			};
 
 			var assembly =
-				await interfaceSyntaxTree.ProcessTransformationAndCompile<MetricsCollectorClassGenerator>(extraInterfaces,
-					extraTypes);
-		}
+				await syntaxTrees.ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
 
-		public static IEnumerable<object[]> MethodSignatureGenerator
-		{
-			get
+			var metricsCollectorInterfaceMembers = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).Where(_ => _.IsSut);
+
+			foreach (var metricsCollectorInterface in metricsCollectorInterfaceMembers)
 			{
-				var metricsCollectorTypes = Enum.GetValues(typeof(MetricsCollectorType))
-					.Cast<MetricsCollectorType>();
-
-				foreach (var metricsCollectorType in metricsCollectorTypes)
+				var metricsCollectorInterfaceType =
+					assembly.GetType(metricsCollectorInterface.Namespace + "." + metricsCollectorInterface.Name, true);
+				var metricsCollectorType = assembly.GetTypes()
+					.SingleOrDefault(_ => metricsCollectorInterfaceType.IsAssignableFrom(_) && !_.IsAbstract);
+				if (metricsCollectorType == null)
 				{
-					var metricsContext = "MetricsContext" + Guid.NewGuid();
-					yield return new object[]
-					{
-						new[] {"ITestInterface"}, $"{Environment.NewLine} I{metricsCollectorType} MethodWithoutAttribute();",
-						"MethodWithoutAttribute", metricsContext, metricsCollectorType,
-						Array.Empty<MethodParameter>()
-					};
-				}
-
-				foreach (var metricsCollectorType in metricsCollectorTypes)
-				{
-					var metricsContext = "MetricsContext" + Guid.NewGuid();
-					yield return new object[]
-					{
-						Array.Empty<string>(), $"{Environment.NewLine} I{metricsCollectorType} MethodWithoutAttribute();",
-						"MethodWithoutAttribute",  metricsContext, metricsCollectorType, Array.Empty<MethodParameter>()
-					};
-				}
-
-
-				var combinations = from metricsCollectorType in metricsCollectorTypes
-					from paramsCount in Enumerable.Range(0, 2)
-					from type in TypeHelper.Types
-					from baseTypeCount in Enumerable.Range(0, 2)
-					from addException in Enumerable.Range(0, 1)
-					select new {metricsCollectorType, paramsCount, type, addException, baseTypeCount};
-
-				var index = 0;
-				foreach (var combination in combinations)
-				{
-					var metricsContext = "MetricsContext" + Guid.NewGuid();
-					var parameters = Enumerable.Range(0, combination.paramsCount)
-						.Select(_ => new MethodParameter($"param{_}", combination.type));
-					var parametersString = string.Join(",", parameters.Select(_ => $"{_.Type.FullName} {_.Name}"));
-					var methodName = $"Method{index}";
-					index++;
-					yield return new object[]
-					{
-						Enumerable.Range(0, combination.baseTypeCount).Select(_ => $"ITestInterface{_}").ToArray(),
-						$"[{nameof(Attributes.MetricsCollectorMethodStubAttribute)}] {Environment.NewLine} I{combination.metricsCollectorType} {methodName}({parametersString});",
-						methodName, metricsContext, combination.metricsCollectorType, parameters
-					};
+					throw new Exception(
+						$"MetricsCollector implementation for '{metricsCollectorInterface}' not found in emitted assembly");
 				}
 			}
+
+
+			// var parameters = methodParameters.Select(p => p.Value).ToArray();
+			//
+			// var metricsProvider = GetMetricsProvider();
+			//
+			// var metricsCollector = Activator.CreateInstance(metricsCollectorType, metricsProvider.Object);
+			// var metricsCollectorMethod = metricsCollectorType.GetTypeInfo().GetDeclaredMethod(methodName);
+			// if (metricsCollectorMethod == null)
+			// {
+			// 	throw new Exception($"Metrics collector method not found in emitted assembly");
+			// }
+			//
+			// metricsCollectorMethod.Invoke(metricsCollector, parameters);
+			//
+			//
+			// metricsProvider.Verify();
+		}
+
+		private Mock<IMetricsProvider> GetMetricsProvider(string contextName,
+			string indicatorName, string measurementUnit, Tags tags,
+			MetricsCollectorIndicatorType metricsCollectorIndicatorType)
+		{
+			var metricsProvider = new Mock<IMetricsProvider>(MockBehavior.Strict);
+			Action verify;
+			switch (metricsCollectorIndicatorType)
+			{
+				case MetricsCollectorIndicatorType.Counter:
+					var counter = new Mock<ICounter>();
+					metricsProvider.Setup(_ => _.CreateCounter(contextName, indicatorName, measurementUnit, tags))
+						.Returns(counter.Object).Verifiable();
+					break;
+				case MetricsCollectorIndicatorType.Gauge:
+					break;
+				case MetricsCollectorIndicatorType.HitPercentageGauge:
+					break;
+				case MetricsCollectorIndicatorType.Timer:
+					break;
+				case MetricsCollectorIndicatorType.Meter:
+					break;
+				case MetricsCollectorIndicatorType.Histogram:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(metricsCollectorIndicatorType), metricsCollectorIndicatorType,
+						null);
+			}
+
+			return metricsProvider;
 		}
 	}
 }

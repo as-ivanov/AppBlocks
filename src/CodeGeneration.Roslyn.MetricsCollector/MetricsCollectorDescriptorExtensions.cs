@@ -19,7 +19,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 			var contextNameParameter = attributeData.ConstructorArguments.FirstOrDefault();
 			var contextName = contextNameParameter.Value as string;
 			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
-			var className = typeDeclarationSyntax.GetClassName();
+			var className = typeDeclarationSyntax.GetClassNameFromInterfaceDeclaration(false);
 			var baseClassName = typeDeclarationSyntax.GetBaseClassName();
 			return new MetricsCollectorDescriptor(typeDeclarationSyntax, contextName, className, baseClassName,
 				inheritedInterfaceTypes, typeDeclarationSyntax.GetLoggerMethods(context));
@@ -51,16 +51,13 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 			return (attributeData.ConstructorArguments[0].Value as string, attributeData.ConstructorArguments[1].Value as string);
 		}
 
-		// public static string GetMetricsCounterName(MethodDeclarationSyntax methodDeclaration)
-		// {
-		// 	return $"{metricsContextName.ToLower()}__{methodDeclaration.Identifier.WithoutTrivia().Text.ToLower()}";
-		// }
-
-		private static MetricsCollectorType GetMetricsCollectorType(TypeSyntax returnType)
+		private static MetricsCollectorIndicatorType GetMetricsCollectorType(TypeSyntax returnType)
 		{
-			if (!Enum.TryParse<MetricsCollectorType>(returnType.WithoutTrivia().GetText().ToString().TrimStart('I'), out var type))
+			var returnTypeText = returnType.WithoutTrivia().GetText().ToString();
+			returnTypeText = returnTypeText.GetTypeNameWithoutNamespaces(); 
+			if (!Enum.TryParse<MetricsCollectorIndicatorType>(returnTypeText.TrimStart('I'), out var type))
 			{
-				throw new Exception($"Illegal return type:'{returnType.GetText()}'");
+				throw new Exception($"Illegal return type:'{returnTypeText}'");
 			}
 
 			return type;

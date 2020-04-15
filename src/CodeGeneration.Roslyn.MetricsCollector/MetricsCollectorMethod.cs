@@ -9,22 +9,22 @@ namespace CodeGeneration.Roslyn.MetricsCollector
     private readonly MethodDeclarationSyntax _methodDeclarationSyntax;
     private readonly string _metricName;
     private readonly string _unitName;
-    private readonly MetricsCollectorType _metricsMetricsCollectorType;
+    private readonly MetricsCollectorIndicatorType _metricsMetricsCollectorIndicatorType;
     private readonly string _methodName;
     private readonly string _methodNameCamelCase;
 
-    public MetricsCollectorMethod(MethodDeclarationSyntax methodDeclarationSyntax, string metricName, string unitName, MetricsCollectorType metricsMetricsCollectorType)
+    public MetricsCollectorMethod(MethodDeclarationSyntax methodDeclarationSyntax, string metricName, string unitName, MetricsCollectorIndicatorType metricsMetricsCollectorIndicatorType)
     {
       _methodDeclarationSyntax = methodDeclarationSyntax;
       _metricName = metricName;
       _unitName = unitName;
-      _metricsMetricsCollectorType = metricsMetricsCollectorType;
+      _metricsMetricsCollectorIndicatorType = metricsMetricsCollectorIndicatorType;
       _methodName = methodDeclarationSyntax.Identifier.WithoutTrivia().Text;
       _methodNameCamelCase = _methodName.ToCamelCase();
     }
 
     public MethodDeclarationSyntax MethodDeclarationSyntax => _methodDeclarationSyntax;
-    public MetricsCollectorType MetricsCollectorType => _metricsMetricsCollectorType;
+    public MetricsCollectorIndicatorType MetricsCollectorIndicatorType => _metricsMetricsCollectorIndicatorType;
     public string MethodName => _methodName;
     public string MethodNameCamelCase => _methodNameCamelCase;
 

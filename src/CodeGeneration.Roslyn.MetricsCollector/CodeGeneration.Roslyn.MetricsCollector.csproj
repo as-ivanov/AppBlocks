@@ -15,6 +15,9 @@
 	  <Compile Include="..\CodeGeneration.Roslyn.MetricsCollector.Attributes\MetricsCollectorStubAttribute.cs">
 	    <Link>Links\MetricsCollectorStubAttribute.cs</Link>
 	  </Compile>
+		<Compile Include="..\CodeGeneration.Roslyn.MetricsCollector.Attributes\MetricsCollectorMethodStubAttribute.cs">
+			<Link>Links\MetricsCollectorMethodStubAttribute.cs</Link>
+		</Compile>
 		<Compile Include="..\MetricsCollector.Abstractions\IMetricsProvider.cs">
 			<Link>Links\IMetricsProvider.cs</Link>
 		</Compile>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CodeGeneration.Roslyn.Common;
@@ -14,8 +14,8 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 	{
 		private const string MetricsProviderFieldName = "MetricsProvider";
 		private const string ContextNameFieldName = "ContextName";
-		const string tagsVariableName = "tags";
-		const string valuesVariableName = "values";
+		private const string TagsVariableName = "tags";
+		private const string ValuesVariableName = "values";
 
 		public MetricsCollectorClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
 		{
@@ -38,6 +38,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
 			const string metricsProviderVariableName = "metricsProvider";
+
 			var constructorDeclaration = ConstructorDeclaration(
 					Identifier(metricsCollectorDescriptor.ClassName))
 				.WithModifiers(
@@ -49,16 +50,29 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 							Parameter(
 									Identifier(metricsProviderVariableName))
 								.WithType(
-									IdentifierName(typeof(IMetricsProvider).FullName)))))
-				.WithBody(
-					Block(
-						SingletonList<StatementSyntax>(
-							ExpressionStatement(
-								AssignmentExpression(
-									SyntaxKind.SimpleAssignmentExpression,
-									IdentifierName(MetricsProviderFieldName),
-									IdentifierName(metricsProviderVariableName))))));
-			return new[] {constructorDeclaration};
+									IdentifierName(typeof(IMetricsProvider).FullName)))));
+
+			if (metricsCollectorDescriptor.BaseClassName != null)
+			{
+				constructorDeclaration = constructorDeclaration
+					.WithInitializer(
+						ConstructorInitializer(
+							SyntaxKind.BaseConstructorInitializer,
+							ArgumentList(SingletonSeparatedList(Argument(IdentifierName(metricsProviderVariableName))))))
+					.WithBody(Block());
+			}
+			else
+			{
+				constructorDeclaration =constructorDeclaration.WithBody(
+						Block(
+							SingletonList<StatementSyntax>(
+								ExpressionStatement(
+									AssignmentExpression(
+										SyntaxKind.SimpleAssignmentExpression,
+										IdentifierName(MetricsProviderFieldName),
+										IdentifierName(metricsProviderVariableName))))));
+			}
+			return new[] { constructorDeclaration };
 		}
 
 		protected override MemberDeclarationSyntax[] GetMethods(MetricsCollectorDescriptor metricsCollectorDescriptor)
@@ -143,7 +157,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 								MemberAccessExpression(
 									SyntaxKind.SimpleMemberAccessExpression,
 									IdentifierName(typeof(IMetricsProvider).Namespace + ".Null" +
-									               metricsCollectorMethodDescriptor.MetricsCollectorType),
+																 metricsCollectorMethodDescriptor.MetricsCollectorIndicatorType),
 									IdentifierName("Instance"))))));
 			}
 
@@ -187,7 +201,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 						.WithVariables(
 							SingletonSeparatedList(
 								VariableDeclarator(
-										Identifier(tagsVariableName))
+										Identifier(TagsVariableName))
 									.WithInitializer(
 										EqualsValueClause(
 											MemberAccessExpression(
@@ -204,7 +218,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 							MemberAccessExpression(
 								SyntaxKind.SimpleMemberAccessExpression,
 								IdentifierName(MetricsProviderFieldName),
-								IdentifierName("Create" + metricsCollectorMethodDescriptor.MetricsCollectorType)))
+								IdentifierName("Create" + metricsCollectorMethodDescriptor.MetricsCollectorIndicatorType)))
 						.WithArgumentList(
 							ArgumentList(
 								SeparatedList<ArgumentSyntax>(
@@ -220,7 +234,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 											IdentifierName(metricUnitVariableName)),
 										Token(SyntaxKind.CommaToken),
 										Argument(
-											IdentifierName(tagsVariableName))
+											IdentifierName(TagsVariableName))
 									}))));
 			}
 
@@ -237,7 +251,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 					.WithVariables(
 						SingletonSeparatedList(
 							VariableDeclarator(
-									Identifier(tagsVariableName))
+									Identifier(TagsVariableName))
 								.WithInitializer(
 									EqualsValueClause(
 										ObjectCreationExpression(
@@ -269,7 +283,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 					.WithVariables(
 						SingletonSeparatedList(
 							VariableDeclarator(
-									Identifier(valuesVariableName))
+									Identifier(ValuesVariableName))
 								.WithInitializer(
 									EqualsValueClause(
 										ArrayCreationExpression(
@@ -290,7 +304,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 					.WithVariables(
 						SingletonSeparatedList(
 							VariableDeclarator(
-									Identifier(tagsVariableName))
+									Identifier(TagsVariableName))
 								.WithInitializer(
 									EqualsValueClause(
 										ObjectCreationExpression(
@@ -304,7 +318,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 																IdentifierName("_" + metricsCollectorMethodDescriptor.MethodNameCamelCase)),
 															Token(SyntaxKind.CommaToken),
 															Argument(
-																IdentifierName(valuesVariableName))
+																IdentifierName(ValuesVariableName))
 														}))))))));
 		}
 
