@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +68,7 @@ namespace CodeGeneration.Roslyn.Common
 
 		private MemberDeclarationSyntax GetImplementation(TImplementationDescriptor implementationDescriptor)
 		{
-			var baseTypes = GetLoggerBaseList(implementationDescriptor, implementationDescriptor.InheritedInterfaceTypes);
+			var baseTypes = GetClassBaseList(implementationDescriptor, implementationDescriptor.InheritedInterfaceTypes);
 			var classDeclaration = ClassDeclaration(implementationDescriptor.ClassName)
 				.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.PartialKeyword)))
 				.AddAttributeLists(GetAttributeList())
@@ -86,7 +86,7 @@ namespace CodeGeneration.Roslyn.Common
 
 		protected abstract MemberDeclarationSyntax[] GetMethods(TImplementationDescriptor descriptor);
 
-		private static BaseTypeSyntax[] GetLoggerBaseList(TImplementationDescriptor descriptor,
+		private static BaseTypeSyntax[] GetClassBaseList(TImplementationDescriptor descriptor,
 			string[] inheritedInterfaceTypes)
 		{
 			var baseTypeList = new List<BaseTypeSyntax>();
