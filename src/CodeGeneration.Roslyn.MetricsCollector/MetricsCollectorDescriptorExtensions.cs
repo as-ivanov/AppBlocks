@@ -48,7 +48,9 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 			{
 				return (null, null);
 			}
-			return (attributeData.ConstructorArguments[0].Value as string, attributeData.ConstructorArguments[1].Value as string);
+			var metricName = attributeData.ConstructorArguments.Length > 0 ? attributeData.ConstructorArguments[0].Value as string : null;
+			var unitName = attributeData.ConstructorArguments.Length > 1 ? attributeData.ConstructorArguments[1].Value as string : null;
+			return (metricName, unitName);
 		}
 
 		private static MetricsCollectorIndicatorType GetMetricsCollectorType(TypeSyntax returnType)
