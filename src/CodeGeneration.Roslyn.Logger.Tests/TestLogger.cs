@@ -35,7 +35,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			var sb = new StringBuilder(message);
 			foreach (var methodParameter in methodParameters)
 			{
-				if (typeof(Exception).IsAssignableFrom(methodParameter.Type1))
+				if (typeof(Exception).IsAssignableFrom(methodParameter.ParameterType))
 				{
 					continue;
 				}

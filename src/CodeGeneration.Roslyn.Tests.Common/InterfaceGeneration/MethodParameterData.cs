@@ -20,11 +20,11 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public string Name => _name;
 
-		public Type Type1 => _type;
+		public Type ParameterType => _type;
 
 		public override string ToString()
 		{
-			return $"{Type1} {Name}";
+			return $"{ParameterType} {Name}";
 		}
 
 		public static IEnumerable<MethodParameterData> GetPossibleVariations(ITestInterfaceGenerationOptions options)
