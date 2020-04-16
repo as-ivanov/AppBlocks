@@ -35,7 +35,10 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			var sb = new StringBuilder(message);
 			foreach (var methodParameter in methodParameters)
 			{
-				var formattedValue =
+				if (typeof(Exception).IsAssignableFrom(methodParameter.Type1))
+				{
+					continue;
+				}
 				sb.Append($". {methodParameter.Name.ToPascalCase()}: \"{methodParameter.GetFormattedValue()}\"");
 			}
 			_message = sb.ToString();
