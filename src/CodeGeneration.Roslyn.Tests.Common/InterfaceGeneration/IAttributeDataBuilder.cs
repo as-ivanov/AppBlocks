@@ -6,6 +6,6 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
 	public interface IAttributeDataBuilder
 	{
-		IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetCombinations(ITestInterfaceGenerationOptions options);
+		IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetPossibleCombinations(ITestInterfaceGenerationOptions options);
 	}
 }

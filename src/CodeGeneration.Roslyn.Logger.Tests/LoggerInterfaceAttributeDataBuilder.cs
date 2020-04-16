@@ -7,7 +7,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 {
 	public class LoggerInterfaceAttributeDataBuilder : IAttributeDataBuilder
 	{
-		public IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetCombinations(ITestInterfaceGenerationOptions options)
+		public IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetPossibleCombinations(ITestInterfaceGenerationOptions options)
 		{
 			var attributeToInheritInterfacesNumbers = Enumerable.Range(0, 2);
 			foreach (var attributeToInheritInterfacesNumber in attributeToInheritInterfacesNumbers)

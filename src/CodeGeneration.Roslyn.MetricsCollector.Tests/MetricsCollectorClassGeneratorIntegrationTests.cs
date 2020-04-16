@@ -57,9 +57,16 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			{
 				assembly = await syntaxTrees.ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
-				var t = 0;
+				if (Debugger.IsAttached)
+				{
+					Debugger.Break();
+				}
+				else
+				{
+					throw;
+				}
 			}
 
 			var sutMembers = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).Where(_ => _.IsSut);

@@ -8,7 +8,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 	public class MetricsCollectorInterfaceAttributeDataBuilder : IAttributeDataBuilder
 	{
-		public IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetCombinations(ITestInterfaceGenerationOptions options)
+		public IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetPossibleCombinations(ITestInterfaceGenerationOptions options)
 		{
 			var attributeToInheritInterfacesNumbers = Enumerable.Range(0, 2);
 			foreach (var attributeToInheritInterfacesNumber in attributeToInheritInterfacesNumbers)

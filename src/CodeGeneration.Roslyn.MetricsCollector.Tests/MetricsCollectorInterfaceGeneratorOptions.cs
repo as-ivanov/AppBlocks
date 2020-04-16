@@ -17,11 +17,11 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 		private readonly Type[] _interfaceMethodReturnTypes =
 		{
 			typeof(ICounter),
-			// typeof(IHistogram),
-			// typeof(IHitPercentageGauge),
-			// typeof(IMeter),
-			// typeof(IGauge),
-			// typeof(ITimer)
+			typeof(IHistogram),
+			typeof(IHitPercentageGauge),
+			typeof(IMeter),
+			typeof(IGauge),
+			typeof(ITimer)
 		};
 
 		private readonly int[] _interfaceNumbers = Enumerable.Range(1, 2).ToArray();
@@ -40,20 +40,20 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 		private readonly Type[] _methodParameterTypes = {
 			typeof(string),
 			typeof(char),
-			// typeof(byte),
+			typeof(byte),
 			//typeof(sbyte),
 			//typeof(ushort),
-			//typeof(short),
+			typeof(short),
 			//typeof(uint),
 			//typeof(int),
 			//typeof(ulong),
 			//typeof(long),
-			//typeof(float),
+			typeof(float),
 			// typeof(double),
 			// typeof(decimal),
-			//typeof(DateTime),
-			//typeof(object),
-			//typeof(Exception),
+			typeof(DateTime),
+			typeof(object),
+			typeof(Exception)
 		};
 
 		private readonly IInheritanceListBuilder _inheritanceListBuilder = new MetricsCollectorInterfaceInheritanceListBuilder();

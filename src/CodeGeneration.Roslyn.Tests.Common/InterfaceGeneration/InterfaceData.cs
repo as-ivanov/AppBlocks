@@ -44,7 +44,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		{
 			var interfaceMethodPossibleVariations = InterfaceMethodData.GetPossibleVariations(options).ToList();
 
-			var interfaceAttributeDataCombinations = options.InterfaceAttributeDataBuilder.GetCombinations(options);
+			var interfaceAttributeDataCombinations = options.InterfaceAttributeDataBuilder.GetPossibleCombinations(options);
 			foreach (var attributeData in interfaceAttributeDataCombinations)
 			{
 				foreach (var inheritedInterfaceCount in options.InheritedInterfaceCounts)
@@ -53,11 +53,24 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 					foreach (var methodsCount in options.InterfaceMethodsCounts)
 					{
-						foreach (var methods in interfaceMethodPossibleVariations
-							.GetPossibleCombinations(methodsCount))
+						Func<ITestGenerationContext, InterfaceData> CreateInterfaceDataVariation(IEnumerable<Func<ITestGenerationContext, InterfaceMethodData>> methods)
 						{
+							return (context) => new InterfaceData("ITestInterface" + context.NextId(), options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true);
+						}
 
-							yield return (context) => { return new InterfaceData("ITestInterface" + context.NextId(), options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true); };
+						if (methodsCount == 1)
+						{
+							foreach (var methods in interfaceMethodPossibleVariations
+								.GetPossibleCombinations(methodsCount))
+							{
+
+								yield return CreateInterfaceDataVariation(methods);
+							}
+						}
+						else
+						{
+							var methods = interfaceMethodPossibleVariations.Take(methodsCount);
+							yield return CreateInterfaceDataVariation(methods);
 						}
 					}
 				}

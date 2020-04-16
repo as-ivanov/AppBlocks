@@ -32,7 +32,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		public static IEnumerable<Func<ITestGenerationContext, InterfaceMethodData>> GetPossibleVariations(
 			ITestInterfaceGenerationOptions options)
 		{
-			var methodAttributeCombinations = options.MethodAttributeDataBuilder.GetCombinations(options);
+			var methodAttributeCombinations = options.MethodAttributeDataBuilder.GetPossibleCombinations(options);
 			var methodParameterPossibleVariations = MethodParameterData.GetPossibleVariations(options).ToList();
 			foreach (var attributeData in methodAttributeCombinations)
 			{
@@ -40,11 +40,22 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 				{
 					foreach (var parametersCount in options.MethodParameterCounts)
 					{
-						foreach (var parameters in methodParameterPossibleVariations
-							.GetPossibleCombinations(parametersCount))
+						Func<ITestGenerationContext, InterfaceMethodData> CreateInterfaceMethodDataVariation(IEnumerable<MethodParameterData> parameters)
 						{
-							yield return (context) => new InterfaceMethodData(returnType, "Method" + context.NextId(),
-								attributeData(context).ToArray(), parameters.ToArray());
+							return (context) => new InterfaceMethodData(returnType, "Method" + context.NextId(), attributeData(context).ToArray(), parameters.ToArray());
+						}
+						if (parametersCount == 1)
+						{
+							foreach (var parameters in methodParameterPossibleVariations
+								.GetPossibleCombinations(parametersCount))
+							{
+								yield return CreateInterfaceMethodDataVariation(parameters);
+							}
+						}
+						else
+						{
+							var parameters = methodParameterPossibleVariations.Take(parametersCount);
+							yield return CreateInterfaceMethodDataVariation(parameters);
 						}
 					}
 				}

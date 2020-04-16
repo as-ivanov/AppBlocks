@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
 using System.Reflection;
@@ -52,7 +53,22 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 				typeof(ILogger)
 			};
 
-			var assembly = await syntaxTrees.ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
+			Assembly assembly = null;
+			try
+			{
+				assembly = await syntaxTrees.ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
+			}
+			catch (Exception)
+			{
+				if (Debugger.IsAttached)
+				{
+					Debugger.Break();
+				}
+				else
+				{
+					throw;
+				}
+			}
 
 			var sutMembers = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members)
 				.Where(_ => _.IsSut).OfType<InterfaceData>();
