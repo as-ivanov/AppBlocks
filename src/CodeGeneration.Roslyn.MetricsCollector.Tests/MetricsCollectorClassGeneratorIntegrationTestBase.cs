@@ -12,11 +12,10 @@ using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using MetricsCollector.Abstractions;
 using Microsoft.CodeAnalysis.CSharp;
 using Moq;
-using Xunit;
 
 namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 {
-	public class MetricsCollectorClassGeneratorIntegrationTests
+	public class MetricsCollectorClassGeneratorIntegrationTestBase
 	{
 		public static IEnumerable<object[]> Generate()
 		{
@@ -25,22 +24,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			var combinations = compilationUnitDataBuilder.Build();
 			return combinations.Select(_ => new object[] { _ });
 		}
-
-		[Theory]
-		[MemberData(nameof(Generate))]
-		public Task PositiveReportingMetricsEnabledTest(ITestGenerationContext generationContext)
-		{
-			return MetricsCollectorMethodGenerationTest(generationContext, true);
-		}
-
-		[Theory]
-		[MemberData(nameof(Generate))]
-		public Task NegativeReportingMetricsDisabledTest(ITestGenerationContext generationContext)
-		{
-			return MetricsCollectorMethodGenerationTest(generationContext, false);
-		}
-
-		private static async Task MetricsCollectorMethodGenerationTest(ITestGenerationContext generationContext, bool metricEnabled)
+		protected static async Task MetricsCollectorMethodGenerationTest(ITestGenerationContext generationContext, bool metricEnabled)
 		{
 			var syntaxTrees = generationContext.Entries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString())).ToArray();
 

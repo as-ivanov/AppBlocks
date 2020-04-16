@@ -11,11 +11,10 @@ using CodeGeneration.Roslyn.Attributes.Common;
 using CodeGeneration.Roslyn.Tests.Common;
 using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using Microsoft.Extensions.Logging;
-using Xunit;
 
 namespace CodeGeneration.Roslyn.Logger.Tests
 {
-	public class LoggerClassGeneratorIntegrationTests
+	public class LoggerClassGeneratorIntegrationTestBase
 	{
 		public static IEnumerable<object[]> Generate()
 		{
@@ -25,22 +24,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			return combinations.Select(_ => new object[] {_});
 		}
 
-		[Theory]
-		[MemberData(nameof(Generate))]
-		public Task PositiveLoggingLogEnabledTest(ITestGenerationContext generationContext)
-		{
-			return LoggerMethodGenerationTest(generationContext, true);
-		}
-
-		[Theory]
-		[MemberData(nameof(Generate))]
-		public Task NegativeLoggingLogDisabledTest(ITestGenerationContext generationContext)
-		{
-			return LoggerMethodGenerationTest(generationContext, false);
-		}
-
-
-		private static async Task LoggerMethodGenerationTest(ITestGenerationContext generationContext, bool logEnabled)
+		protected static async Task LoggerMethodGenerationTest(ITestGenerationContext generationContext, bool logEnabled)
 		{
 			var syntaxTrees = generationContext.Entries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString()))
 				.ToArray();
