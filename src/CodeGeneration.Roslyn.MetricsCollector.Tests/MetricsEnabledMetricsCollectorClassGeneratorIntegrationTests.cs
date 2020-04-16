@@ -9,9 +9,9 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 		[Theory]
 		[MemberData(nameof(Generate))]
-		public Task PositiveReportingTest(ITestGenerationContext generationContext)
+		public Task PositiveReportingTest(ITestContext context)
 		{
-			return MetricsCollectorMethodGenerationTest(generationContext, true);
+			return MetricsCollectorMethodGenerationTest(context, true);
 		}
 	}
 }

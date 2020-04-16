@@ -4,25 +4,25 @@ using System.Linq;
 
 namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
-	public class TestGenerationContext : ITestGenerationContext
+	public class TestContext : ITestContext
 	{
 		private readonly ITestInterfaceGenerationOptions _options;
 		private readonly List<CompilationEntryData> _entries = new List<CompilationEntryData>();
 		private int _currentId = 1;
 
-		public TestGenerationContext(ITestInterfaceGenerationOptions options)
+		public TestContext(ITestInterfaceGenerationOptions options)
 		{
 			_options = options;
 		}
 
-		public void AddEntry(CompilationEntryData compilationEntryData)
+		public void AddCompilationEntry(CompilationEntryData compilationEntryData)
 		{
 			_entries.Add(compilationEntryData);
 		}
 
 		public ITestInterfaceGenerationOptions Options => _options;
 
-		public IReadOnlyList<CompilationEntryData> Entries => _entries;
+		public IReadOnlyList<CompilationEntryData> CompilationEntries => _entries;
 		public int NextId()
 		{
 			return _currentId++;
@@ -30,7 +30,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public override string ToString()
 		{
-			return string.Join(Environment.NewLine, Entries);
+			return string.Join(Environment.NewLine, CompilationEntries);
 		}
 	}
 }

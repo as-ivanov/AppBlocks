@@ -8,9 +8,9 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 	{
 		[Theory]
 		[MemberData(nameof(Generate))]
-		public Task PositiveLoggingTest(ITestGenerationContext generationContext)
+		public Task PositiveLoggingTest(ITestContext context)
 		{
-			return LoggerMethodGenerationTest(generationContext, true);
+			return LoggerMethodGenerationTest(context, true);
 		}
 	}
 }

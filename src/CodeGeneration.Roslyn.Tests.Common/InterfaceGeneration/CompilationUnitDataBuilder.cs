@@ -14,14 +14,14 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			_options = options;
 		}
 
-		public IEnumerable<ITestGenerationContext> Build()
+		public IEnumerable<ITestContext> Build()
 		{
 			var interfaceVariations = InterfaceData.GetPossibleVariations(_options).ToList();
-			foreach (var interfaceNumber in _options.InterfaceCounts)
+			foreach (var interfaceCount in _options.InterfaceCounts)
 			{
-				if (interfaceNumber == 1)
+				if (interfaceCount == 1)
 				{
-					var interfaceCombinations = interfaceVariations.GetPossibleCombinations(interfaceNumber);
+					var interfaceCombinations = interfaceVariations.GetPossibleCombinations(interfaceCount);
 					foreach (var interfaceCombination in interfaceCombinations)
 					{
 						var generationContext = GetInterfaceCombinationData(interfaceCombination);
@@ -30,19 +30,19 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 				}
 				else
 				{
-					var interfaceCombination = interfaceVariations.Take(interfaceNumber);
+					var interfaceCombination = interfaceVariations.Take(interfaceCount);
 					var generationContext = GetInterfaceCombinationData(interfaceCombination);
 					yield return generationContext;
 				}
 			}
 		}
 
-		private ITestGenerationContext GetInterfaceCombinationData(IEnumerable<Func<ITestGenerationContext, InterfaceData>> interfaceCombination)
+		private ITestContext GetInterfaceCombinationData(IEnumerable<Func<ITestContext, InterfaceData>> interfaceCombination)
 		{
-			var generationContext = new TestGenerationContext(_options);
+			var generationContext = new TestContext(_options);
 			var namespaceData = new NamespaceData(_options.InterfaceNamespace, interfaceCombination.Select(_ => _.Invoke(generationContext)).ToArray());
 			var compilationEntryData = new CompilationEntryData(_options.UsingNamespaces, namespaceData);
-			generationContext.AddEntry(compilationEntryData);
+			generationContext.AddCompilationEntry(compilationEntryData);
 			return generationContext;
 		}
 	}

@@ -24,9 +24,9 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			var combinations = compilationUnitDataBuilder.Build();
 			return combinations.Select(_ => new object[] { _ });
 		}
-		protected static async Task MetricsCollectorMethodGenerationTest(ITestGenerationContext generationContext, bool metricEnabled)
+		protected static async Task MetricsCollectorMethodGenerationTest(ITestContext context, bool metricEnabled)
 		{
-			var syntaxTrees = generationContext.Entries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString())).ToArray();
+			var syntaxTrees = context.CompilationEntries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString())).ToArray();
 
 			var extraTypes = new[]
 			{
@@ -53,7 +53,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 				}
 			}
 
-			var sutMembers = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).Where(_ => _.IsSut);
+			var sutMembers = context.CompilationEntries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).Where(_ => _.IsSut);
 
 			foreach (var sutMember in sutMembers)
 			{

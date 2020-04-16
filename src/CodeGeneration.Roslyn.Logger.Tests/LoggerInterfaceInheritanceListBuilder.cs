@@ -6,7 +6,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 {
 	public class LoggerInterfaceInheritanceListBuilder : IInheritanceListBuilder
 	{
-		public Func<ITestGenerationContext, InterfaceData[]> GetInheritedInterfaces(ITestInterfaceGenerationOptions options, int count)
+		public Func<ITestContext, InterfaceData[]> GetInheritedInterfaces(ITestInterfaceGenerationOptions options, int count)
 		{
 			return (context) =>
 			{
@@ -15,7 +15,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 				{
 					var namespaceData = new NamespaceData(@interface.Namespace, @interface);
 					var compilationEntryData = new CompilationEntryData(options.UsingNamespaces, namespaceData);
-					context.AddEntry(compilationEntryData);
+					context.AddCompilationEntry(compilationEntryData);
 				}
 				return interfaces;
 			};

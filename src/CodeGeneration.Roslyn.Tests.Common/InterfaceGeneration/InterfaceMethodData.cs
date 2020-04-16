@@ -29,7 +29,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public MethodParameterData[] Parameters => _parameters;
 
-		public static IEnumerable<Func<ITestGenerationContext, InterfaceMethodData>> GetPossibleVariations(
+		public static IEnumerable<Func<ITestContext, InterfaceMethodData>> GetPossibleVariations(
 			ITestInterfaceGenerationOptions options)
 		{
 			var methodAttributeCombinations = options.MethodAttributeDataBuilder.GetPossibleCombinations(options);
@@ -40,7 +40,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 				{
 					foreach (var parametersCount in options.MethodParameterCounts)
 					{
-						Func<ITestGenerationContext, InterfaceMethodData> CreateInterfaceMethodDataVariation(IEnumerable<MethodParameterData> parameters)
+						Func<ITestContext, InterfaceMethodData> CreateInterfaceMethodDataVariation(IEnumerable<MethodParameterData> parameters)
 						{
 							return (context) => new InterfaceMethodData(returnType, "Method" + context.NextId(), attributeData(context).ToArray(), parameters.ToArray());
 						}

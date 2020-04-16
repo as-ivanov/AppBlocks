@@ -6,7 +6,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 {
 	public class LoggerInterfaceMethodAttributeDataBuilder : IAttributeDataBuilder
 	{
-		public IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetPossibleCombinations(
+		public IEnumerable<Func<ITestContext, IEnumerable<AttributeData>>> GetPossibleCombinations(
 			ITestInterfaceGenerationOptions options)
 		{
 			yield return c => { return new AttributeData[0]; };

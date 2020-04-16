@@ -24,9 +24,9 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			return combinations.Select(_ => new object[] {_});
 		}
 
-		protected static async Task LoggerMethodGenerationTest(ITestGenerationContext generationContext, bool logEnabled)
+		protected static async Task LoggerMethodGenerationTest(ITestContext context, bool logEnabled)
 		{
-			var syntaxTrees = generationContext.Entries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString()))
+			var syntaxTrees = context.CompilationEntries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString()))
 				.ToArray();
 
 			var extraTypes = new[]
@@ -54,7 +54,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 				}
 			}
 
-			var sutMembers = generationContext.Entries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members)
+			var sutMembers = context.CompilationEntries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members)
 				.Where(_ => _.IsSut).OfType<InterfaceData>();
 
 			foreach (var sutMember in sutMembers)

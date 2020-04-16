@@ -40,7 +40,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public InterfaceMethodData[] Methods => _methods;
 
-		public static IEnumerable<Func<ITestGenerationContext, InterfaceData>> GetPossibleVariations(ITestInterfaceGenerationOptions options)
+		public static IEnumerable<Func<ITestContext, InterfaceData>> GetPossibleVariations(ITestInterfaceGenerationOptions options)
 		{
 			var interfaceMethodPossibleVariations = InterfaceMethodData.GetPossibleVariations(options).ToList();
 
@@ -53,7 +53,7 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 					foreach (var methodsCount in options.InterfaceMethodsCounts)
 					{
-						Func<ITestGenerationContext, InterfaceData> CreateInterfaceDataVariation(IEnumerable<Func<ITestGenerationContext, InterfaceMethodData>> methods)
+						Func<ITestContext, InterfaceData> CreateInterfaceDataVariation(IEnumerable<Func<ITestContext, InterfaceMethodData>> methods)
 						{
 							return (context) => new InterfaceData("ITestInterface" + context.NextId(), options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true);
 						}

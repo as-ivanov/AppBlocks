@@ -6,7 +6,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 {
 	public class MetricsCollectorInterfaceMethodAttributeDataDataBuilder : IAttributeDataBuilder
 	{
-		public IEnumerable<Func<ITestGenerationContext, IEnumerable<AttributeData>>> GetPossibleCombinations(ITestInterfaceGenerationOptions options)
+		public IEnumerable<Func<ITestContext, IEnumerable<AttributeData>>> GetPossibleCombinations(ITestInterfaceGenerationOptions options)
 		{
 			yield return c => { return new AttributeData[0]; };
 			yield return c =>

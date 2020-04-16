@@ -24,10 +24,10 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			typeof(ITimer)
 		};
 
-		private readonly int[] _interfaceNumbers = Enumerable.Range(1, 2).ToArray();
-		private readonly int[] _inheritedInterfaceNumbers = Enumerable.Range(0, 2).ToArray();
-		private readonly int[] _interfaceMethodsNumbers = Enumerable.Range(0, 2).ToArray();
-		private readonly int[] _methodParameterNumbers = Enumerable.Range(0, 3).ToArray();
+		private readonly int[] _interfaceCounts = Enumerable.Range(1, 2).ToArray();
+		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 2).ToArray();
+		private readonly int[] _interfaceMethodsCounts = Enumerable.Range(0, 2).ToArray();
+		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
 
 		private const string _interfaceNamespace = "TestNamespace";
 
@@ -44,7 +44,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			//typeof(sbyte),
 			//typeof(ushort),
 			typeof(short),
-			//typeof(uint),
+			typeof(uint),
 			//typeof(int),
 			//typeof(ulong),
 			//typeof(long),
@@ -66,13 +66,13 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 		public Type[] InterfaceMethodReturnTypes => _interfaceMethodReturnTypes;
 
-		public int[] InterfaceCounts => _interfaceNumbers;
+		public int[] InterfaceCounts => _interfaceCounts;
 
-		public int[] InheritedInterfaceCounts => _inheritedInterfaceNumbers;
+		public int[] InheritedInterfaceCounts => _inheritedInterfaceCounts;
 
-		public int[] InterfaceMethodsCounts => _interfaceMethodsNumbers;
+		public int[] InterfaceMethodsCounts => _interfaceMethodsCounts;
 
-		public int[] MethodParameterCounts => _methodParameterNumbers;
+		public int[] MethodParameterCounts => _methodParameterCounts;
 
 		public Type[] MethodParameterTypes => _methodParameterTypes;
 
