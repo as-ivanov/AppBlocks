@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="App.Metrics.Abstractions" Version="4.0.0-preview1.0.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MetricsCollector.Abstractions\MetricsCollector.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>

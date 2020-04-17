@@ -1,4 +1,4 @@
-namespace CodeGeneration.Roslyn.Logger.Attributes
+namespace CodeGeneration.Roslyn.Attributes.Common
 {
 	public static class CodeGenerationAttributesConsts
 	{

@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.43-alpha" />
+	<PropertyGroup>
+		<TargetFramework>netcoreapp2.1</TargetFramework>
+		<IsTool>true</IsTool>
+		<DevelopmentDependency>True</DevelopmentDependency>
+		<Description>Utility for generating high-performance metrics collectors.</Description>
+	</PropertyGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>CodeGeneration.Roslyn.Logger.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Include="..\CodeGeneration.Roslyn.MetricsCollector.Attributes\MetricsCollectorStubAttribute.cs">
+	    <Link>Links\MetricsCollectorStubAttribute.cs</Link>
+	  </Compile>
+		<Compile Include="..\CodeGeneration.Roslyn.MetricsCollector.Attributes\MetricsCollectorMethodStubAttribute.cs">
+			<Link>Links\MetricsCollectorMethodStubAttribute.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\IMetricsProvider.cs">
+			<Link>Links\IMetricsProvider.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\ICounter.cs">
+			<Link>Links\ICounter.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\IGauge.cs">
+			<Link>Links\IGauge.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\IHistogram.cs">
+			<Link>Links\IHistogram.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\IHitPercentageGauge.cs">
+			<Link>Links\IHitPercentageGauge.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\IMeter.cs">
+			<Link>Links\IMeter.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\ITimer.cs">
+			<Link>Links\ITimer.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\NullCounter.cs">
+			<Link>Links\NullCounter.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\NullGauge.cs">
+			<Link>Links\NullGauge.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\NullHistogram.cs">
+			<Link>Links\NullHistogram.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\NullHitPercentageGauge.cs">
+			<Link>Links\NullHitPercentageGauge.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\NullMeter.cs">
+			<Link>Links\NullMeter.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\NullTimer.cs">
+			<Link>Links\NullTimer.cs</Link>
+		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\Tags.cs">
+			<Link>Links\Tags.cs</Link>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\CodeGeneration.Roslyn.Attributes.Common\CodeGeneration.Roslyn.Attributes.Common.csproj" />
+	  <ProjectReference Include="..\CodeGeneration.Roslyn.Common\CodeGeneration.Roslyn.Common.csproj" />
+	</ItemGroup>
+</Project>
