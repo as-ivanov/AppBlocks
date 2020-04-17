@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 		Directory.Build.props = Directory.Build.props
 		directory.build.targets = directory.build.targets
 		global.json = global.json
+		packages.props = packages.props
 		version.json = version.json
 	EndProjectSection
 EndProject

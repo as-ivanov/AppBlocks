@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard1.1;netstandard2.0</TargetFrameworks>
 		<Description>Provides the attributed hooks for invoking metrics collector type generation.</Description>
 	</PropertyGroup>
 

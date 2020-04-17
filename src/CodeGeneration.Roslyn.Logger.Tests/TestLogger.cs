@@ -106,9 +106,9 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 				throw new Exception($"{nameof(Log)} was called with unexpected log message:{_actualMessage}. Expected:{_message}");
 			}
 
-			if (_actualEventId != _eventId)
+			if (_actualEventId.Id != _eventId.Id || _actualEventId.Name != _eventId.Name)
 			{
-				throw new Exception($"{nameof(Log)} was called with unexpected log eventId:{_actualEventId}. Expected:{_eventId}");
+				throw new Exception($"{nameof(Log)} was called with unexpected log eventId:{_actualEventId.Id}-{_actualEventId.Name}. Expected:{_eventId.Id}-{_eventId.Name}");
 			}
 		}
 

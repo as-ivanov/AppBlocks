@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
+	<PropertyGroup>
+		<CodeGenerationRoslynPackagesVersion>0.7.63</CodeGenerationRoslynPackagesVersion>
+	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="0.7.43-alpha"/>
-		<PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="3.1.3"/>
+		<PackageReference Update="CodeGeneration.Roslyn"            Version="$(CodeGenerationRoslynPackagesVersion)" />
+		<PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="$(CodeGenerationRoslynPackagesVersion)" />
+		<PackageReference Update="CodeGeneration.Roslyn.Tool"       Version="$(CodeGenerationRoslynPackagesVersion)" PrivateAssets="all" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="1.0"/>
 		<PackageReference Update="xunit" Version="2.4.1"/>
 		<PackageReference Update="FluentAssertions" Version="5.10.3"/>
 		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.5.0" />
