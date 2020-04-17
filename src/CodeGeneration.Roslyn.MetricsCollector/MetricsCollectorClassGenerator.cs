@@ -49,8 +49,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 						SingletonSeparatedList(
 							Parameter(
 									Identifier(metricsProviderVariableName))
-								.WithType(
-									IdentifierName(typeof(IMetricsProvider).FullName)))));
+								.WithType(typeof(IMetricsProvider).GetTypeSyntax()))));
 
 			if (metricsCollectorDescriptor.BaseClassName != null)
 			{
@@ -63,7 +62,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 			}
 			else
 			{
-				constructorDeclaration =constructorDeclaration.WithBody(
+				constructorDeclaration = constructorDeclaration.WithBody(
 						Block(
 							SingletonList<StatementSyntax>(
 								ExpressionStatement(
@@ -156,8 +155,10 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 							ReturnStatement(
 								MemberAccessExpression(
 									SyntaxKind.SimpleMemberAccessExpression,
-									IdentifierName(typeof(IMetricsProvider).Namespace + ".Null" +
-																 metricsCollectorMethodDescriptor.MetricsCollectorIndicatorType),
+									AliasQualifiedName(
+										IdentifierName(Token(SyntaxKind.GlobalKeyword)),
+										IdentifierName(typeof(IMetricsProvider).Namespace + ".Null" +
+																 metricsCollectorMethodDescriptor.MetricsCollectorIndicatorType)),
 									IdentifierName("Instance"))))));
 			}
 
@@ -206,7 +207,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 										EqualsValueClause(
 											MemberAccessExpression(
 												SyntaxKind.SimpleMemberAccessExpression,
-												IdentifierName(typeof(Tags).FullName),
+												typeof(Tags).GetTypeSyntax(),
 												IdentifierName(nameof(Tags.Empty)))))))));
 			}
 
@@ -254,8 +255,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 									Identifier(TagsVariableName))
 								.WithInitializer(
 									EqualsValueClause(
-										ObjectCreationExpression(
-												IdentifierName(typeof(Tags).FullName))
+										ObjectCreationExpression(typeof(Tags).GetTypeSyntax())
 											.WithArgumentList(
 												ArgumentList(SeparatedList<ArgumentSyntax>(
 													new SyntaxNodeOrToken[]
@@ -307,8 +307,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 									Identifier(TagsVariableName))
 								.WithInitializer(
 									EqualsValueClause(
-										ObjectCreationExpression(
-												IdentifierName(typeof(Tags).FullName))
+										ObjectCreationExpression(typeof(Tags).GetTypeSyntax())
 											.WithArgumentList(
 												ArgumentList(
 													SeparatedList<ArgumentSyntax>(
@@ -345,9 +344,9 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 					contextNameFieldDeclaration
 				};
 			}
-			
+
 			var metricsProviderFieldDeclaration = FieldDeclaration(
-					VariableDeclaration(IdentifierName(typeof(IMetricsProvider).FullName))
+					VariableDeclaration(typeof(IMetricsProvider).GetTypeSyntax())
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsProviderFieldName)))))
 				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 

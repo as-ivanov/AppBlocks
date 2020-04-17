@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,11 +18,6 @@ namespace CodeGeneration.Roslyn.Logger
 		public LoggerClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
 		{
 		}
-
-		// protected override string[] GetNamespaces()
-		// {
-		// 	return new[] {typeof(Action).Namespace, typeof(ILogger).Namespace};
-		// }
 
 		protected override LoggerDescriptor GetImplementationDescriptor(TypeDeclarationSyntax typeDeclaration,
 			TransformationContext context, AttributeData attributeData)
@@ -81,8 +76,9 @@ namespace CodeGeneration.Roslyn.Logger
 						IdentifierName(nameof(LoggerMessage.Define)));
 				var declaration = FieldDeclaration(
 						VariableDeclaration(
+								AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)),
 								GenericName(Identifier(typeof(Action).FullName))
-									.WithTypeArgumentList(GetLoggingDelegateParameterTypes(method, false)))
+									.WithTypeArgumentList(GetLoggingDelegateParameterTypes(method, false))))
 							.WithVariables(
 								SingletonSeparatedList(
 									VariableDeclarator(
@@ -98,7 +94,7 @@ namespace CodeGeneration.Roslyn.Logger
 																	Argument(
 																		MemberAccessExpression(
 																			SyntaxKind.SimpleMemberAccessExpression,
-																			IdentifierName(typeof(Microsoft.Extensions.Logging.LogLevel).FullName),
+																			typeof(Microsoft.Extensions.Logging.LogLevel).GetTypeSyntax(),
 																			IdentifierName(method.Level.ToString()))),
 																	Token(SyntaxKind.CommaToken),
 																	Argument(
@@ -142,7 +138,7 @@ namespace CodeGeneration.Roslyn.Logger
 
 			if (!definition)
 			{
-				result.Add(IdentifierName(typeof(ILogger).FullName));
+				result.Add(typeof(ILogger).GetTypeSyntax());
 			}
 
 			for (var index = 0; index < loggerMethod.Parameters.Length; index++)
@@ -174,7 +170,7 @@ namespace CodeGeneration.Roslyn.Logger
 					result.Add(Token(SyntaxKind.CommaToken));
 				}
 
-				result.Add(IdentifierName(typeof(Exception).FullName));
+				result.Add(typeof(Exception).GetTypeSyntax());
 			}
 
 			return TypeArgumentList(SeparatedList<TypeSyntax>(result));
@@ -193,8 +189,7 @@ namespace CodeGeneration.Roslyn.Logger
 						SingletonSeparatedList(
 							Parameter(
 									Identifier(loggerFactoryVariableName))
-								.WithType(
-									IdentifierName(typeof(ILoggerFactory).FullName)))));
+								.WithType(typeof(ILoggerFactory).GetTypeSyntax()))));
 
 			if (loggerDescriptor.BaseClassName != null)
 			{
@@ -235,7 +230,7 @@ namespace CodeGeneration.Roslyn.Logger
 									)))));
 			}
 
-			return new[] {constructorDeclaration};
+			return new[] { constructorDeclaration };
 		}
 
 		protected override MemberDeclarationSyntax[] GetMethods(LoggerDescriptor loggerDescriptor)
@@ -275,7 +270,7 @@ namespace CodeGeneration.Roslyn.Logger
 									Argument(
 										MemberAccessExpression(
 											SyntaxKind.SimpleMemberAccessExpression,
-											IdentifierName(typeof(Microsoft.Extensions.Logging.LogLevel).FullName),
+											typeof(Microsoft.Extensions.Logging.LogLevel).GetTypeSyntax(),
 											IdentifierName(loggerMethod.Level.ToString())))))),
 					Block(
 						SingletonList<StatementSyntax>(
@@ -287,7 +282,7 @@ namespace CodeGeneration.Roslyn.Logger
 
 		private static ArgumentListSyntax GetLoggingDelegateCallArgumentList(LoggerMethod loggerMethod)
 		{
-			var arguments = new List<SyntaxNodeOrToken> {Argument(IdentifierName(LoggerFieldName))};
+			var arguments = new List<SyntaxNodeOrToken> { Argument(IdentifierName(LoggerFieldName)) };
 			foreach (var parameter in loggerMethod.Parameters)
 			{
 				if (arguments.Any())
