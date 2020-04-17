@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-    </PropertyGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\MetricsCollector.Abstractions\MetricsCollector.Abstractions.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-      <PackageReference Include="App.Metrics" Version="4.0.0-preview1.0.7" />
-      <PackageReference Include="App.Metrics.Abstractions" Version="4.0.0-preview1.0.7" />
-    </ItemGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;netstandard2.1</TargetFrameworks>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MetricsCollector.Abstractions\MetricsCollector.Abstractions.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="App.Metrics" Version="4.0.0-preview1.0.7" />
+		<PackageReference Include="App.Metrics.Abstractions" Version="4.0.0-preview1.0.7" />
+	</ItemGroup>
 </Project>
