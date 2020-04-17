@@ -8,7 +8,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Attributes
 	[AttributeUsage(AttributeTargets.Method)]
 	public class MetricsCollectorMethodStubAttribute : Attribute
 	{
-		public MetricsCollectorMethodStubAttribute(string metricName = null, string unitName = null)
+		public MetricsCollectorMethodStubAttribute(string metricName = null, string measurementUnitName = null)
 		{
 		}
 	}

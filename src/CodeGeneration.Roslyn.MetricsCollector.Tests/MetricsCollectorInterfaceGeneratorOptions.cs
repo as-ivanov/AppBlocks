@@ -26,7 +26,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 		private readonly int[] _interfaceCounts = Enumerable.Range(1, 2).ToArray();
 		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 2).ToArray();
-		private readonly int[] _interfaceMethodsCounts = Enumerable.Range(0, 2).ToArray();
+		private readonly int[] _interfaceMethodsCounts = Enumerable.Range(0, 3).ToArray();
 		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
 
 		private const string _interfaceNamespace = "TestNamespace";
@@ -35,13 +35,14 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			new MetricsCollectorInterfaceAttributeDataBuilder();
 
 		private readonly IAttributeDataBuilder _methodAttributeDataBuilder =
-			new MetricsCollectorInterfaceMethodAttributeDataDataBuilder();
+			new MetricsCollectorInterfaceMethodAttributeDataBuilder();
 
-		private readonly Type[] _methodParameterTypes = {
+		private readonly Type[] _methodParameterTypes =
+		{
 			typeof(string),
 			typeof(char),
 			typeof(byte),
-			//typeof(sbyte),
+			typeof(sbyte),
 			//typeof(ushort),
 			typeof(short),
 			typeof(uint),
@@ -56,7 +57,10 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			typeof(Exception)
 		};
 
-		private readonly IInheritanceListBuilder _inheritanceListBuilder = new MetricsCollectorInterfaceInheritanceListBuilder();
+		private readonly IInheritanceListBuilder _inheritanceListBuilder =
+			new MetricsCollectorInterfaceInheritanceListBuilder();
+
+		private IParameterValuesBuilder _parameterValuesBuilder = new MetricsCollectorInterfaceParameterValuesBuilder();
 
 		public string[] UsingNamespaces => _usingNamespaces;
 
@@ -79,5 +83,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 		public string InterfaceNamespace => _interfaceNamespace;
 
 		public IInheritanceListBuilder InheritanceListBuilder => _inheritanceListBuilder;
+
+		public IParameterValuesBuilder ParameterValuesBuilder => _parameterValuesBuilder;
 	}
 }

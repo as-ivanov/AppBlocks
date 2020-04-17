@@ -4,7 +4,7 @@ using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 
 namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 {
-	public class MetricsCollectorInterfaceMethodAttributeDataDataBuilder : IAttributeDataBuilder
+	public class MetricsCollectorInterfaceMethodAttributeDataBuilder : IAttributeDataBuilder
 	{
 		public IEnumerable<Func<ITestContext, IEnumerable<AttributeData>>> GetPossibleCombinations(ITestInterfaceGenerationOptions options)
 		{

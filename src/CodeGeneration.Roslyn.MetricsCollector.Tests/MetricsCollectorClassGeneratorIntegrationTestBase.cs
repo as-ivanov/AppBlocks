@@ -12,21 +12,31 @@ using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using MetricsCollector.Abstractions;
 using Microsoft.CodeAnalysis.CSharp;
 using Moq;
+using Xunit.Abstractions;
 
 namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 {
 	public class MetricsCollectorClassGeneratorIntegrationTestBase
 	{
+		private readonly ITestOutputHelper _output;
+
+		protected MetricsCollectorClassGeneratorIntegrationTestBase(ITestOutputHelper output)
+		{
+			_output = output;
+		}
+
 		public static IEnumerable<object[]> Generate()
 		{
 			var options = new MetricsCollectorInterfaceGeneratorOptions();
 			var compilationUnitDataBuilder = new CompilationUnitDataBuilder(options);
 			var combinations = compilationUnitDataBuilder.Build();
-			return combinations.Select(_ => new object[] { _ });
+			return combinations.Select(_ => new object[] {_});
 		}
-		protected static async Task MetricsCollectorMethodGenerationTest(ITestContext context, bool metricEnabled)
+
+		protected async Task MetricsCollectorMethodGenerationTest(ITestContext context, bool metricEnabled)
 		{
-			var syntaxTrees = context.CompilationEntries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString())).ToArray();
+			var syntaxTrees = context.CompilationEntries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString()))
+				.ToArray();
 
 			var extraTypes = new[]
 			{
@@ -39,7 +49,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			Assembly assembly = null;
 			try
 			{
-				assembly = await syntaxTrees.ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
+				assembly = await syntaxTrees.ProcessTransformationAndCompile(extraTypes, _output, CancellationToken.None);
 			}
 			catch (Exception)
 			{
@@ -53,7 +63,8 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 				}
 			}
 
-			var sutMembers = context.CompilationEntries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members).Where(_ => _.IsSut);
+			var sutMembers = context.CompilationEntries.SelectMany(_ => _.Namespaces).SelectMany(_ => _.Members)
+				.Where(_ => _.IsSut).OfType<InterfaceData>();
 
 			foreach (var sutMember in sutMembers)
 			{
@@ -64,58 +75,162 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 					throw new Exception(
 						$"MetricsCollector implementation for '{sutMember}' not found in emitted assembly");
 				}
-				BuildAndVerify(metricsCollectorType);
+
+				BuildAndVerify(sutMember, metricsCollectorType, metricEnabled);
 			}
 		}
 
-		private static void BuildAndVerify(Type type)
+		private void BuildAndVerify(InterfaceData metricsCollectorTypeData, Type metricsCollectorType, bool metricEnabled)
 		{
-			// var parameters = methodParameters.Select(p => p.Value).ToArray();
-			//
-			// var metricsProvider = GetMetricsProvider();
-			//
-			// var metricsCollector = Activator.CreateInstance(metricsCollectorType, metricsProvider.Object);
-			// var metricsCollectorMethod = metricsCollectorType.GetTypeInfo().GetDeclaredMethod(methodName);
-			// if (metricsCollectorMethod == null)
-			// {
-			// 	throw new Exception($"Metrics collector method not found in emitted assembly");
-			// }
-			//
-			// metricsCollectorMethod.Invoke(metricsCollector, parameters);
-			//
-			//
-			// metricsProvider.Verify();
+			var metricsProvider = GetMetricsProvider(metricsCollectorTypeData, metricEnabled);
+
+			var metricsCollector = Activator.CreateInstance(metricsCollectorType, metricsProvider.Object);
+			foreach (var interfaceMethodData in metricsCollectorTypeData.Methods)
+			{
+				var metricsCollectorMethod = metricsCollectorType.GetTypeInfo().GetDeclaredMethod(interfaceMethodData.Name);
+				if (metricsCollectorMethod == null)
+				{
+					throw new Exception($"Metrics collector method not found in emitted assembly");
+				}
+
+				var parameters = interfaceMethodData.Parameters.Select(p => p.Value).ToArray();
+				_output.WriteLine(
+					$"Invoke method:'{interfaceMethodData}' with parameters:{string.Join('|', interfaceMethodData.Parameters.Select(_ => $"{_.Name}:{_.Value}"))}");
+				metricsCollectorMethod.Invoke(metricsCollector, parameters);
+			}
+
+			try
+			{
+				metricsProvider.Verify();
+			}
+			catch (Exception)
+			{
+				if (Debugger.IsAttached)
+				{
+					Debugger.Break();
+				}
+				else
+				{
+					throw;
+				}
+			}
 		}
 
-		private Mock<IMetricsProvider> GetMetricsProvider(string contextName,
-			string indicatorName, string measurementUnit, Tags tags,
-			MetricsCollectorIndicatorType metricsCollectorIndicatorType)
+		private Mock<IMetricsProvider> GetMetricsProvider(InterfaceData metricsCollectorTypeData, bool metricEnabled)
 		{
-			var metricsProvider = new Mock<IMetricsProvider>(MockBehavior.Strict);
-			Action verify;
+			var metricsProviderMock = new Mock<IMetricsProvider>(MockBehavior.Strict);
+			var metricsCollectorInterfaceAttributeData = metricsCollectorTypeData.AttributeDataList
+				.OfType<MetricsCollectorInterfaceAttributeData>().FirstOrDefault();
+			if (metricsCollectorInterfaceAttributeData == null)
+			{
+				throw new Exception($"{typeof(MetricsCollectorInterfaceAttributeData)} not found");
+			}
+
+			var contextName = metricsCollectorInterfaceAttributeData.ContextName;
+			foreach (var metricsCollectorMethodData in metricsCollectorTypeData.Methods)
+			{
+				SetupMetricsProviderMember(metricsProviderMock, contextName, metricsCollectorMethodData, metricEnabled);
+			}
+
+			return metricsProviderMock;
+		}
+
+
+		private void SetupMetricsProviderMember(Mock<IMetricsProvider> metricsProvider, string contextName,
+			InterfaceMethodData interfaceMethodData, bool metricEnabled)
+		{
+			var (metricsCollectorIndicatorType, metricName, measurementUnitName, tags) =
+				GetMetricsCollectorIndicatorInfo(interfaceMethodData);
+
+			_output.WriteLine(
+				$"Got metrics collector indicator info. ContextName:'{contextName}'. IndicatorType:{metricsCollectorIndicatorType}. MetricName:{metricName}. MeasurementUnitName:{measurementUnitName}. Tags:{tags}. Original method:{interfaceMethodData}");
+
+			metricsProvider.Setup(_ => _.IsEnabled(contextName, metricName))
+				.Returns(metricEnabled).Verifiable();
+
+			if (!metricEnabled)
+			{
+				return;
+			}
+
 			switch (metricsCollectorIndicatorType)
 			{
 				case MetricsCollectorIndicatorType.Counter:
 					var counter = new Mock<ICounter>();
-					metricsProvider.Setup(_ => _.CreateCounter(contextName, indicatorName, measurementUnit, tags))
+					metricsProvider.Setup(_ => _.CreateCounter(contextName, metricName, measurementUnitName, tags))
 						.Returns(counter.Object).Verifiable();
 					break;
 				case MetricsCollectorIndicatorType.Gauge:
+					var gauge = new Mock<IGauge>();
+					metricsProvider.Setup(_ => _.CreateGauge(contextName, metricName, measurementUnitName, tags))
+						.Returns(gauge.Object).Verifiable();
 					break;
 				case MetricsCollectorIndicatorType.HitPercentageGauge:
+					var hitPercentageGauge = new Mock<IHitPercentageGauge>();
+					metricsProvider.Setup(_ => _.CreateHitPercentageGauge(contextName, metricName, measurementUnitName, tags))
+						.Returns(hitPercentageGauge.Object).Verifiable();
 					break;
 				case MetricsCollectorIndicatorType.Timer:
+					var timer = new Mock<ITimer>();
+					metricsProvider.Setup(_ => _.CreateTimer(contextName, metricName, measurementUnitName, tags))
+						.Returns(timer.Object).Verifiable();
 					break;
 				case MetricsCollectorIndicatorType.Meter:
+					var meter = new Mock<IMeter>();
+					metricsProvider.Setup(_ => _.CreateMeter(contextName, metricName, measurementUnitName, tags))
+						.Returns(meter.Object).Verifiable();
 					break;
 				case MetricsCollectorIndicatorType.Histogram:
+					var histogram = new Mock<IHistogram>();
+					metricsProvider.Setup(_ => _.CreateHistogram(contextName, metricName, measurementUnitName, tags))
+						.Returns(histogram.Object).Verifiable();
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(metricsCollectorIndicatorType), metricsCollectorIndicatorType,
 						null);
 			}
+		}
 
-			return metricsProvider;
+		private static (MetricsCollectorIndicatorType metricsCollectorIndicatorType, string metricName, string
+			measurementUnitName, Tags tags) GetMetricsCollectorIndicatorInfo(InterfaceMethodData interfaceMethodData)
+		{
+			var metricsCollectorIndicatorTypeString = interfaceMethodData.ReturnType.Name.TrimStart('I');
+			if (!Enum.TryParse<MetricsCollectorIndicatorType>(metricsCollectorIndicatorTypeString, true,
+				out var metricsCollectorIndicatorType))
+			{
+				throw new Exception($"Illegal return type:'{interfaceMethodData.ReturnType}'");
+			}
+
+			string metricName;
+			string measurementUnitName = null;
+			var metricsCollectorMethodAttributeData = interfaceMethodData.AttributeDataList
+				.OfType<MetricsCollectorMethodAttributeData>().FirstOrDefault();
+			if (metricsCollectorMethodAttributeData == null)
+			{
+				metricName = interfaceMethodData.Name;
+			}
+			else
+			{
+				metricName = metricsCollectorMethodAttributeData.MetricName;
+				measurementUnitName = metricsCollectorMethodAttributeData.MeasurementUnitName;
+			}
+
+			Tags tags;
+			if (!interfaceMethodData.Parameters.Any())
+			{
+				tags = Tags.Empty;
+			}
+			else if (interfaceMethodData.Parameters.Length == 1)
+			{
+				tags = new Tags(interfaceMethodData.Parameters[0].Name, interfaceMethodData.Parameters[0].Value.ToString());
+			}
+			else
+			{
+				tags = new Tags(interfaceMethodData.Parameters.Select(_ => _.Name).ToArray(),
+					interfaceMethodData.Parameters.Select(_ => _.Value?.ToString()).ToArray());
+			}
+
+			return (metricsCollectorIndicatorType, metricName, measurementUnitName, tags);
 		}
 	}
 }

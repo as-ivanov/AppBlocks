@@ -15,5 +15,6 @@ namespace CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		Type[] MethodParameterTypes { get; }
 		string InterfaceNamespace { get; }
 		IInheritanceListBuilder InheritanceListBuilder { get; }
+		IParameterValuesBuilder ParameterValuesBuilder { get; }
 	}
 }

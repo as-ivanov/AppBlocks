@@ -11,12 +11,13 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Emit;
+using Xunit.Abstractions;
 
 namespace CodeGeneration.Roslyn.Tests.Common
 {
 	public static class TransformationHelper
 	{
-		public static async Task<Assembly> ProcessTransformationAndCompile(this SyntaxTree[] syntaxTrees, IEnumerable<Type> extraTypes, CancellationToken cancellationToken)
+		public static async Task<Assembly> ProcessTransformationAndCompile(this SyntaxTree[] syntaxTrees, IEnumerable<Type> extraTypes,  ITestOutputHelper output, CancellationToken cancellationToken)
 		{
 			var references = GetAssemblyReferences(extraTypes);
 			var compilation = CreateCompilation(syntaxTrees, references);
@@ -48,6 +49,8 @@ namespace CodeGeneration.Roslyn.Tests.Common
 									default, usings, default,
 									SyntaxFactory.List<MemberDeclarationSyntax>(emitted.Members))
 								.NormalizeWhitespace();
+
+						output.WriteLine($"Generated compilation unit:{Environment.NewLine}{compilationUnit}");
 
 						var syntaxTreeText = await compilationUnit.SyntaxTree.GetTextAsync(cancellationToken);
 

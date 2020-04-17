@@ -13,7 +13,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 	public class MetricsCollectorClassGenerator : InterfaceImplementationGenerator<MetricsCollectorDescriptor>
 	{
 		private const string MetricsProviderFieldName = "MetricsProvider";
-		private const string ContextNameFieldName = "ContextName";
+		private const string ContextNameFieldName = "_contextName";
 		private const string TagsVariableName = "tags";
 		private const string ValuesVariableName = "values";
 
@@ -325,11 +325,6 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 		private static MemberDeclarationSyntax[] GetGeneralMetricsCollectorFields(
 			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
-			if (metricsCollectorDescriptor.BaseClassName != null)
-			{
-				return Array.Empty<MemberDeclarationSyntax>();
-			}
-
 			var contextNameFieldDeclaration = FieldDeclaration(
 					VariableDeclaration(PredefinedType(Token(SyntaxKind.StringKeyword)))
 						.WithVariables(
@@ -341,8 +336,16 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 											LiteralExpression(
 												SyntaxKind.StringLiteralExpression,
 												Literal(metricsCollectorDescriptor.ContextName)))))))
-				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ConstKeyword)));
+				.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ConstKeyword)));
 
+			if (metricsCollectorDescriptor.BaseClassName != null)
+			{
+				return new MemberDeclarationSyntax[]
+				{
+					contextNameFieldDeclaration
+				};
+			}
+			
 			var metricsProviderFieldDeclaration = FieldDeclaration(
 					VariableDeclaration(IdentifierName(typeof(IMetricsProvider).FullName))
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsProviderFieldName)))))

@@ -44,11 +44,11 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 		{
 			var methodSemanticModel = context.Compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
 			var attributeData = methodSemanticModel.GetDeclaredSymbol(methodDeclaration).GetAttributes().FirstOrDefault(_=>_.AttributeClass.Name == nameof(Attributes.MetricsCollectorMethodStubAttribute));
+			var metricName = attributeData?.ConstructorArguments.Length > 0 ? attributeData.ConstructorArguments[0].Value as string : methodDeclaration.Identifier.WithoutTrivia().Text;
 			if (attributeData == null)
 			{
-				return (null, null);
+				return (metricName, null);
 			}
-			var metricName = attributeData.ConstructorArguments.Length > 0 ? attributeData.ConstructorArguments[0].Value as string : null;
 			var unitName = attributeData.ConstructorArguments.Length > 1 ? attributeData.ConstructorArguments[1].Value as string : null;
 			return (metricName, unitName);
 		}
@@ -56,7 +56,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 		private static MetricsCollectorIndicatorType GetMetricsCollectorType(TypeSyntax returnType)
 		{
 			var returnTypeText = returnType.WithoutTrivia().GetText().ToString();
-			returnTypeText = returnTypeText.GetTypeNameWithoutNamespaces(); 
+			returnTypeText = returnTypeText.GetTypeNameWithoutNamespaces();
 			if (!Enum.TryParse<MetricsCollectorIndicatorType>(returnTypeText.TrimStart('I'), out var type))
 			{
 				throw new Exception($"Illegal return type:'{returnTypeText}'");

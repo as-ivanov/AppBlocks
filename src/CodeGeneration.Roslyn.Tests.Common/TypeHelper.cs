@@ -4,23 +4,47 @@ namespace CodeGeneration.Roslyn.Tests.Common
 {
 	public static class TypeHelper
 	{
-		public static readonly Type[] Types =
+		public static bool IsFloatingNumericType(this object o)
 		{
-			typeof(string),
-			typeof(char),
-			typeof(byte),
-			typeof(sbyte),
-			typeof(ushort),
-			typeof(short),
-			typeof(uint),
-			typeof(int),
-			typeof(ulong),
-			typeof(long),
-			typeof(float),
-			typeof(double),
-			typeof(decimal),
-			typeof(DateTime),
-			typeof(object),
-		};
+			switch (Type.GetTypeCode(o.GetType()))
+			{
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					return true;
+				default:
+					return false;
+			}
+		}
+		public static bool IsSignedNumericType(this object o)
+		{
+			switch (Type.GetTypeCode(o.GetType()))
+			{
+				case TypeCode.SByte:
+				case TypeCode.Int16:
+				case TypeCode.Int32:
+				case TypeCode.Int64:
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					return true;
+				default:
+					return false;
+			}
+		}
+
+		public static bool IsUnsignedNumericType(this object o)
+		{
+			switch (Type.GetTypeCode(o.GetType()))
+			{
+				case TypeCode.Byte:
+				case TypeCode.UInt16:
+				case TypeCode.UInt32:
+				case TypeCode.UInt64:
+					return true;
+				default:
+					return false;
+			}
+		}
 	}
 }

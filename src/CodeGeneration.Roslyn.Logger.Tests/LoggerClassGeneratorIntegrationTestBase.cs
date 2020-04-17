@@ -11,11 +11,19 @@ using CodeGeneration.Roslyn.Attributes.Common;
 using CodeGeneration.Roslyn.Tests.Common;
 using CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
 
 namespace CodeGeneration.Roslyn.Logger.Tests
 {
 	public class LoggerClassGeneratorIntegrationTestBase
 	{
+		private readonly ITestOutputHelper _output;
+
+		protected LoggerClassGeneratorIntegrationTestBase(ITestOutputHelper output)
+		{
+			_output = output;
+		}
+
 		public static IEnumerable<object[]> Generate()
 		{
 			var options = new LoggerInterfaceGeneratorOptions();
@@ -24,7 +32,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			return combinations.Select(_ => new object[] {_});
 		}
 
-		protected static async Task LoggerMethodGenerationTest(ITestContext context, bool logEnabled)
+		protected async Task LoggerMethodGenerationTest(ITestContext context, bool logEnabled)
 		{
 			var syntaxTrees = context.CompilationEntries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString()))
 				.ToArray();
@@ -40,7 +48,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			Assembly assembly = null;
 			try
 			{
-				assembly = await syntaxTrees.ProcessTransformationAndCompile(extraTypes, CancellationToken.None);
+				assembly = await syntaxTrees.ProcessTransformationAndCompile(extraTypes, _output, CancellationToken.None);
 			}
 			catch (Exception)
 			{
@@ -65,8 +73,9 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 					throw new Exception($"Logger type not found in emitted assembly");
 				}
 
-				foreach (var interfaceMethod in sutMember.Methods)
+				for (var index = 0; index < sutMember.Methods.Length; index++)
 				{
+					var interfaceMethod = sutMember.Methods[index];
 					var methodName = interfaceMethod.Name;
 					var loggerInterfaceMethodAttributeData = interfaceMethod.AttributeDataList
 						.OfType<LoggerInterfaceMethodAttributeData>().FirstOrDefault();
@@ -83,7 +92,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 						logLevel = loggerInterfaceMethodAttributeData.Level;
 					}
 
-					var internalLogger = new TestLogger(new EventId(1, methodName), methodName, message, logLevel,
+					var internalLogger = new TestLogger(new EventId(index + 1, methodName), methodName, message, logLevel,
 						interfaceMethod.Parameters, logEnabled);
 					var loggerFactory = new TestLoggerFactory(internalLogger);
 					var logger = Activator.CreateInstance(loggerType, loggerFactory);
