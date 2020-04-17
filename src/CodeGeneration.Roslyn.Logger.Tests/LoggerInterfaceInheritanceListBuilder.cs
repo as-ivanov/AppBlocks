@@ -10,7 +10,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 		{
 			return (context) =>
 			{
-				var interfaces = Enumerable.Range(context.NextId(), count).Select(GetInheritedInterfaceData).ToArray();
+				var interfaces = Enumerable.Range(context.NextId(), count).Select(_ => GetInheritedInterfaceData(_, context)).ToArray();
 				foreach (var @interface in interfaces)
 				{
 					var namespaceData = new NamespaceData(@interface.Namespace, @interface);
@@ -21,10 +21,13 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 			};
 		}
 
-		private static InterfaceData GetInheritedInterfaceData(int index)
+		private static InterfaceData GetInheritedInterfaceData(int index, ITestContext context)
 		{
+			var methods = InterfaceMethodData.GetPossibleVariations(context.Options).ToList()
+				.GetPossibleCombinations(context.Options.InterfaceMethodsCounts.Max()).First().Select(_ => _.Invoke(context))
+				.ToArray();
 			var loggerInterfaceAttributeData = new LoggerInterfaceAttributeData(Array.Empty<InterfaceData>());
-			return new InterfaceData("ITestInheritedInterface" + index, "TestNamespaceForITestInheritedInterface" + index, new AttributeData[] { loggerInterfaceAttributeData }, Array.Empty<InterfaceMethodData>(), Array.Empty<InterfaceData>(), true);
+			return new InterfaceData("ITestInheritedInterface" + index, "TestNamespaceForITestInheritedInterface" + index, new AttributeData[] { loggerInterfaceAttributeData }, methods, Array.Empty<InterfaceData>(), true);
 		}
 	}
 }
