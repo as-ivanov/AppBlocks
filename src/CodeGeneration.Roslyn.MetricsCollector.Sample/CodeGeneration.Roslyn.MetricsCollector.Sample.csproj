@@ -1,14 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.0</TargetFramework>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup Condition="$(AzurePipelines) == ''">
 		<PackageReference Include="CodeGeneration.Roslyn.Tool"/>
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\CodeGeneration.Roslyn.MetricsCollector.Attributes\CodeGeneration.Roslyn.MetricsCollector.Attributes.csproj" />
-	  <ProjectReference Include="..\MetricsCollector.Abstractions\MetricsCollector.Abstractions.csproj" />
-	  <ProjectReference Include="..\CodeGeneration.Roslyn.MetricsCollector\CodeGeneration.Roslyn.MetricsCollector.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" OutputItemType="CodeGenerationRoslynPlugin" />
+		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector.Attributes"/>
+		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector"/>
+		<PackageReference Include="MetricsCollector.AppMetrics"/>
 	</ItemGroup>
 </Project>
