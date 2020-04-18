@@ -4,6 +4,8 @@ Utility for generating high-performance logger types using LoggerMessage pattern
 
 ## Info
 
+[![Build Status](https://alexey-ivanov.visualstudio.com/CodeGeneration.Roslyn.AppBlocks/_apis/build/status/as-ivanov.CodeGeneration.Roslyn.AppBlocks?branchName=master)](https://alexey-ivanov.visualstudio.com/CodeGeneration.Roslyn.AppBlocks/_build/latest?definitionId=1&branchName=master)
+
 Package | Version 
 ------- | ------- 
 CodeGeneration.Roslyn.Logger | [![NuGet package](https://img.shields.io/nuget/v/CodeGeneration.Roslyn.Logger.svg)][GeneratorNuPkg]
