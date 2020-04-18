@@ -8,16 +8,16 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Sample
 		"CodeGeneration.Roslyn.MetricsCollector.Sample.IMetricsCollectorImplementation")]
 	public interface IBackgroundTaskMetricsCollector
 	{
-			[MetricsCollectorMethodStub("item", "execution_count")]
+			[MetricsCollectorMethodStub("execution_count", "item")]
 			IMeter ExecutionTotal(string taskName);
 
-			[MetricsCollectorMethodStub("item", "execution_active")]
+			[MetricsCollectorMethodStub("execution_active", "item")]
 			ICounter ExecutionActive(string taskName);
 
-			[MetricsCollectorMethodStub("ms", "execution_time")]
+			[MetricsCollectorMethodStub("execution_time", "ms")]
 			ITimer ExecutionTime(string taskName);
 
-			[MetricsCollectorMethodStub("item1", "execution_error")]
+			[MetricsCollectorMethodStub("execution_error", "item")]
 			IMeter OperationError(string key, string error);
 	}
 }
