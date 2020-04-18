@@ -48,13 +48,6 @@ steps:
     arguments: --no-build -c $(BuildConfiguration)
     projects: "src/*.sln"
 
-- task: NuGetCommand@2
-  displayName: Publish to NuGet
-  inputs:
-    command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
-    nuGetFeedType: external
-
 - task: CopyFiles@2
   displayName: Copy packages
   inputs:
