@@ -10,7 +10,7 @@ namespace CodeGeneration.Roslyn.Logger.Tests
 		{
 				if (methodParameterData.Value == null)
 				{
-					return "(null)";
+					return string.Empty;
 				}
 				if (methodParameterData.Value is DateTime dateTime)
 				{
