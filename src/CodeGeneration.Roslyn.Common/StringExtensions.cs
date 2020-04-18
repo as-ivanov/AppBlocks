@@ -43,7 +43,7 @@ namespace CodeGeneration.Roslyn.Common
 		public static string GetClassNameFromInterfaceName(this string input, bool fullName = true)
 		{
 			var typeName = input.GetTypeNameWithoutNamespaces();
-			if (typeName.StartsWith('I'))
+			if (typeName.StartsWith("I"))
 			{
 				typeName = typeName.Substring(1);
 			}
