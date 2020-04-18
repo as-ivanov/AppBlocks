@@ -7,12 +7,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using SyntaxExtensions = CodeGeneration.Roslyn.Common.SyntaxExtensions;
 
 namespace CodeGeneration.Roslyn.MetricsCollector
 {
 	public class MetricsCollectorClassGenerator : InterfaceImplementationGenerator<MetricsCollectorDescriptor>
 	{
 		private const string MetricsProviderFieldName = "MetricsProvider";
+		private const string MetricsPolicyFieldName = "MetricsPolicy";
 		private const string ContextNameFieldName = "_contextName";
 		private const string TagsVariableName = "tags";
 		private const string ValuesVariableName = "values";
@@ -38,6 +40,13 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
 			const string metricsProviderVariableName = "metricsProvider";
+			const string metricsPolicyVariableName = "metricsPolicy";
+
+			var constructorParameters = SyntaxExtensions.ToSeparatedList(
+				Parameter(Identifier(metricsProviderVariableName)).WithType(typeof(IMetricsProvider).GetTypeSyntax()),
+				Parameter(Identifier(metricsPolicyVariableName)).WithType(typeof(IMetricsPolicy).GetTypeSyntax()).WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.NullLiteralExpression)))
+				);
+
 
 			var constructorDeclaration = ConstructorDeclaration(
 					Identifier(metricsCollectorDescriptor.ClassName))
@@ -45,31 +54,29 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 					TokenList(
 						Token(SyntaxKind.PublicKeyword)))
 				.WithParameterList(
-					ParameterList(
-						SingletonSeparatedList(
-							Parameter(
-									Identifier(metricsProviderVariableName))
-								.WithType(typeof(IMetricsProvider).GetTypeSyntax()))));
+					ParameterList(constructorParameters));
 
 			if (metricsCollectorDescriptor.BaseClassName != null)
 			{
+
+				var baseConstructorArguments = SyntaxExtensions.ToSeparatedList(
+					Argument(IdentifierName(metricsProviderVariableName)),
+					Argument(IdentifierName(metricsPolicyVariableName)));
+
 				constructorDeclaration = constructorDeclaration
 					.WithInitializer(
 						ConstructorInitializer(
 							SyntaxKind.BaseConstructorInitializer,
-							ArgumentList(SingletonSeparatedList(Argument(IdentifierName(metricsProviderVariableName))))))
+							ArgumentList(baseConstructorArguments)))
 					.WithBody(Block());
 			}
 			else
 			{
 				constructorDeclaration = constructorDeclaration.WithBody(
 						Block(
-							SingletonList<StatementSyntax>(
-								ExpressionStatement(
-									AssignmentExpression(
-										SyntaxKind.SimpleAssignmentExpression,
-										IdentifierName(MetricsProviderFieldName),
-										IdentifierName(metricsProviderVariableName))))));
+							ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(MetricsProviderFieldName), IdentifierName(metricsProviderVariableName))),
+							ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(MetricsPolicyFieldName), IdentifierName(metricsPolicyVariableName)))
+						));
 			}
 			return new[] { constructorDeclaration };
 		}
@@ -131,25 +138,28 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 
 			StatementSyntax GetEnabledCheckStatement()
 			{
-				return IfStatement(
+				var condition = BinaryExpression(
+					SyntaxKind.LogicalAndExpression,
+					BinaryExpression(
+						SyntaxKind.NotEqualsExpression,
+						IdentifierName(MetricsPolicyFieldName),
+						LiteralExpression(
+							SyntaxKind.NullLiteralExpression)),
 					PrefixUnaryExpression(
 						SyntaxKind.LogicalNotExpression,
 						InvocationExpression(
-								MemberAccessExpression(
-									SyntaxKind.SimpleMemberAccessExpression,
-									IdentifierName(MetricsProviderFieldName),
-									IdentifierName(nameof(IMetricsProvider.IsEnabled))))
+								MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(MetricsPolicyFieldName), IdentifierName(nameof(IMetricsPolicy.IsEnabled))))
 							.WithArgumentList(
 								ArgumentList(
 									SeparatedList<ArgumentSyntax>(
 										new SyntaxNodeOrToken[]
 										{
-											Argument(
-												IdentifierName(ContextNameFieldName)),
+											Argument(IdentifierName(ContextNameFieldName)),
 											Token(SyntaxKind.CommaToken),
-											Argument(
-												IdentifierName(metricNameVariableName))
-										})))),
+											Argument(IdentifierName(metricNameVariableName))
+										})))));
+				return IfStatement(
+					condition,
 					Block(
 						SingletonList<StatementSyntax>(
 							ReturnStatement(
@@ -350,10 +360,16 @@ namespace CodeGeneration.Roslyn.MetricsCollector
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsProviderFieldName)))))
 				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 
+			var metricsPolicyFieldDeclaration = FieldDeclaration(
+					VariableDeclaration(typeof(IMetricsPolicy).GetTypeSyntax())
+						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsPolicyFieldName)))))
+				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
+
 			return new MemberDeclarationSyntax[]
 			{
 				contextNameFieldDeclaration,
-				metricsProviderFieldDeclaration
+				metricsProviderFieldDeclaration,
+				metricsPolicyFieldDeclaration
 			};
 		}
 

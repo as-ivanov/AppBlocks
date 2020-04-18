@@ -35,6 +35,12 @@ namespace CodeGeneration.Roslyn.Common
 			return null;
 		}
 
+		public static SeparatedSyntaxList<T> ToSeparatedList<T>(params T[] nodes)
+			where T : SyntaxNode
+		{
+			return nodes.ToSeparatedList();
+		}
+
 		public static SeparatedSyntaxList<T> ToSeparatedList<T>(this IEnumerable<T> nodes, SyntaxKind separator = SyntaxKind.CommaToken)
 			where T : SyntaxNode
 		{

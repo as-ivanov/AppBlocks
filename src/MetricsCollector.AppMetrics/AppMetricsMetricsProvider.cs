@@ -22,7 +22,6 @@ namespace MetricsCollector.AppMetrics
 			_metrics = metrics;
 		}
 
-
 		public ICounter CreateCounter(string contextName, string indicatorName, string measurementUnit, in Tags tags)
 		{
 			var counterOptions = new CounterOptions
@@ -87,11 +86,6 @@ namespace MetricsCollector.AppMetrics
 				MeasurementUnit = measurementUnit
 			};
 			return new Gauge(_metrics, gaugeOptions, tags.ToMetricsTags());
-		}
-
-		public bool IsEnabled(string contextName, string indicatorName)
-		{
-			return true;
 		}
 	}
 }

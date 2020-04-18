@@ -82,9 +82,9 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 
 		private void BuildAndVerify(InterfaceData metricsCollectorTypeData, Type metricsCollectorType, bool metricEnabled)
 		{
-			var metricsProvider = GetMetricsProvider(metricsCollectorTypeData, metricEnabled);
+			var (metricsProvider, metricsPolicy) = GetMetricsProvider(metricsCollectorTypeData, metricEnabled);
 
-			var metricsCollector = Activator.CreateInstance(metricsCollectorType, metricsProvider.Object);
+			var metricsCollector = Activator.CreateInstance(metricsCollectorType, metricsProvider.Object, metricsPolicy.Object);
 			foreach (var interfaceMethodData in metricsCollectorTypeData.Methods)
 			{
 				var metricsCollectorMethod = metricsCollectorType.GetTypeInfo().GetDeclaredMethod(interfaceMethodData.Name);
@@ -102,6 +102,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			try
 			{
 				metricsProvider.Verify();
+				metricsPolicy.Verify();
 			}
 			catch (Exception)
 			{
@@ -116,9 +117,10 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			}
 		}
 
-		private Mock<IMetricsProvider> GetMetricsProvider(InterfaceData metricsCollectorTypeData, bool metricEnabled)
+		private (Mock<IMetricsProvider>, Mock<IMetricsPolicy>) GetMetricsProvider(InterfaceData metricsCollectorTypeData, bool metricEnabled)
 		{
 			var metricsProviderMock = new Mock<IMetricsProvider>(MockBehavior.Strict);
+			var metricsPolicyMock = new Mock<IMetricsPolicy>(MockBehavior.Strict);
 			var metricsCollectorInterfaceAttributeData = metricsCollectorTypeData.AttributeDataList
 				.OfType<MetricsCollectorInterfaceAttributeData>().FirstOrDefault();
 			if (metricsCollectorInterfaceAttributeData == null)
@@ -129,14 +131,14 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			var contextName = metricsCollectorInterfaceAttributeData.ContextName;
 			foreach (var metricsCollectorMethodData in metricsCollectorTypeData.Methods)
 			{
-				SetupMetricsProviderMember(metricsProviderMock, contextName, metricsCollectorMethodData, metricEnabled);
+				SetupMetricsProviderMember(metricsProviderMock, metricsPolicyMock, contextName, metricsCollectorMethodData, metricEnabled);
 			}
 
-			return metricsProviderMock;
+			return (metricsProviderMock, metricsPolicyMock);
 		}
 
 
-		private void SetupMetricsProviderMember(Mock<IMetricsProvider> metricsProvider, string contextName,
+		private void SetupMetricsProviderMember(Mock<IMetricsProvider> metricsProvider, Mock<IMetricsPolicy> metricsPolicy, string contextName,
 			InterfaceMethodData interfaceMethodData, bool metricEnabled)
 		{
 			var (metricsCollectorIndicatorType, metricName, measurementUnitName, tags) =
@@ -145,7 +147,7 @@ namespace CodeGeneration.Roslyn.MetricsCollector.Tests
 			_output.WriteLine(
 				$"Got metrics collector indicator info. ContextName:'{contextName}'. IndicatorType:{metricsCollectorIndicatorType}. MetricName:{metricName}. MeasurementUnitName:{measurementUnitName}. Tags:{tags}. Original method:{interfaceMethodData}");
 
-			metricsProvider.Setup(_ => _.IsEnabled(contextName, metricName))
+			metricsPolicy.Setup(_ => _.IsEnabled(contextName, metricName))
 				.Returns(metricEnabled).Verifiable();
 
 			if (!metricEnabled)

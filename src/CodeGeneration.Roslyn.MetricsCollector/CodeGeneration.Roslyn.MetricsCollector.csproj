@@ -21,6 +21,9 @@
 		<Compile Include="..\MetricsCollector.Abstractions\IMetricsProvider.cs">
 			<Link>Links\IMetricsProvider.cs</Link>
 		</Compile>
+		<Compile Include="..\MetricsCollector.Abstractions\IMetricsPolicy.cs">
+			<Link>Links\IMetricsPolicy.cs</Link>
+		</Compile>
 		<Compile Include="..\MetricsCollector.Abstractions\ICounter.cs">
 			<Link>Links\ICounter.cs</Link>
 		</Compile>
