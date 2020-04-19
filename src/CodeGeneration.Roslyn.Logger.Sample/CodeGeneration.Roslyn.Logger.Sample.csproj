@@ -3,7 +3,7 @@
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
-	<ItemGroup Condition="$(AzurePipelines) == ''">
+	<ItemGroup>
 		<PackageReference Include="CodeGeneration.Roslyn.Tool" />
 	</ItemGroup>
 	<ItemGroup>
