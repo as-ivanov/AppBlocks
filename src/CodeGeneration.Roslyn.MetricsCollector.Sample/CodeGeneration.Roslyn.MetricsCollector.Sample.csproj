@@ -1,14 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup Condition="$(AzurePipelines) == ''">
-		<PackageReference Include="CodeGeneration.Roslyn.Tool"/>
+		<PackageReference Include="CodeGeneration.Roslyn.Tool" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector.Attributes"/>
-		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector"/>
-		<PackageReference Include="MetricsCollector.AppMetrics"/>
+		<PackageReference Include="App.Metrics.Reporting.Console" Version="4.0.0-preview1.0.7" />
+		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector.Attributes" />
+		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector" />
+		<PackageReference Include="MetricsCollector.AppMetrics" />
+		<PackageReference Include="Microsoft.Extensions.Hosting"/>
 	</ItemGroup>
 </Project>

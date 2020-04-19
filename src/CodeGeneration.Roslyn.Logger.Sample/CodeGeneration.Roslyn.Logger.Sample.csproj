@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<IsPackable>false</IsPackable>
@@ -9,5 +9,6 @@
 	<ItemGroup>
 		<PackageReference Include="CodeGeneration.Roslyn.Logger"/>
 		<PackageReference Include="CodeGeneration.Roslyn.Logger.Attributes"/>
+		<PackageReference Include="Microsoft.Extensions.Hosting"/>
 	</ItemGroup>
 </Project>

@@ -1,37 +1,64 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 
 namespace CodeGeneration.Roslyn.Logger.Sample
 {
-	public class MyBackgroundTaskWithLogs
+	public class MyBackgroundTaskWithLogs : IHostedService, IDisposable
 	{
-		private readonly string _name;
 		private readonly IBackgroundTaskManagerLogger _logger;
+		private Timer _timer;
+		private readonly List<string> _tasks = new List<string>() { "task1", "task2", "task3" };
 
-		public MyBackgroundTaskWithLogs(string name, IBackgroundTaskManagerLogger logger)
+		public MyBackgroundTaskWithLogs(IBackgroundTaskManagerLogger logger)
 		{
-			_name = name;
 			_logger = logger;
 		}
-
-		public async Task Run()
+		
+		public Task StartAsync(CancellationToken cancellationToken)
 		{
-			_logger.ExecutionStarted(_name);
+			_timer = new Timer(RunAll, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+			return Task.CompletedTask;
+		}
+
+		private void RunAll(object state)
+		{
+			foreach (var task in _tasks)
+			{
+				Run(task);
+			}
+		}
+
+		private void Run(string name)
+		{
+			_logger.ExecutionStarted(name);
 			try
 			{
-				await DoWork();
+				DoWork();
 			}
 			catch (Exception e)
 			{
-				_logger.ExecutionFailed(_name, e);
+				_logger.ExecutionFailed(name, e);
 			}
-			_logger.ExecutionFinished(_name);
+			_logger.ExecutionFinished(name);
 		}
 
-		private Task DoWork()
+		private void DoWork()
 		{
 			//...
+		}
+
+		public Task StopAsync(CancellationToken cancellationToken)
+		{
+			_timer?.Change(Timeout.Infinite, 0);
 			return Task.CompletedTask;
+		}
+
+		public void Dispose()
+		{
+			_timer?.Dispose();
 		}
 	}
 }
