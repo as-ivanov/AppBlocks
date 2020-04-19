@@ -2,6 +2,6 @@ namespace MetricsCollector.Abstractions
 {
 	public interface IMetricsPolicy
 	{
-		bool IsEnabled(string contextName, string indicatorName);
+		bool IsEnabled(string contextName, string metricName);
 	}
 }
