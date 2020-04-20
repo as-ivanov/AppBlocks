@@ -81,6 +81,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		public override string ToString()
 		{
 			var sb = new CSharpBlockStringBuilder();
+			sb.AppendLine($"//interface with {Methods.Length} methods.");
 			foreach (var attributeData in _attributeDataList)
 			{
 				sb.AppendLine(attributeData.ToString());
