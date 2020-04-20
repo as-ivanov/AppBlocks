@@ -14,7 +14,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 {
 	public class LoggerClassGenerator : InterfaceImplementationGenerator<LoggerDescriptor>
 	{
-		private const string LoggerFieldName = "_logger";
+		private const string LoggerFieldName = "Logger";
 
 		public LoggerClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
 		{
