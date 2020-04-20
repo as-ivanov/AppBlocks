@@ -32,21 +32,21 @@ steps:
   inputs:
     command: restore
     verbosityRestore: Detailed
-    projects: "src/*.sln"
+    projects: "src/AppBlocks.sln"
 
 - task: DotNetCoreCLI@2
   displayName: Build solution
   inputs:
     command: build
     arguments: --no-restore -c $(BuildConfiguration)
-    projects: "src/*.sln"
+    projects: "src/AppBlocks.sln"
 
 - task: DotNetCoreCLI@2
   displayName: Run tests
   inputs:
     command: test
     arguments: --no-build -c $(BuildConfiguration)
-    projects: "src/*.sln"
+    projects: "src/AppBlocks.sln"
 
 - task: CopyFiles@2
   displayName: Copy packages
