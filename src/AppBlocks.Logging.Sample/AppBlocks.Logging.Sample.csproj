@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
-	<Sdk Name="AppBlocks.Logging.Sdk" Version="0.2.0-betta.2" />
+	<Sdk Name="AppBlocks.Logging.Sdk" Version="0.2.0-betta.3" />
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<IsPackable>false</IsPackable>
