@@ -3,8 +3,8 @@
 		<Authors>Alexey Ivanov</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<PackageProjectUrl>https://github.com/as-ivanov/CodeGeneration.Roslyn.AppBlocks</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/as-ivanov/CodeGeneration.Roslyn.AppBlocks</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/as-ivanov/AppBlocks</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/as-ivanov/AppBlocks</RepositoryUrl>
 		<PackageTags>roslyn logger .net core performance generator code generation</PackageTags>
 		<CurrentYear>$([System.DateTime]::Now.ToString(yyyy))</CurrentYear>
 		<PackageVersion>0.2.0-betta.2</PackageVersion>
