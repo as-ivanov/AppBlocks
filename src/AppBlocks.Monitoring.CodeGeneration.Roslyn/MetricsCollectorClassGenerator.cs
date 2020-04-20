@@ -30,14 +30,14 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			return typeDeclaration.ToMetricsCollectorDescriptor(context, attributeData);
 		}
 
-		protected override MemberDeclarationSyntax[] GetFields(MetricsCollectorDescriptor metricsCollectorDescriptor)
+		protected override IEnumerable<MemberDeclarationSyntax> GetFields(MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
 			var generalMetricsCollectorFields = GetGeneralMetricsCollectorFields(metricsCollectorDescriptor);
 			var metricsCollectorTagKeyFields = GetMetricsCollectorTagKeyFields(metricsCollectorDescriptor);
-			return generalMetricsCollectorFields.Union(metricsCollectorTagKeyFields).ToArray();
+			return generalMetricsCollectorFields.Union(metricsCollectorTagKeyFields);
 		}
 
-		protected override ConstructorDeclarationSyntax[] GetConstructors(
+		protected override IEnumerable<ConstructorDeclarationSyntax> GetConstructors(
 			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
 			const string metricsProviderVariableName = "metricsProvider";
@@ -79,14 +79,14 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 							ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(MetricsPolicyFieldName), IdentifierName(metricsPolicyVariableName)))
 						));
 			}
-			return new[] { constructorDeclaration };
+			yield return constructorDeclaration;
 		}
 
-		protected override MemberDeclarationSyntax[] GetMethods(MetricsCollectorDescriptor metricsCollectorDescriptor)
+		protected override IEnumerable<MemberDeclarationSyntax> GetMethods(MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
 			var publicKeywordToken = Token(SyntaxKind.PublicKeyword);
 
-			var members = new List<MemberDeclarationSyntax>();
+			var members = new List<MemberDeclarationSyntax>(metricsCollectorDescriptor.Methods.Length);
 			foreach (var method in metricsCollectorDescriptor.Methods)
 			{
 				var methodDeclaration =
@@ -101,7 +101,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				members.Add(methodDeclaration);
 			}
 
-			return members.ToArray();
+			return members;
 		}
 
 		private static BlockSyntax GetMetricsCollectorMethodBody(MetricsCollectorMethod metricsCollectorMethodDescriptor)

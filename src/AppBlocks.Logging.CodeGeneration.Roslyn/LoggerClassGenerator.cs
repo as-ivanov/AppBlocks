@@ -26,14 +26,14 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			return typeDeclaration.ToLoggerDescriptor(context, attributeData);
 		}
 
-		protected override MemberDeclarationSyntax[] GetFields(LoggerDescriptor loggerDescriptor)
+		protected override IEnumerable<MemberDeclarationSyntax> GetFields(LoggerDescriptor loggerDescriptor)
 		{
 			var generalLoggerFields = GetGeneralLoggerFields(loggerDescriptor);
 			var loggingDelegateLoggerFields = GetLoggingDelegateLoggerFields(loggerDescriptor);
-			return generalLoggerFields.Union(loggingDelegateLoggerFields).ToArray();
+			return generalLoggerFields.Union(loggingDelegateLoggerFields);
 		}
 
-		private static MemberDeclarationSyntax[] GetGeneralLoggerFields(LoggerDescriptor loggerDescriptor)
+		private static IEnumerable<MemberDeclarationSyntax> GetGeneralLoggerFields(LoggerDescriptor loggerDescriptor)
 		{
 			if (loggerDescriptor.BaseClassName != null)
 			{
@@ -48,7 +48,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			};
 		}
 
-		private static MemberDeclarationSyntax[] GetLoggingDelegateLoggerFields(LoggerDescriptor loggerDescriptor)
+		private static IEnumerable<MemberDeclarationSyntax> GetLoggingDelegateLoggerFields(LoggerDescriptor loggerDescriptor)
 		{
 			var fieldMemberDeclarations = new List<MemberDeclarationSyntax>();
 			for (var index = 0; index < loggerDescriptor.Methods.Length; index++)
@@ -130,12 +130,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				fieldMemberDeclarations.Add(declaration);
 			}
 
-			return fieldMemberDeclarations.ToArray();
+			return fieldMemberDeclarations;
 		}
 
 		private static TypeArgumentListSyntax GetLoggingDelegateParameterTypes(LoggerMethod loggerMethod, bool definition)
 		{
-			var result = new List<SyntaxNodeOrToken>();
+			var result = new List<SyntaxNodeOrToken>(loggerMethod.Parameters.Length);
 
 			if (!definition)
 			{
@@ -177,7 +177,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			return TypeArgumentList(SeparatedList<TypeSyntax>(result));
 		}
 
-		protected override ConstructorDeclarationSyntax[] GetConstructors(LoggerDescriptor loggerDescriptor)
+		protected override IEnumerable<ConstructorDeclarationSyntax> GetConstructors(LoggerDescriptor loggerDescriptor)
 		{
 			const string loggerFactoryVariableName = "loggerFactory";
 			var constructorDeclaration = ConstructorDeclaration(
@@ -230,15 +230,14 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 										createLoggerInvocation
 									)))));
 			}
-
-			return new[] { constructorDeclaration };
+			yield return constructorDeclaration;
 		}
 
-		protected override MemberDeclarationSyntax[] GetMethods(LoggerDescriptor loggerDescriptor)
+		protected override IEnumerable<MemberDeclarationSyntax> GetMethods(LoggerDescriptor loggerDescriptor)
 		{
 			var publicKeywordToken = Token(SyntaxKind.PublicKeyword);
 
-			var members = new List<MemberDeclarationSyntax>();
+			var members = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
 			foreach (var method in loggerDescriptor.Methods)
 			{
 				var methodParameters = method.Parameters.Select(_ => _.ParameterSyntax).ToArray();
@@ -253,7 +252,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				members.Add(methodDeclaration);
 			}
 
-			return members.ToArray();
+			return members;
 		}
 
 		private static SyntaxList<StatementSyntax> GetLoggerMethodBody(LoggerMethod loggerMethod)

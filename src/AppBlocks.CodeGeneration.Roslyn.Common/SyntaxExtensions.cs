@@ -65,5 +65,10 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 			return nameBuilder.ToString();
 		}
+
+		public static MemberDeclarationSyntax[] SortMembers(this IEnumerable<MemberDeclarationSyntax> input)
+		{
+			return input.OrderBy(_ => _, new MemberDeclarationSorter()).ToArray();
+		}
 	}
 }

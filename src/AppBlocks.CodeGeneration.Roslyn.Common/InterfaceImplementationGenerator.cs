@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CodeGeneration.Roslyn;
@@ -69,22 +70,23 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		private MemberDeclarationSyntax GetImplementation(TImplementationDescriptor implementationDescriptor)
 		{
 			var baseTypes = GetClassBaseList(implementationDescriptor, implementationDescriptor.InheritedInterfaceTypes);
+
 			var classDeclaration = ClassDeclaration(implementationDescriptor.ClassName)
 				.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.PartialKeyword)))
 				.AddAttributeLists(GetAttributeList())
 				.AddBaseListTypes(baseTypes)
-				.AddMembers(GetFields(implementationDescriptor))
-				.AddMembers(GetConstructors(implementationDescriptor))
-				.AddMembers(GetMethods(implementationDescriptor));
+				.AddMembers(GetFields(implementationDescriptor).SortMembers())
+				.AddMembers(GetConstructors(implementationDescriptor).SortMembers())
+				.AddMembers(GetMethods(implementationDescriptor).SortMembers());
 
 			return classDeclaration;
 		}
 
-		protected abstract MemberDeclarationSyntax[] GetFields(TImplementationDescriptor descriptor);
+		protected abstract IEnumerable<MemberDeclarationSyntax> GetFields(TImplementationDescriptor descriptor);
 
-		protected abstract ConstructorDeclarationSyntax[] GetConstructors(TImplementationDescriptor descriptor);
+		protected abstract IEnumerable<ConstructorDeclarationSyntax> GetConstructors(TImplementationDescriptor descriptor);
 
-		protected abstract MemberDeclarationSyntax[] GetMethods(TImplementationDescriptor descriptor);
+		protected abstract IEnumerable<MemberDeclarationSyntax> GetMethods(TImplementationDescriptor descriptor);
 
 		private static BaseTypeSyntax[] GetClassBaseList(TImplementationDescriptor descriptor,
 			string[] inheritedInterfaceTypes)
