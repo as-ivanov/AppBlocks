@@ -13,17 +13,19 @@ At the moment the following modules are available:
 
 [![Build Status](https://alexey-ivanov.visualstudio.com/AppBlocks/_apis/build/status/as-ivanov.AppBlocks?branchName=master)](https://alexey-ivanov.visualstudio.com/AppBlocks/_build/latest?definitionId=1&branchName=master)
 
-| Package                  | Version                                                                                                |
-| ------------------------ | ------------------------------------------------------------------------------------------------------ |
-| AppBlocks.Logging.Sdk    | [![NuGet package](https://img.shields.io/nuget/v/AppBlocks.Logging.Sdk.svg)][loggingsdknugetpkg]       |
-| AppBlocks.Monitoring.Sdk | [![NuGet package](https://img.shields.io/nuget/v/AppBlocks.Monitoring.Sdk.svg)][monitoringsdknugetpkg] |
+| Package                         | Version                                                                                                                       |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| AppBlocks.Logging.Sdk           | [![NuGet package](https://img.shields.io/nuget/v/AppBlocks.Logging.Sdk.svg)][appblocksloggingsdknugetpkg]                     |
+| AppBlocks.Monitoring.Sdk        | [![NuGet package](https://img.shields.io/nuget/v/AppBlocks.Monitoring.Sdk.svg)][appblocksmonitoringsdknugetpkg]               |
+| AppBlocks.Monitoring.AppMetrics | [![NuGet package](https://img.shields.io/nuget/v/AppBlocks.Monitoring.AppMetrics.svg)][appblocksmonitoringappmetricsnugetpkg] |
 
-[loggingsdknugetpkg]: https://nuget.org/packages/AppBlocks.Logging.Sdk
-[monitoringsdknugetpkg]: https://nuget.org/packages/AppBlocks.Monitoring.Sdk
+[appblocksloggingsdknugetpkg]: https://nuget.org/packages/AppBlocks.Logging.Sdk
+[appblocksmonitoringsdknugetpkg]: https://nuget.org/packages/AppBlocks.Monitoring.Sdk
+[appblocksmonitoringappmetricsnugetpkg]: https://nuget.org/packages/AppBlocks.Monitoring.AppMetrics
 
 # AppBlocks.Logging.Sdk
 
-Meta package containing utility for generating high-performance logger types using LoggerMessage pattern: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage
+Meta package containing utility for generating high-performance logger types using LoggerMessage pattern: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage.
 
 ## Installation
 
@@ -109,7 +111,7 @@ namespace AppBlocks.Logging.Sample
 }
 ```
 
-For details see full sample: [AppBlocks.Logging.Sample](https://github.com/as-ivanov/AppBlocks/tree/master/src/AppBlocks.Logging.Sample)
+For details see full sample: [AppBlocks.Logging.Sample](https://github.com/as-ivanov/AppBlocks/tree/master/src/AppBlocks.Logging.Sample).
 
 # AppBlocks.Monitoring.Sdk
 
@@ -231,7 +233,9 @@ namespace AppBlocks.Monitoring.Sample
 }
 ```
 
-Which can be used as follows:
+It's up to user how to implement `IMetricsProvider` and `IMetricsPolicy` (the last is optional and needed only if you require to turn on/off collection of some metrics dynamically). For implementation which uses [App Metrics library](https://github.com/AppMetrics/AppMetrics) see [AppBlocks.Monitoring.AppMetrics](https://www.nuget.org/packages/AppBlocks.Monitoring.AppMetrics/) NuGet package.
+
+Generated metrics collector can be used as follows:
 
 ```cs
 	public class MyBackgroundTaskManagerWithMetrics : IHostedService, IDisposable
@@ -299,13 +303,13 @@ Which can be used as follows:
 	}
 ```
 
-For details see full sample: [AppBlocks.Monitoring.Sample](https://github.com/as-ivanov/AppBlocks/tree/master/src/AppBlocks.Monitoring.Sample)
+For details see full sample: [AppBlocks.Monitoring.Sample](https://github.com/as-ivanov/AppBlocks/tree/master/src/AppBlocks.Monitoring.Sample).
 
 # Credits
 
 The generator is based on @AArnott work [CodeGeneration.Roslyn](https://github.com/AArnott/CodeGeneration.Roslyn).
 
-Created with great help of @KirillOsenkov project [RoslynQuoter](https://github.com/KirillOsenkov/RoslynQuoter).
+Created with a great help of @KirillOsenkov project [RoslynQuoter](https://github.com/KirillOsenkov/RoslynQuoter).
 
 # License
 
