@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<Description>Provides the attributed hooks for invoking metrics collector type generation.</Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CodeGeneration.Roslyn.Attributes" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\AppBlocks.CodeGeneration.Attributes.Common\AppBlocks.CodeGeneration.Attributes.Common.csproj" />
+	</ItemGroup>
+</Project>

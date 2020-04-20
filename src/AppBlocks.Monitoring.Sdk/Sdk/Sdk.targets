@@ -4,8 +4,8 @@
 		<PackageReference Include="CodeGeneration.Roslyn.Tool" Version="$(EmittedCodeGenerationRoslynPackagesVersion)"/>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector" Version="$(EmittedPackageVersion)"/>
-		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector.Attributes" Version="$(EmittedPackageVersion)"/>
-		<PackageReference Include="MetricsCollector.Abstractions" Version="$(EmittedPackageVersion)"/>
+		<PackageReference Include="AppBlocks.Monitoring.CodeGeneration.Roslyn" Version="$(EmittedPackageVersion)"/>
+		<PackageReference Include="AppBlocks.Monitoring.CodeGeneration.Attributes" Version="$(EmittedPackageVersion)"/>
+		<PackageReference Include="AppBlocks.Monitoring.Abstractions" Version="$(EmittedPackageVersion)"/>
 	</ItemGroup>
 </Project>
