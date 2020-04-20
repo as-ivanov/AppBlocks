@@ -43,7 +43,7 @@ namespace AppBlocks.Monitoring.Sample
 				}
 				catch (Exception e)
 				{
-					_metricsCollector.OperationError(name, e.GetType().Name).Mark();
+					_metricsCollector.ExecutionError(name, e.GetType().Name).Mark();
 					throw;
 				}
 				finally

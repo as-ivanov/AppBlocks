@@ -17,6 +17,6 @@ namespace AppBlocks.Monitoring.Sample
 			ITimer ExecutionTime(string taskName);
 
 			[MetricsCollectorMethodStub("execution_error", "item")]
-			IMeter OperationError(string key, string error);
+			IMeter ExecutionError(string key, string error);
 	}
 }
