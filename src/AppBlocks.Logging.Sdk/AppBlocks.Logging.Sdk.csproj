@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.Build.NoTargets">
+	<Import Project="..\sdk.build.props" />
+	<PropertyGroup>
+		<Description>SDK contains tools for generating high-performance application logging.</Description>
+	</PropertyGroup>
+</Project>

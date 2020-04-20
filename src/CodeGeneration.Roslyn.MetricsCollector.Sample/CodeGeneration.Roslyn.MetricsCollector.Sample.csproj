@@ -1,16 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
+	<Sdk Name="AppBlocks.Monitoring.Sdk" Version="0.2.0-betta.1"/>
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CodeGeneration.Roslyn.Tool" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="App.Metrics.Reporting.Console" Version="4.0.0-preview1.0.7" />
-		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector.Attributes" />
-		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector" />
-		<PackageReference Include="MetricsCollector.AppMetrics" />
 		<PackageReference Include="Microsoft.Extensions.Hosting"/>
+		<PackageReference Include="App.Metrics.Reporting.Console" Version="4.0.0-preview1.0.7" />
+		<PackageReference Include="MetricsCollector.AppMetrics" />
 	</ItemGroup>
 </Project>

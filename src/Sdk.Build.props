@@ -1,0 +1,33 @@
+<Project>
+	<PropertyGroup>
+		<PackageType>MSBuildSdk</PackageType>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<DevelopmentDependency>true</DevelopmentDependency>
+		<BeforePack>$(BeforePack);CreateVersionProps</BeforePack>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="**/*.props;**/*.targets" Pack="true" PackagePath="" />
+	</ItemGroup>
+	<Target Name="CreateVersionProps">
+		<PropertyGroup>
+			<VersionPropsPath>$(IntermediateOutputPath)Version.props</VersionPropsPath>
+			<VersionPropsContent>
+				<![CDATA[
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <EmittedPackageVersion>$(PackageVersion)</EmittedPackageVersion>
+    <EmittedCodeGenerationRoslynPackagesVersion>$(CodeGenerationRoslynPackagesVersion)</EmittedCodeGenerationRoslynPackagesVersion>
+  </PropertyGroup>
+</Project>
+]]>
+			</VersionPropsContent>
+		</PropertyGroup>
+		<WriteLinesToFile File="$(VersionPropsPath)" Lines="$(VersionPropsContent)" Overwrite="true" />
+		<ItemGroup>
+			<None Include="$(VersionPropsPath)" Pack="true" PackagePath="Sdk/" />
+			<FileWrites Include="$(VersionPropsPath)" />
+		</ItemGroup>
+	</Target>
+</Project>

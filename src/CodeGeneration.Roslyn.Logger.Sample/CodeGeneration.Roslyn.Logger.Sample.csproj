@@ -1,14 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+	<Sdk Name="AppBlocks.Logging.Sdk" Version="0.2.0-betta.1"/>
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CodeGeneration.Roslyn.Tool" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="CodeGeneration.Roslyn.Logger"/>
-		<PackageReference Include="CodeGeneration.Roslyn.Logger.Attributes"/>
-		<PackageReference Include="Microsoft.Extensions.Hosting"/>
+		<PackageReference Include="Microsoft.Extensions.Hosting" />
 	</ItemGroup>
 </Project>

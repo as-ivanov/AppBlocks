@@ -1,0 +1,11 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="Version.props"/>
+	<ItemGroup>
+		<PackageReference Include="CodeGeneration.Roslyn.Tool" Version="$(EmittedCodeGenerationRoslynPackagesVersion)"/>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector" Version="$(EmittedPackageVersion)"/>
+		<PackageReference Include="CodeGeneration.Roslyn.MetricsCollector.Attributes" Version="$(EmittedPackageVersion)"/>
+		<PackageReference Include="MetricsCollector.Abstractions" Version="$(EmittedPackageVersion)"/>
+	</ItemGroup>
+</Project>

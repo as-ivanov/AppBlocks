@@ -4,7 +4,7 @@
 		<TargetFramework>netcoreapp2.1</TargetFramework>
 		<IsTool>true</IsTool>
 		<DevelopmentDependency>True</DevelopmentDependency>
-		<Description>Utility for generating high-performance logger types using LoggerMessage pattern.</Description>
+		<Description>Utility for generating high-performance logger types.</Description>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="..\CodeGeneration.Roslyn.Logger.Attributes\LoggerMethodStubAttribute.cs" Link="LoggerMethodStubAttribute.cs" />

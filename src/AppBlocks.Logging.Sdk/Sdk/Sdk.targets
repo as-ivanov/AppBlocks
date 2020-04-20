@@ -1,0 +1,10 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="Version.props" Condition=" Exists('Version.props') " />
+	<ItemGroup>
+		<PackageReference Include="CodeGeneration.Roslyn.Tool" Version="$(EmittedCodeGenerationRoslynPackagesVersion)"/>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CodeGeneration.Roslyn.Logger" Version="$(EmittedPackageVersion)"/>
+		<PackageReference Include="CodeGeneration.Roslyn.Logger.Attributes" Version="$(EmittedPackageVersion)"/>
+	</ItemGroup>
+</Project>
