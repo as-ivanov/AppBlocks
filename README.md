@@ -47,13 +47,13 @@ namespace AppBlocks.Logging.Sample
 	[LoggerStub("AppBlocks.Logging.Sample.ISingletonDependency", "AppBlocks.Logging.Sample.ILoggerImplementation")]
 	public interface IBackgroundTaskManagerLogger
 	{
-		[LoggerMethodStub(LogLevel.Information, "Task execution started.")]
+		[LoggerMethodStub(LogLevel.Information, "Task execution started")]
 		void ExecutionStarted(string taskName);
 
-		[LoggerMethodStub(LogLevel.Information, "Task execution finished.")]
+		[LoggerMethodStub(LogLevel.Information, "Task execution finished")]
 		void ExecutionFinished(string taskName);
 
-		[LoggerMethodStub(LogLevel.Information, "Task execution failed.")]
+		[LoggerMethodStub(LogLevel.Information, "Task execution failed")]
 		void ExecutionFailed(string taskName, Exception error);
 	}
 }
@@ -71,11 +71,11 @@ namespace AppBlocks.Logging.Sample
     [System.CodeDom.Compiler.GeneratedCodeAttribute(@"LoggerClassGenerator", @"1.0.0")]
     public partial class BackgroundTaskManagerLogger : IBackgroundTaskManagerLogger, AppBlocks.Logging.Sample.ISingletonDependency, AppBlocks.Logging.Sample.ILoggerImplementation
     {
-        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionStarted = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(1, nameof(ExecutionStarted)), @"Task execution started.. TaskName: ""{TaskName}""");
+        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionStarted = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(1, nameof(ExecutionStarted)), @"Task execution started. TaskName: ""{TaskName}""");
 
-        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionFinished = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(2, nameof(ExecutionFinished)), @"Task execution finished.. TaskName: ""{TaskName}""");
+        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionFinished = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(2, nameof(ExecutionFinished)), @"Task execution finished. TaskName: ""{TaskName}""");
 
-        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionFailed = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(3, nameof(ExecutionFailed)), @"Task execution failed.. TaskName: ""{TaskName}""");
+        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionFailed = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(3, nameof(ExecutionFailed)), @"Task execution failed. TaskName: ""{TaskName}""");
 
         protected readonly ILogger Logger;
 
