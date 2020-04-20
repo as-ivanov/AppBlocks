@@ -69,40 +69,40 @@ namespace AppBlocks.Logging.Sample
     [System.CodeDom.Compiler.GeneratedCodeAttribute(@"LoggerClassGenerator", @"1.0.0")]
     public partial class BackgroundTaskManagerLogger : IBackgroundTaskManagerLogger, AppBlocks.Logging.Sample.ISingletonDependency, AppBlocks.Logging.Sample.ILoggerImplementation
     {
-        protected readonly ILogger _logger;
-
         private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionStarted = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(1, nameof(ExecutionStarted)), @"Task execution started.. TaskName: ""{TaskName}""");
 
         private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionFinished = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(2, nameof(ExecutionFinished)), @"Task execution finished.. TaskName: ""{TaskName}""");
 
         private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionFailed = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(3, nameof(ExecutionFailed)), @"Task execution failed.. TaskName: ""{TaskName}""");
 
+        protected readonly ILogger Logger;
+
         public BackgroundTaskManagerLogger(global::Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger(GetType());
+            Logger = loggerFactory.CreateLogger(GetType());
         }
 
         public void ExecutionStarted(string taskName)
         {
-            if (_logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
+            if (Logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
             {
-                _executionStarted(_logger, taskName, null);
+                _executionStarted(Logger, taskName, null);
             }
         }
 
         public void ExecutionFinished(string taskName)
         {
-            if (_logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
+            if (Logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
             {
-                _executionFinished(_logger, taskName, null);
+                _executionFinished(Logger, taskName, null);
             }
         }
 
         public void ExecutionFailed(string taskName, Exception error)
         {
-            if (_logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
+            if (Logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
             {
-                _executionFailed(_logger, taskName, error);
+                _executionFailed(Logger, taskName, error);
             }
         }
     }
@@ -162,9 +162,13 @@ namespace AppBlocks.Monitoring.Sample
     public partial class BackgroundTaskMetricsCollector : IBackgroundTaskMetricsCollector, AppBlocks.Monitoring.Sample.ISingletonDependency, AppBlocks.Monitoring.Sample.IMetricsCollectorImplementation
     {
         private const string _contextName = "BackgroundTask";
+
+        private static readonly string[] _executionError = { @"key", @"error" };
+
         protected readonly global::AppBlocks.Monitoring.Abstractions.IMetricsProvider MetricsProvider;
+
         protected readonly global::AppBlocks.Monitoring.Abstractions.IMetricsPolicy MetricsPolicy;
-        private static readonly string[] _ExecutionError = {@"key", @"error"};
+
         public BackgroundTaskMetricsCollector(global::AppBlocks.Monitoring.Abstractions.IMetricsProvider metricsProvider, global::AppBlocks.Monitoring.Abstractions.IMetricsPolicy metricsPolicy = null)
         {
             MetricsProvider = metricsProvider;
@@ -219,8 +223,8 @@ namespace AppBlocks.Monitoring.Sample
                 return global::AppBlocks.Monitoring.Abstractions.NullMeter.Instance;
             }
 
-            var values = new string[]{key.ToString(), error.ToString()};
-            var tags = new global::AppBlocks.Monitoring.Abstractions.Tags(_ExecutionError, values);
+            var values = new string[]{ key.ToString(), error.ToString() };
+            var tags = new global::AppBlocks.Monitoring.Abstractions.Tags(_executionError, values);
             return MetricsProvider.CreateMeter(_contextName, metricName, metricUnit, tags);
         }
     }
