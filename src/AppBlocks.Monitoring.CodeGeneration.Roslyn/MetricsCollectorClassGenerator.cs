@@ -44,8 +44,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			const string metricsPolicyVariableName = "metricsPolicy";
 
 			var constructorParameters = SyntaxExtensions.ToSeparatedList(
-				Parameter(Identifier(metricsProviderVariableName)).WithType(typeof(IMetricsProvider).GetTypeSyntax()),
-				Parameter(Identifier(metricsPolicyVariableName)).WithType(typeof(IMetricsPolicy).GetTypeSyntax()).WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.NullLiteralExpression)))
+				Parameter(Identifier(metricsProviderVariableName)).WithType(typeof(IMetricsProvider).GetGlobalTypeSyntax()),
+				Parameter(Identifier(metricsPolicyVariableName)).WithType(typeof(IMetricsPolicy).GetGlobalTypeSyntax()).WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.NullLiteralExpression)))
 				);
 
 
@@ -218,7 +218,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 										EqualsValueClause(
 											MemberAccessExpression(
 												SyntaxKind.SimpleMemberAccessExpression,
-												typeof(Tags).GetTypeSyntax(),
+												typeof(Tags).GetGlobalTypeSyntax(),
 												IdentifierName(nameof(Tags.Empty)))))))));
 			}
 
@@ -266,7 +266,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									Identifier(TagsVariableName))
 								.WithInitializer(
 									EqualsValueClause(
-										ObjectCreationExpression(typeof(Tags).GetTypeSyntax())
+										ObjectCreationExpression(typeof(Tags).GetGlobalTypeSyntax())
 											.WithArgumentList(
 												ArgumentList(SeparatedList<ArgumentSyntax>(
 													new SyntaxNodeOrToken[]
@@ -318,7 +318,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									Identifier(TagsVariableName))
 								.WithInitializer(
 									EqualsValueClause(
-										ObjectCreationExpression(typeof(Tags).GetTypeSyntax())
+										ObjectCreationExpression(typeof(Tags).GetGlobalTypeSyntax())
 											.WithArgumentList(
 												ArgumentList(
 													SeparatedList<ArgumentSyntax>(
@@ -357,12 +357,12 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			}
 
 			var metricsProviderFieldDeclaration = FieldDeclaration(
-					VariableDeclaration(typeof(IMetricsProvider).GetTypeSyntax())
+					VariableDeclaration(typeof(IMetricsProvider).GetGlobalTypeSyntax())
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsProviderFieldName)))))
 				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 
 			var metricsPolicyFieldDeclaration = FieldDeclaration(
-					VariableDeclaration(typeof(IMetricsPolicy).GetTypeSyntax())
+					VariableDeclaration(typeof(IMetricsPolicy).GetGlobalTypeSyntax())
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsPolicyFieldName)))))
 				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 

@@ -16,6 +16,13 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 	{
 		private const string LoggerFieldName = "Logger";
 
+		private static readonly TypeSyntax _loggerMessageGlobalTypeSyntax = typeof(LoggerMessage).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _logLevelGlobalTypeSyntax = typeof(Microsoft.Extensions.Logging.LogLevel).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _eventIdGlobalTypeSyntax = typeof(EventId).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _loggerGlobalTypeSyntax = typeof(ILogger).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _exceptionGlobalTypeSyntax = typeof(Exception).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _loggerFactoryGlobalTypeSyntax = typeof(ILoggerFactory).GetGlobalTypeSyntax();
+
 		public LoggerClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
 		{
 		}
@@ -42,7 +49,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 			return new MemberDeclarationSyntax[]
 			{
-				FieldDeclaration(VariableDeclaration(IdentifierName(nameof(ILogger)))
+				FieldDeclaration(VariableDeclaration(IdentifierName(typeof(ILogger).FullName))
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(LoggerFieldName)))))
 					.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)))
 			};
@@ -71,9 +78,9 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				var message = sb.ToString();
 
 				var definitionMethodExpression = defineMethodParameterTypes.Arguments.Any()
-					? MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(nameof(LoggerMessage)),
+					? MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, _loggerMessageGlobalTypeSyntax,
 						GenericName(Identifier(nameof(LoggerMessage.Define))).WithTypeArgumentList(defineMethodParameterTypes))
-					: MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(nameof(LoggerMessage)),
+					: MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, _loggerMessageGlobalTypeSyntax,
 						IdentifierName(nameof(LoggerMessage.Define)));
 				var declaration = FieldDeclaration(
 						VariableDeclaration(
@@ -95,12 +102,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 																	Argument(
 																		MemberAccessExpression(
 																			SyntaxKind.SimpleMemberAccessExpression,
-																			typeof(Microsoft.Extensions.Logging.LogLevel).GetTypeSyntax(),
+																			_logLevelGlobalTypeSyntax,
 																			IdentifierName(method.Level.ToString()))),
 																	Token(SyntaxKind.CommaToken),
 																	Argument(
-																		ObjectCreationExpression(
-																				IdentifierName(nameof(EventId)))
+																		ObjectCreationExpression(_eventIdGlobalTypeSyntax)
 																			.WithArgumentList(
 																				ArgumentList(
 																					SeparatedList<ArgumentSyntax>(
@@ -139,7 +145,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 			if (!definition)
 			{
-				result.Add(typeof(ILogger).GetTypeSyntax());
+				result.Add(_loggerGlobalTypeSyntax);
 			}
 
 			for (var index = 0; index < loggerMethod.Parameters.Length; index++)
@@ -171,7 +177,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 					result.Add(Token(SyntaxKind.CommaToken));
 				}
 
-				result.Add(typeof(Exception).GetTypeSyntax());
+				result.Add(_exceptionGlobalTypeSyntax);
 			}
 
 			return TypeArgumentList(SeparatedList<TypeSyntax>(result));
@@ -190,7 +196,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 						SingletonSeparatedList(
 							Parameter(
 									Identifier(loggerFactoryVariableName))
-								.WithType(typeof(ILoggerFactory).GetTypeSyntax()))));
+								.WithType(_loggerFactoryGlobalTypeSyntax))));
 
 			if (loggerDescriptor.BaseClassName != null)
 			{
@@ -270,7 +276,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 									Argument(
 										MemberAccessExpression(
 											SyntaxKind.SimpleMemberAccessExpression,
-											typeof(Microsoft.Extensions.Logging.LogLevel).GetTypeSyntax(),
+											_logLevelGlobalTypeSyntax,
 											IdentifierName(loggerMethod.Level.ToString())))))),
 					Block(
 						SingletonList<StatementSyntax>(
