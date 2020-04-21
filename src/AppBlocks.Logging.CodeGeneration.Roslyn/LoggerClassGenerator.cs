@@ -22,6 +22,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		private static readonly TypeSyntax _loggerGlobalTypeSyntax = typeof(ILogger).GetGlobalTypeSyntax();
 		private static readonly TypeSyntax _exceptionGlobalTypeSyntax = typeof(Exception).GetGlobalTypeSyntax();
 		private static readonly TypeSyntax _loggerFactoryGlobalTypeSyntax = typeof(ILoggerFactory).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _loggerFactoryExtensionsGlobalTypeSyntax = typeof(LoggerFactoryExtensions).GetGlobalTypeSyntax();
 
 		public LoggerClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
 		{
@@ -216,14 +217,18 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				var createLoggerInvocation = InvocationExpression(
 						MemberAccessExpression(
 							SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName(loggerFactoryVariableName),
+							_loggerFactoryExtensionsGlobalTypeSyntax,
 							IdentifierName(nameof(ILoggerFactory.CreateLogger))))
 					.WithArgumentList(
 						ArgumentList(
-							SingletonSeparatedList(
-								Argument(
-									InvocationExpression(
-										IdentifierName(nameof(Type.GetType)))))));
+							SeparatedList<ArgumentSyntax>(
+								new SyntaxNodeOrToken[]{
+									Argument(
+										IdentifierName(loggerFactoryVariableName)),
+									Token(SyntaxKind.CommaToken),
+									Argument(
+										InvocationExpression(
+											IdentifierName(nameof(GetType))))})));
 
 				constructorDeclaration = constructorDeclaration
 					.WithBody(
