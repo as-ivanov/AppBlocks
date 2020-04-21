@@ -58,7 +58,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 		private static IEnumerable<MemberDeclarationSyntax> GetLoggingDelegateLoggerFields(LoggerDescriptor loggerDescriptor)
 		{
-			var fieldMemberDeclarations = new List<MemberDeclarationSyntax>();
+			var fieldMemberDeclarations = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
 			for (var index = 0; index < loggerDescriptor.Methods.Length; index++)
 			{
 				var method = loggerDescriptor.Methods[index];
