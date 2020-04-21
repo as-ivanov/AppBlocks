@@ -29,7 +29,14 @@ Meta package containing utility for generating high-performance logger types usi
 
 ## Installation
 
-- `Install-Package AppBlocks.Logging.Sdk`
+Add to the top of your project file the following:
+
+```xml
+<Project>
+  <Sdk Name="AppBlocks.Logging.Sdk" Version="{Put the last version here}" />
+  ...  
+</Project>
+```
 
 ## Usage
 
@@ -39,7 +46,7 @@ Methods may optionally contain LoggerMethodStub attribute to provide extra infor
 
 ```cs
 using System;
-using CodeGeneration.Roslyn.Logger.Attributes;
+using AppBlocks.Logging.CodeGeneration.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.Sample
@@ -59,55 +66,55 @@ namespace AppBlocks.Logging.Sample
 }
 ```
 
-On pre-build the following implementation will be generated:
+On pre-build the following implementation will be generated (some full type names are omitted for clarity):
 
 ```cs
 using System;
-using AppBlocks.Logging.Attributes;
+using AppBlocks.Logging.CodeGeneration.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.Sample
 {
-    [System.CodeDom.Compiler.GeneratedCodeAttribute(@"LoggerClassGenerator", @"1.0.0")]
-    public partial class BackgroundTaskManagerLogger : IBackgroundTaskManagerLogger, AppBlocks.Logging.Sample.ISingletonDependency, AppBlocks.Logging.Sample.ILoggerImplementation
-    {
-        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionStarted = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(1, nameof(ExecutionStarted)), @"Task execution started. TaskName: ""{TaskName}""");
+	[System.CodeDom.Compiler.GeneratedCodeAttribute(@"LoggerClassGenerator", @"1.0.0")]
+	public partial class BackgroundTaskManagerLogger : IBackgroundTaskManagerLogger, AppBlocks.Logging.Sample.ISingletonDependency, AppBlocks.Logging.Sample.ILoggerImplementation
+	{
+		private static readonly System.Action<ILogger, object, System.Exception> _executionStarted = LoggerMessage.Define<object>(LogLevel.Information, new EventId(1, nameof(ExecutionStarted)), @"Task execution started (TaskName: '{TaskName}')");
 
-        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionFinished = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(2, nameof(ExecutionFinished)), @"Task execution finished. TaskName: ""{TaskName}""");
+		private static readonly System.Action<ILogger, object, System.Exception> _executionFinished = LoggerMessage.Define<object>(LogLevel.Information, new EventId(2, nameof(ExecutionFinished)), @"Task execution finished (TaskName: '{TaskName}')");
 
-        private static readonly global::System.Action<global::Microsoft.Extensions.Logging.ILogger, object, global::System.Exception> _executionFailed = LoggerMessage.Define<object>(global::Microsoft.Extensions.Logging.LogLevel.Information, new EventId(3, nameof(ExecutionFailed)), @"Task execution failed. TaskName: ""{TaskName}""");
+		private static readonly System.Action<ILogger, object, System.Exception> _executionFailed = LoggerMessage.Define<object>(LogLevel.Information, new EventId(3, nameof(ExecutionFailed)), @"Task execution failed (TaskName: '{TaskName}')");
 
-        protected readonly ILogger Logger;
+		protected readonly Microsoft.Extensions.Logging.ILogger Logger;
 
-        public BackgroundTaskManagerLogger(global::Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
-        {
-            Logger = loggerFactory.CreateLogger(GetType());
-        }
+		public BackgroundTaskManagerLogger(ILoggerFactory loggerFactory)
+		{
+			Logger = LoggerFactoryExtensions.CreateLogger(loggerFactory, GetType());
+		}
 
-        public void ExecutionStarted(string taskName)
-        {
-            if (Logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
-            {
-                _executionStarted(Logger, taskName, null);
-            }
-        }
+		public void ExecutionStarted(string taskName)
+		{
+			if (Logger.IsEnabled(LogLevel.Information))
+			{
+				_executionStarted(Logger, taskName, null);
+			}
+		}
 
-        public void ExecutionFinished(string taskName)
-        {
-            if (Logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
-            {
-                _executionFinished(Logger, taskName, null);
-            }
-        }
+		public void ExecutionFinished(string taskName)
+		{
+			if (Logger.IsEnabled(LogLevel.Information))
+			{
+				_executionFinished(Logger, taskName, null);
+			}
+		}
 
-        public void ExecutionFailed(string taskName, Exception error)
-        {
-            if (Logger.IsEnabled(global::Microsoft.Extensions.Logging.LogLevel.Information))
-            {
-                _executionFailed(Logger, taskName, error);
-            }
-        }
-    }
+		public void ExecutionFailed(string taskName, Exception error)
+		{
+			if (Logger.IsEnabled(LogLevel.Information))
+			{
+				_executionFailed(Logger, taskName, error);
+			}
+		}
+	}
 }
 ```
 
@@ -119,7 +126,12 @@ Meta package containing utility for generating types which helps collecting metr
 
 ## Installation
 
-- `Install-Package AppBlocks.Monitoring.Sdk`
+```xml
+<Project>
+  <Sdk Name="AppBlocks.Monitoring.Sdk" Version="{Put the last version here}" />
+  ...  
+</Project>
+```
 
 ## Usage
 
@@ -129,7 +141,7 @@ Methods may optionally contain MetricsCollectorMethodStub attribute to provide e
 
 ```cs
 using AppBlocks.Monitoring.Abstractions;
-using CodeGeneration.Roslyn.MetricsCollector.Attributes;
+using AppBlocks.Monitoring.CodeGeneration.Attributes;
 
 namespace AppBlocks.Monitoring.Sample
 {
@@ -137,99 +149,97 @@ namespace AppBlocks.Monitoring.Sample
 		"AppBlocks.Monitoring.Sample.IMetricsCollectorImplementation")]
 	public interface IBackgroundTaskMetricsCollector
 	{
-			[MetricsCollectorMethodStub("execution_count", "item")]
-			IMeter ExecutionTotal(string taskName);
+		[MetricsCollectorMethodStub("execution_count", "item")]
+		IMeter ExecutionTotal(string taskName);
 
-			[MetricsCollectorMethodStub("execution_active", "item")]
-			ICounter ExecutionActive(string taskName);
+		[MetricsCollectorMethodStub("execution_active", "item")]
+		ICounter ExecutionActive(string taskName);
 
-			[MetricsCollectorMethodStub("execution_time", "ms")]
-			ITimer ExecutionTime(string taskName);
+		[MetricsCollectorMethodStub("execution_time", "ms")]
+		ITimer ExecutionTime(string taskName);
 
-			[MetricsCollectorMethodStub("execution_error", "item")]
-			IMeter ExecutionError(string key, string error);
+		[MetricsCollectorMethodStub("execution_error", "item")]
+		IMeter ExecutionError(string key, string error);
 	}
 }
 ```
 
-On pre-build the following implementation will be generated:
+On pre-build the following implementation will be generated (some full type names are omitted for clarity):
 
 ```cs
 using AppBlocks.Monitoring.Abstractions;
-using CodeGeneration.Roslyn.MetricsCollector.Attributes;
+using AppBlocks.Monitoring.CodeGeneration.Attributes;
 
 namespace AppBlocks.Monitoring.Sample
 {
-    [System.CodeDom.Compiler.GeneratedCodeAttribute(@"MetricsCollectorClassGenerator", @"1.0.0")]
-    public partial class BackgroundTaskMetricsCollector : IBackgroundTaskMetricsCollector, AppBlocks.Monitoring.Sample.ISingletonDependency, AppBlocks.Monitoring.Sample.IMetricsCollectorImplementation
-    {
-        private const string _contextName = "BackgroundTask";
+	[System.CodeDom.Compiler.GeneratedCodeAttribute(@"MetricsCollectorClassGenerator", @"1.0.0")]
+	public partial class BackgroundTaskMetricsCollector : IBackgroundTaskMetricsCollector, AppBlocks.Monitoring.Sample.ISingletonDependency, AppBlocks.Monitoring.Sample.IMetricsCollectorImplementation
+	{
+		private const string _contextName = "BackgroundTask";
+		private static readonly string[] _executionError = { @"key", @"error" };
 
-        private static readonly string[] _executionError = { @"key", @"error" };
+		protected readonly IMetricsProvider MetricsProvider;
+		protected readonly IMetricsPolicy MetricsPolicy;
 
-        protected readonly global::AppBlocks.Monitoring.Abstractions.IMetricsProvider MetricsProvider;
+		public BackgroundTaskMetricsCollector(IMetricsProvider metricsProvider, IMetricsPolicy metricsPolicy = null)
+		{
+			MetricsProvider = metricsProvider;
+			MetricsPolicy = metricsPolicy;
+		}
 
-        protected readonly global::AppBlocks.Monitoring.Abstractions.IMetricsPolicy MetricsPolicy;
+		public IMeter ExecutionTotal(string taskName)
+		{
+			const string metricName = "execution_count";
+			const string metricUnit = "item";
+			if (MetricsPolicy != null && !MetricsPolicy.IsEnabled(_contextName, metricName))
+			{
+				return NullMeter.Instance;
+			}
 
-        public BackgroundTaskMetricsCollector(global::AppBlocks.Monitoring.Abstractions.IMetricsProvider metricsProvider, global::AppBlocks.Monitoring.Abstractions.IMetricsPolicy metricsPolicy = null)
-        {
-            MetricsProvider = metricsProvider;
-            MetricsPolicy = metricsPolicy;
-        }
+			var tags = new Tags("taskName", taskName.ToString());
+			return MetricsProvider.CreateMeter(_contextName, metricName, metricUnit, tags);
+		}
 
-        public IMeter ExecutionTotal(string taskName)
-        {
-            const string metricName = "execution_count";
-            const string metricUnit = "item";
-            if (MetricsPolicy != null && !MetricsPolicy.IsEnabled(_contextName, metricName))
-            {
-                return global::AppBlocks.Monitoring.Abstractions.NullMeter.Instance;
-            }
+		public ICounter ExecutionActive(string taskName)
+		{
+			const string metricName = "execution_active";
+			const string metricUnit = "item";
+			if (MetricsPolicy != null && !MetricsPolicy.IsEnabled(_contextName, metricName))
+			{
+				return NullCounter.Instance;
+			}
 
-            var tags = new global::AppBlocks.Monitoring.Abstractions.Tags("taskName", taskName.ToString());
-            return MetricsProvider.CreateMeter(_contextName, metricName, metricUnit, tags);
-        }
+			var tags = new Tags("taskName", taskName.ToString());
+			return MetricsProvider.CreateCounter(_contextName, metricName, metricUnit, tags);
+		}
 
-        public ICounter ExecutionActive(string taskName)
-        {
-            const string metricName = "execution_active";
-            const string metricUnit = "item";
-            if (MetricsPolicy != null && !MetricsPolicy.IsEnabled(_contextName, metricName))
-            {
-                return global::AppBlocks.Monitoring.Abstractions.NullCounter.Instance;
-            }
+		public ITimer ExecutionTime(string taskName)
+		{
+			const string metricName = "execution_time";
+			const string metricUnit = "ms";
+			if (MetricsPolicy != null && !MetricsPolicy.IsEnabled(_contextName, metricName))
+			{
+				return NullTimer.Instance;
+			}
 
-            var tags = new global::AppBlocks.Monitoring.Abstractions.Tags("taskName", taskName.ToString());
-            return MetricsProvider.CreateCounter(_contextName, metricName, metricUnit, tags);
-        }
+			var tags = new Tags("taskName", taskName.ToString());
+			return MetricsProvider.CreateTimer(_contextName, metricName, metricUnit, tags);
+		}
 
-        public ITimer ExecutionTime(string taskName)
-        {
-            const string metricName = "execution_time";
-            const string metricUnit = "ms";
-            if (MetricsPolicy != null && !MetricsPolicy.IsEnabled(_contextName, metricName))
-            {
-                return global::AppBlocks.Monitoring.Abstractions.NullTimer.Instance;
-            }
+		public IMeter ExecutionError(string key, string error)
+		{
+			const string metricName = "execution_error";
+			const string metricUnit = "item";
+			if (MetricsPolicy != null && !MetricsPolicy.IsEnabled(_contextName, metricName))
+			{
+				return NullMeter.Instance;
+			}
 
-            var tags = new global::AppBlocks.Monitoring.Abstractions.Tags("taskName", taskName.ToString());
-            return MetricsProvider.CreateTimer(_contextName, metricName, metricUnit, tags);
-        }
-
-        public IMeter ExecutionError(string key, string error)
-        {
-            const string metricName = "execution_error";
-            const string metricUnit = "item";
-            if (MetricsPolicy != null && !MetricsPolicy.IsEnabled(_contextName, metricName))
-            {
-                return global::AppBlocks.Monitoring.Abstractions.NullMeter.Instance;
-            }
-
-            var values = new string[]{ key.ToString(), error.ToString() };
-            var tags = new global::AppBlocks.Monitoring.Abstractions.Tags(_executionError, values);
-            return MetricsProvider.CreateMeter(_contextName, metricName, metricUnit, tags);
-        }
-    }
+			var values = new string[] { key.ToString(), error.ToString() };
+			var tags = new Tags(_executionError, values);
+			return MetricsProvider.CreateMeter(_contextName, metricName, metricUnit, tags);
+		}
+	}
 }
 ```
 
