@@ -64,19 +64,29 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				var method = loggerDescriptor.Methods[index];
 				var defineMethodParameterTypes = GetLoggingDelegateParameterTypes(method, true);
 
-				var sb = new StringBuilder(method.Message);
-				for (var i = 0; i < method.Parameters.Length; ++i)
+				string message = method.Message;
+				if (method.Parameters.Length > 0)
 				{
-					var parameter = method.Parameters[i];
-					if (i + 1 < method.Parameters.Length || !parameter.IsException)
+					var sb = new StringBuilder();
+					for (var i = 0; i < method.Parameters.Length; ++i)
 					{
-						var pascalCaseParameter =
-							parameter.ParameterSyntax.Identifier.WithoutTrivia().ToFullString().ToPascalCase();
-						sb.Append($". {pascalCaseParameter}: \"{{{pascalCaseParameter}}}\"");
+						var parameter = method.Parameters[i];
+						if (i + 1 < method.Parameters.Length || !parameter.IsException)
+						{
+							var pascalCaseParameter =
+								parameter.ParameterSyntax.Identifier.WithoutTrivia().ToFullString().ToPascalCase();
+							if (sb.Length > 0)
+							{
+								sb.Append(" ");
+							}
+							sb.Append($"{pascalCaseParameter}: '{{{pascalCaseParameter}}}'");
+						}
+					}
+					if (sb.Length > 0)
+					{
+						message = $"{message} ({sb})";
 					}
 				}
-
-				var message = sb.ToString();
 
 				var definitionMethodExpression = defineMethodParameterTypes.Arguments.Any()
 					? MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, _loggerMessageGlobalTypeSyntax,

@@ -11,10 +11,14 @@ namespace AppBlocks.Logging.CodeGeneration.Attributes
 		private readonly Microsoft.Extensions.Logging.LogLevel _logLevel;
 		private readonly string _message;
 
-		public LoggerMethodStubAttribute(Microsoft.Extensions.Logging.LogLevel logLevel, string message = null)
+		public LoggerMethodStubAttribute(Microsoft.Extensions.Logging.LogLevel logLevel) : this(logLevel, null)
+		{
+		}
+
+		public LoggerMethodStubAttribute(Microsoft.Extensions.Logging.LogLevel logLevel, string message)
 		{
 			_logLevel = logLevel;
-			_message = message ?? string.Empty;
+			_message = message;
 		}
 
 		public Microsoft.Extensions.Logging.LogLevel Level => _logLevel;
