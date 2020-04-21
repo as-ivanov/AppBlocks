@@ -32,16 +32,24 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			_logLevel = logLevel;
 			_methodParameters = methodParameters;
 			_logEnabled = logEnabled;
-			var sb = new StringBuilder(message);
+			var sb = new StringBuilder();
 			foreach (var methodParameter in methodParameters)
 			{
 				if (typeof(Exception).IsAssignableFrom(methodParameter.ParameterType))
 				{
 					continue;
 				}
-				sb.Append($". {methodParameter.Name.ToPascalCase()}: \"{methodParameter.GetFormattedValue()}\"");
+				if (sb.Length > 0)
+				{
+					sb.Append(" ");
+				}
+				sb.Append($"{methodParameter.Name.ToPascalCase()}: '{methodParameter.GetFormattedValue()}'");
 			}
-			_message = sb.ToString();
+			if (sb.Length > 0)
+			{
+				message = $"{message} ({sb})";
+			}
+			_message = message;
 		}
 
 		public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state,

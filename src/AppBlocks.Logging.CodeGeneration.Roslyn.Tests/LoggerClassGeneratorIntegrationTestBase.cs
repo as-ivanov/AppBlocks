@@ -88,7 +88,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 					}
 					else
 					{
-						message = loggerInterfaceMethodAttributeData.Message;
+						message = loggerInterfaceMethodAttributeData.MessageIsDefined ? loggerInterfaceMethodAttributeData.Message : methodName;
 						logLevel = loggerInterfaceMethodAttributeData.Level;
 					}
 
