@@ -1,5 +1,5 @@
 using System;
-using AppBlocks.Logging.Attributes;
+using AppBlocks.Logging.CodeGeneration.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.Sample

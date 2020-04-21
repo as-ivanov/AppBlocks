@@ -1,5 +1,5 @@
 using AppBlocks.Monitoring.Abstractions;
-using CodeGeneration.Roslyn.MetricsCollector.Attributes;
+using AppBlocks.Monitoring.CodeGeneration.Attributes;
 
 namespace AppBlocks.Monitoring.Sample
 {
