@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using AppBlocks.CodeGeneration.Attributes.Common;
 using CodeGeneration.Roslyn;
 
@@ -8,8 +8,13 @@ namespace AppBlocks.Monitoring.CodeGeneration.Attributes
   [CodeGenerationAttribute("AppBlocks.Monitoring.CodeGeneration.Roslyn.MetricsCollectorClassGenerator, AppBlocks.Monitoring.CodeGeneration.Roslyn")]
   public class MetricsCollectorStubAttribute : ImplementInterfaceAttribute
   {
-    public MetricsCollectorStubAttribute(string contextName, params string[] inheritedInterfaceTypes) : base(inheritedInterfaceTypes)
-    {
-    }
+	  private readonly string _contextName;
+
+	  public MetricsCollectorStubAttribute(string contextName, params string[] inheritedInterfaceTypes) : base(inheritedInterfaceTypes)
+	  {
+		  _contextName = contextName;
+	  }
+
+	  public string ContextName => _contextName;
   }
 }
