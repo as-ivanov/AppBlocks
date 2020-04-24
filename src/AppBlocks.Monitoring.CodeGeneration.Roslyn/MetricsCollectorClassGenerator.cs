@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Common;
 using CodeGeneration.Roslyn;
@@ -16,7 +17,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 	{
 		private const string MetricsProviderFieldName = "MetricsProvider";
 		private const string MetricsPolicyFieldName = "MetricsPolicy";
-		private const string ContextNameFieldName = "_contextName";
+		private const string ContextNameFieldName = "ContextName";
 		private const string TagsVariableName = "tags";
 		private const string ValuesVariableName = "values";
 
@@ -30,7 +31,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			return typeDeclaration.ToMetricsCollectorDescriptor(context, attributeData);
 		}
 
-		protected override IEnumerable<MemberDeclarationSyntax> GetFields(MetricsCollectorDescriptor metricsCollectorDescriptor)
+		protected override IEnumerable<MemberDeclarationSyntax> GetFields(
+			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
 			var generalMetricsCollectorFields = GetGeneralMetricsCollectorFields(metricsCollectorDescriptor);
 			var metricsCollectorTagKeyFields = GetMetricsCollectorTagKeyFields(metricsCollectorDescriptor);
@@ -40,27 +42,35 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		protected override IEnumerable<ConstructorDeclarationSyntax> GetConstructors(
 			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
+			const string contextNameVariableName = "contextName";
 			const string metricsProviderVariableName = "metricsProvider";
 			const string metricsPolicyVariableName = "metricsPolicy";
 
-			var constructorParameters = SyntaxExtensions.ToSeparatedList(
-				Parameter(Identifier(metricsProviderVariableName)).WithType(typeof(IMetricsProvider).GetGlobalTypeSyntax()),
-				Parameter(Identifier(metricsPolicyVariableName)).WithType(typeof(IMetricsPolicy).GetGlobalTypeSyntax()).WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.NullLiteralExpression)))
-				);
+			var constructorParameters= new List<ParameterSyntax>();
+
+			if (metricsCollectorDescriptor.IsAbstract)
+			{
+				constructorParameters.Add(Parameter(Identifier(contextNameVariableName))
+					.WithType(PredefinedType(Token(SyntaxKind.StringKeyword))));
+			}
+			constructorParameters.Add(Parameter(Identifier(metricsProviderVariableName)).WithType(typeof(IMetricsProvider).GetGlobalTypeSyntax()));
+			constructorParameters.Add(Parameter(Identifier(metricsPolicyVariableName)).WithType(typeof(IMetricsPolicy).GetGlobalTypeSyntax())
+					.WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.NullLiteralExpression))));
+
 
 
 			var constructorDeclaration = ConstructorDeclaration(
 					Identifier(metricsCollectorDescriptor.ClassName))
 				.WithModifiers(
 					TokenList(
-						Token(SyntaxKind.PublicKeyword)))
+						Token(metricsCollectorDescriptor.IsAbstract ? SyntaxKind.ProtectedKeyword : SyntaxKind.PublicKeyword)))
 				.WithParameterList(
-					ParameterList(constructorParameters));
+					ParameterList(constructorParameters.ToSeparatedList()));
 
 			if (metricsCollectorDescriptor.BaseClassName != null)
 			{
-
 				var baseConstructorArguments = SyntaxExtensions.ToSeparatedList(
+					Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(metricsCollectorDescriptor.ContextName))),
 					Argument(IdentifierName(metricsProviderVariableName)),
 					Argument(IdentifierName(metricsPolicyVariableName)));
 
@@ -73,16 +83,30 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			}
 			else
 			{
+				var statements = new List<StatementSyntax>();
+
+				if (metricsCollectorDescriptor.IsAbstract)
+				{
+					statements.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(ContextNameFieldName), IdentifierName(contextNameVariableName))));
+				}
+				else
+				{
+					statements.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+							IdentifierName(ContextNameFieldName), LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(metricsCollectorDescriptor.ContextName)))));
+				}
+				statements.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+					IdentifierName(MetricsProviderFieldName), IdentifierName(metricsProviderVariableName))));
+				statements.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, 					IdentifierName(MetricsPolicyFieldName), IdentifierName(metricsPolicyVariableName))));
+
 				constructorDeclaration = constructorDeclaration.WithBody(
-						Block(
-							ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(MetricsProviderFieldName), IdentifierName(metricsProviderVariableName))),
-							ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(MetricsPolicyFieldName), IdentifierName(metricsPolicyVariableName)))
-						));
+					Block(statements));
 			}
+
 			yield return constructorDeclaration;
 		}
 
-		protected override IEnumerable<MemberDeclarationSyntax> GetMethods(MetricsCollectorDescriptor metricsCollectorDescriptor)
+		protected override IEnumerable<MemberDeclarationSyntax> GetMethods(
+			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
 			var publicKeywordToken = Token(SyntaxKind.PublicKeyword);
 
@@ -149,7 +173,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 					PrefixUnaryExpression(
 						SyntaxKind.LogicalNotExpression,
 						InvocationExpression(
-								MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(MetricsPolicyFieldName), IdentifierName(nameof(IMetricsPolicy.IsEnabled))))
+								MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(MetricsPolicyFieldName),
+									IdentifierName(nameof(IMetricsPolicy.IsEnabled))))
 							.WithArgumentList(
 								ArgumentList(
 									SeparatedList<ArgumentSyntax>(
@@ -169,7 +194,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									AliasQualifiedName(
 										IdentifierName(Token(SyntaxKind.GlobalKeyword)),
 										IdentifierName(typeof(IMetricsProvider).Namespace + ".Null" +
-																 metricsCollectorMethodDescriptor.MetricsCollectorIndicatorType)),
+														metricsCollectorMethodDescriptor.MetricsCollectorIndicatorType)),
 									IdentifierName("Instance"))))));
 			}
 
@@ -190,7 +215,9 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				IEnumerable<LocalDeclarationStatementSyntax> tagsInitializationStatements;
 				if (metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters.Count == 1)
 				{
-					tagsInitializationStatements = GetSingleTagInitializationStatement(metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters[0]);
+					tagsInitializationStatements =
+						GetSingleTagInitializationStatement(metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList
+							.Parameters[0]);
 				}
 				else
 				{
@@ -255,7 +282,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			return Block(tagsInitialization.ToArray());
 		}
 
-		private static IEnumerable<LocalDeclarationStatementSyntax> GetSingleTagInitializationStatement(ParameterSyntax parameter)
+		private static IEnumerable<LocalDeclarationStatementSyntax> GetSingleTagInitializationStatement(
+			ParameterSyntax parameter)
 		{
 			yield return LocalDeclarationStatement(
 				VariableDeclaration(
@@ -335,26 +363,19 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		private static MemberDeclarationSyntax[] GetGeneralMetricsCollectorFields(
 			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
+			if (metricsCollectorDescriptor.BaseClassName != null)
+			{
+				return Array.Empty<MemberDeclarationSyntax>();
+			}
+
 			var contextNameFieldDeclaration = FieldDeclaration(
 					VariableDeclaration(PredefinedType(Token(SyntaxKind.StringKeyword)))
 						.WithVariables(
 							SingletonSeparatedList(
 								VariableDeclarator(
-										Identifier(ContextNameFieldName))
-									.WithInitializer(
-										EqualsValueClause(
-											LiteralExpression(
-												SyntaxKind.StringLiteralExpression,
-												Literal(metricsCollectorDescriptor.ContextName)))))))
-				.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ConstKeyword)));
+										Identifier(ContextNameFieldName)))))
+				.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 
-			if (metricsCollectorDescriptor.BaseClassName != null)
-			{
-				return new MemberDeclarationSyntax[]
-				{
-					contextNameFieldDeclaration
-				};
-			}
 
 			var metricsProviderFieldDeclaration = FieldDeclaration(
 					VariableDeclaration(typeof(IMetricsProvider).GetGlobalTypeSyntax())
@@ -382,7 +403,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			{
 				var method = metricsCollectorDescriptor.Methods[index];
 
-				if (method.MethodDeclarationSyntax.ParameterList.Parameters.Count <= 1) // use Tags(string key, string value) constructor with constant key instead
+				if (method.MethodDeclarationSyntax.ParameterList.Parameters.Count <= 1
+				) // use Tags(string key, string value) constructor with constant key instead
 				{
 					continue;
 				}

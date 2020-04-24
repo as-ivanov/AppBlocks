@@ -20,14 +20,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			_baseClass = baseClass;
 			_methods = methods;
 		}
-
+		public bool IsAbstract => false;
 		public string BaseClassName => _baseClass;
 		public ImmutableArray<LoggerMethod> Methods => _methods;
-
 		public string[] InheritedInterfaceTypes => _inheritedInterfaceTypes;
-
 		public string ClassName => _className;
-
 		public TypeDeclarationSyntax DeclarationSyntax => _typeDeclarationSyntax;
 	}
 }

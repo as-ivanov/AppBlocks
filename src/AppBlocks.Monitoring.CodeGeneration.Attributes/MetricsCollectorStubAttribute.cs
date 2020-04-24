@@ -10,8 +10,12 @@ namespace AppBlocks.Monitoring.CodeGeneration.Attributes
   {
 	  private readonly string _contextName;
 
-	  public MetricsCollectorStubAttribute(string contextName, params string[] inheritedInterfaceTypes) : base(inheritedInterfaceTypes)
+	  public MetricsCollectorStubAttribute()
 	  {
+	  }
+
+		public MetricsCollectorStubAttribute(string contextName, params string[] inheritedInterfaceTypes) : base(inheritedInterfaceTypes)
+		{
 		  _contextName = contextName;
 	  }
 

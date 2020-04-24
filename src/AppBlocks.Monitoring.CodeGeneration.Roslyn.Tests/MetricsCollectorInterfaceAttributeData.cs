@@ -9,6 +9,10 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		private readonly string _contextName;
 		private readonly InterfaceData[] _inheritedInterfaces;
 
+		public MetricsCollectorInterfaceAttributeData() : this(null)
+		{
+		}
+
 		public MetricsCollectorInterfaceAttributeData(string contextName): this(contextName, Array.Empty<InterfaceData>())
 		{
 		}
@@ -27,6 +31,10 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		public override string ToString()
 		{
 			var inheritedInterfacesString = string.Join(",", _inheritedInterfaces.Select(_ => $"\"{_.Namespace}.{_.Name}\""));
+			if (string.IsNullOrEmpty(_contextName))
+			{
+				return $"[{Name}] //abstract collector";
+			}
 			if (!string.IsNullOrEmpty(inheritedInterfacesString))
 			{
 				inheritedInterfacesString = $",{inheritedInterfacesString}";
