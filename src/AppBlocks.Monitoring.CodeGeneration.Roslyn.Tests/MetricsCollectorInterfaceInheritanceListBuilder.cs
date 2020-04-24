@@ -27,7 +27,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 				.GetPossibleCombinations(context.Options.InterfaceMethodsCounts.Max()).First().Select(_ => _.Invoke(context))
 				.ToArray();
 			var metricsCollectorInterfaceAttributeData = new MetricsCollectorInterfaceAttributeData("Context_" + Guid.NewGuid());
-			return new InterfaceData("ITestInheritedInterface" + index, "TestNamespaceForITestInheritedInterface" + index, new AttributeData[] { metricsCollectorInterfaceAttributeData }, Array.Empty<InterfaceMethodData>(), Array.Empty<InterfaceData>(), true);
+			return new InterfaceData("ITestInheritedInterface" + index, "TestNamespaceForITestInheritedInterface" + index, new AttributeData[] { metricsCollectorInterfaceAttributeData }, methods, Array.Empty<InterfaceData>(), true);
 		}
 	}
 }
