@@ -17,14 +17,4 @@
 		<PackageReference Update="Microsoft.Bcl.HashCode" Version="1.1.0" />
 		<PackageReference Update="Microsoft.Extensions.Hosting" Version="3.1.3" />
 	</ItemGroup>
-	<!--<ItemGroup>
-		<PackageReference Update="AppBlocks.Monitoring.CodeGeneration.Roslyn.Attributes" Version="$(PackageVersion)" />
-		<PackageReference Update="AppBlocks.Monitoring.CodeGeneration.Roslyn" Version="$(PackageVersion)" PrivateAssets="all"/>
-		<PackageReference Update="AppBlocks.Monitoring.Abstractions" Version="$(PackageVersion)" />
-		<PackageReference Update="AppBlocks.Monitoring.AppMetrics" Version="$(PackageVersion)" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Update="AppBlocks.Logging.CodeGeneration.Roslyn" Version="$(PackageVersion)" PrivateAssets="all"/>
-		<PackageReference Update="AppBlocks.Logging.CodeGeneration.Roslyn.Attributes" Version="$(PackageVersion)"/>
-	</ItemGroup>-->
 </Project>
