@@ -17,6 +17,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			{
 				throw new Exception($"Expected 0 or 2 parameters in AttributeData");
 			}
+
 			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
 			var className = typeDeclarationSyntax.GetClassNameFromInterfaceDeclaration(false);
 			var baseClassName = typeDeclarationSyntax.GetBaseClassName();
@@ -25,13 +26,15 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				return new MetricsCollectorDescriptor(typeDeclarationSyntax, true, null, className, baseClassName,
 					inheritedInterfaceTypes, typeDeclarationSyntax.GetLoggerMethods(context));
 			}
+
 			var contextNameParameter = attributeData.ConstructorArguments.FirstOrDefault();
 			var contextName = contextNameParameter.Value as string;
 			return new MetricsCollectorDescriptor(typeDeclarationSyntax, false, contextName, className, baseClassName,
 				inheritedInterfaceTypes, typeDeclarationSyntax.GetLoggerMethods(context));
 		}
 
-		private static ImmutableArray<MetricsCollectorMethod> GetLoggerMethods(this TypeDeclarationSyntax typeDeclaration, TransformationContext context)
+		private static ImmutableArray<MetricsCollectorMethod> GetLoggerMethods(this TypeDeclarationSyntax typeDeclaration,
+			TransformationContext context)
 		{
 			return typeDeclaration.Members.OfType<MethodDeclarationSyntax>()
 				.Select(p => p.ToMetricsCollectorMethod(context))
@@ -39,23 +42,25 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				.ToImmutableArray();
 		}
 
-		private static MetricsCollectorMethod ToMetricsCollectorMethod(this MethodDeclarationSyntax methodDeclaration, TransformationContext context)
+		private static MetricsCollectorMethod ToMetricsCollectorMethod(this MethodDeclarationSyntax methodDeclaration,
+			TransformationContext context)
 		{
 			var metricsCollectorType = GetMetricsCollectorType(methodDeclaration.ReturnType);
 			var (metricName, unitName) = GetMetricOptions(methodDeclaration, context);
 			return new MetricsCollectorMethod(methodDeclaration, metricName, unitName, metricsCollectorType);
 		}
 
-		private static (string MetricName, string UnitName) GetMetricOptions(MethodDeclarationSyntax methodDeclaration, TransformationContext context)
+		private static (string MetricName, string UnitName) GetMetricOptions(MethodDeclarationSyntax methodDeclaration,
+			TransformationContext context)
 		{
 			var methodSemanticModel = context.Compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
-			var attributeData = methodSemanticModel.GetDeclaredSymbol(methodDeclaration).GetAttributes().FirstOrDefault(_=>_.AttributeClass.Name == nameof(global::AppBlocks.Monitoring.CodeGeneration.Attributes.MetricsCollectorMethodStubAttribute));
-			var metricName = attributeData?.ConstructorArguments.Length > 0 ? attributeData.ConstructorArguments[0].Value as string : methodDeclaration.Identifier.WithoutTrivia().Text;
-			if (attributeData == null)
-			{
-				return (metricName, null);
-			}
-			var unitName = attributeData.ConstructorArguments.Length > 1 ? attributeData.ConstructorArguments[1].Value as string : null;
+			var attributeData = methodSemanticModel.GetDeclaredSymbol(methodDeclaration).GetAttributes()
+				.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.MetricsCollectorMethodStubAttribute));
+
+			var metricName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricsCollectorMethodStubAttribute.MetricName),
+				methodDeclaration.Identifier.WithoutTrivia().Text);
+
+			var unitName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricsCollectorMethodStubAttribute.MeasurementUnitName));
 			return (metricName, unitName);
 		}
 

@@ -352,8 +352,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 													SeparatedList<ArgumentSyntax>(
 														new SyntaxNodeOrToken[]
 														{
-															Argument(
-																IdentifierName("_" + metricsCollectorMethodDescriptor.MethodNameCamelCase)),
+															Argument(IdentifierName(metricsCollectorMethodDescriptor.MethodKeysFieldName)),
 															Token(SyntaxKind.CommaToken),
 															Argument(
 																IdentifierName(ValuesVariableName))
@@ -425,7 +424,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 							.WithVariables(
 								SingletonSeparatedList(
 									VariableDeclarator(
-											Identifier("_" + method.MethodNameCamelCase))
+											Identifier(method.MethodKeysFieldName))
 										.WithInitializer(
 											EqualsValueClause(
 												InitializerExpression(

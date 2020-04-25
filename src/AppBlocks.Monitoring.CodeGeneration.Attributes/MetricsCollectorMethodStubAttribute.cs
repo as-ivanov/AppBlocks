@@ -8,8 +8,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Attributes
 	[AttributeUsage(AttributeTargets.Method)]
 	public class MetricsCollectorMethodStubAttribute : Attribute
 	{
-		public MetricsCollectorMethodStubAttribute(string metricName = null, string measurementUnitName = null)
-		{
-		}
+		public string MetricName { get; set; }
+
+		public string MeasurementUnitName { get; set; }
 	}
 }

@@ -41,7 +41,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			var extraTypes = new[]
 			{
 				typeof(GeneratedCodeAttribute),
-				typeof(global::AppBlocks.Monitoring.CodeGeneration.Attributes.MetricsCollectorStubAttribute),
+				typeof(Attributes.MetricsCollectorStubAttribute),
 				typeof(ImplementInterfaceAttribute),
 				typeof(IMetricsProvider)
 			};
@@ -213,7 +213,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			}
 			else
 			{
-				metricName = metricsCollectorMethodAttributeData.MetricName;
+				metricName = metricsCollectorMethodAttributeData.IsMetricNameSet ? metricsCollectorMethodAttributeData.MetricName : interfaceMethodData.Name;
 				measurementUnitName = metricsCollectorMethodAttributeData.MeasurementUnitName;
 			}
 
