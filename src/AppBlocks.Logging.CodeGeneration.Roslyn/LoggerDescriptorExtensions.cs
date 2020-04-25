@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Common;
 using CodeGeneration.Roslyn;
+using Humanizer;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
@@ -48,7 +49,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			var loggerMethodStubAttributeData =
 				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.LoggerMethodStubAttribute));
 
-			var message = loggerMethodStubAttributeData.GetNamedArgumentValue(nameof(Attributes.LoggerMethodStubAttribute.Message), methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
+			var message = loggerMethodStubAttributeData.GetNamedArgumentValue(nameof(Attributes.LoggerMethodStubAttribute.Message), methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString().Humanize());
 			var level = loggerMethodStubAttributeData.GetNamedArgumentValue(nameof(Attributes.LoggerMethodStubAttribute.Level), LogLevel.Information);
 
 			var parameters = methodDeclarationSyntax.ParameterList.Parameters

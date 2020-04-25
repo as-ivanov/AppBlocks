@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using AppBlocks.CodeGeneration.Attributes.Common;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
+using Humanizer;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
@@ -83,14 +84,14 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 					Microsoft.Extensions.Logging.LogLevel logLevel;
 					if (loggerInterfaceMethodAttributeData == null)
 					{
-						message = methodName;
+						message = methodName.Humanize();
 						logLevel = Microsoft.Extensions.Logging.LogLevel.Information;
 					}
 					else
 					{
 						message = loggerInterfaceMethodAttributeData.MessageIsDefined
 							? loggerInterfaceMethodAttributeData.Message
-							: methodName;
+							: methodName.Humanize();
 						logLevel = loggerInterfaceMethodAttributeData.LogLevelIsDefined
 							? loggerInterfaceMethodAttributeData.Level
 							: LogLevel.Information;
