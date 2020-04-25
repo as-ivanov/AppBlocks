@@ -10,8 +10,5 @@ namespace AppBlocks.Logging.CodeGeneration.Attributes
 	[CodeGenerationAttribute("AppBlocks.Logging.CodeGeneration.Roslyn.LoggerClassGenerator, AppBlocks.Logging.CodeGeneration.Roslyn")]
 	public class LoggerStubAttribute : ImplementInterfaceAttribute
 	{
-		public LoggerStubAttribute(params string[] inheritedInterfaceTypes): base(inheritedInterfaceTypes)
-		{
-		}
 	}
 }

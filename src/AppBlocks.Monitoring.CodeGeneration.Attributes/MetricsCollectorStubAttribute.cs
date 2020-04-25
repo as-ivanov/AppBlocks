@@ -5,20 +5,10 @@ using CodeGeneration.Roslyn;
 namespace AppBlocks.Monitoring.CodeGeneration.Attributes
 {
 	[Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
-  [CodeGenerationAttribute("AppBlocks.Monitoring.CodeGeneration.Roslyn.MetricsCollectorClassGenerator, AppBlocks.Monitoring.CodeGeneration.Roslyn")]
-  public class MetricsCollectorStubAttribute : ImplementInterfaceAttribute
-  {
-	  private readonly string _contextName;
-
-	  public MetricsCollectorStubAttribute()
-	  {
-	  }
-
-		public MetricsCollectorStubAttribute(string contextName, params string[] inheritedInterfaceTypes) : base(inheritedInterfaceTypes)
-		{
-		  _contextName = contextName;
-	  }
-
-	  public string ContextName => _contextName;
-  }
+	[CodeGenerationAttribute(
+		"AppBlocks.Monitoring.CodeGeneration.Roslyn.MetricsCollectorClassGenerator, AppBlocks.Monitoring.CodeGeneration.Roslyn")]
+	public class MetricsCollectorStubAttribute : AbstractMetricsCollectorStubAttribute
+	{
+		public string ContextName { get; set; }
+	}
 }

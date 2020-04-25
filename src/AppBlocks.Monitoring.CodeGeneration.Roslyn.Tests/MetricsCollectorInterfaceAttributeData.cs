@@ -4,42 +4,29 @@ using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 
 namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 {
-	public class MetricsCollectorInterfaceAttributeData : AttributeData
+	public class MetricsCollectorInterfaceAttributeData : ImplementInterfaceAttributeData
 	{
 		private readonly string _contextName;
-		private readonly InterfaceData[] _inheritedInterfaces;
-
-		public MetricsCollectorInterfaceAttributeData() : this(null)
-		{
-		}
 
 		public MetricsCollectorInterfaceAttributeData(string contextName): this(contextName, Array.Empty<InterfaceData>())
 		{
 		}
 
-		public MetricsCollectorInterfaceAttributeData(string contextName, InterfaceData[] inheritedInterfaces) : base(
-			nameof(global::AppBlocks.Monitoring.CodeGeneration.Attributes.MetricsCollectorStubAttribute))
+		public MetricsCollectorInterfaceAttributeData(string contextName, InterfaceData[] inheritedInterfaces) : base(nameof(Attributes.MetricsCollectorStubAttribute), inheritedInterfaces)
 		{
 			_contextName = contextName;
-			_inheritedInterfaces = inheritedInterfaces;
 		}
 
 		public string ContextName => _contextName;
 
-		public InterfaceData[] InheritedInterfaces => _inheritedInterfaces;
-
 		public override string ToString()
 		{
-			var inheritedInterfacesString = string.Join(",", _inheritedInterfaces.Select(_ => $"\"{_.Namespace}.{_.Name}\""));
-			if (string.IsNullOrEmpty(_contextName))
-			{
-				return $"[{Name}] //abstract collector";
-			}
+			var inheritedInterfacesString = GetInheritedInterfacesSetterString();
 			if (!string.IsNullOrEmpty(inheritedInterfacesString))
 			{
-				inheritedInterfacesString = $",{inheritedInterfacesString}";
+				inheritedInterfacesString = $", {inheritedInterfacesString}";
 			}
-			return $"[{Name}(\"{_contextName}\"{inheritedInterfacesString})]";
+			return $"[{Name}({nameof(Attributes.MetricsCollectorStubAttribute.ContextName)} = \"{_contextName}\"{inheritedInterfacesString})]";
 		}
 	}
 }

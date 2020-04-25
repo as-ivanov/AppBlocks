@@ -13,22 +13,16 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		public static MetricsCollectorDescriptor ToMetricsCollectorDescriptor(
 			this TypeDeclarationSyntax typeDeclarationSyntax, TransformationContext context, AttributeData attributeData)
 		{
-			if (attributeData.ConstructorArguments.Length != 2 && attributeData.ConstructorArguments.Length != 0)
-			{
-				throw new Exception($"Expected 0 or 2 parameters in AttributeData");
-			}
-
 			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
 			var className = typeDeclarationSyntax.GetClassNameFromInterfaceDeclaration(false);
 			var baseClassName = typeDeclarationSyntax.GetBaseClassName();
-			if (attributeData.ConstructorArguments.Length == 0)
+			if (attributeData.AttributeClass.Name == nameof(Attributes.AbstractMetricsCollectorStubAttribute))
 			{
 				return new MetricsCollectorDescriptor(typeDeclarationSyntax, true, null, className, baseClassName,
 					inheritedInterfaceTypes, typeDeclarationSyntax.GetLoggerMethods(context));
 			}
 
-			var contextNameParameter = attributeData.ConstructorArguments.FirstOrDefault();
-			var contextName = contextNameParameter.Value as string;
+			var contextName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricsCollectorStubAttribute.ContextName), className);
 			return new MetricsCollectorDescriptor(typeDeclarationSyntax, false, contextName, className, baseClassName,
 				inheritedInterfaceTypes, typeDeclarationSyntax.GetLoggerMethods(context));
 		}

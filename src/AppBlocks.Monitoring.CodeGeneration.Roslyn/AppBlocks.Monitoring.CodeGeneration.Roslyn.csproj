@@ -57,6 +57,9 @@
 		<Compile Include="..\AppBlocks.Monitoring.Abstractions\Tags.cs">
 		  <Link>Links\Tags.cs</Link>
 		</Compile>
+		<Compile Include="..\AppBlocks.Monitoring.CodeGeneration.Attributes\AbstractMetricsCollectorStubAttribute.cs">
+			<Link>Links\AbstractMetricsCollectorStubAttribute.cs</Link>
+		</Compile>
 		<Compile Include="..\AppBlocks.Monitoring.CodeGeneration.Attributes\MetricsCollectorMethodStubAttribute.cs">
 		  <Link>Links\MetricsCollectorMethodStubAttribute.cs</Link>
 		</Compile>
@@ -65,7 +68,6 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\AppBlocks.CodeGeneration.Attributes.Common\AppBlocks.CodeGeneration.Attributes.Common.csproj" />
 	  <ProjectReference Include="..\AppBlocks.CodeGeneration.Roslyn.Common\AppBlocks.CodeGeneration.Roslyn.Common.csproj" />
 	</ItemGroup>
 </Project>

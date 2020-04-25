@@ -3,21 +3,15 @@ using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 {
-	public class LoggerInterfaceAttributeData: AttributeData
+	public class LoggerInterfaceAttributeData: ImplementInterfaceAttributeData
 	{
-		private readonly InterfaceData[] _inheritedInterfaces;
-
 		public LoggerInterfaceAttributeData(InterfaceData[] inheritedInterfaces) : base(
-			nameof(Attributes.LoggerStubAttribute))
+			nameof(Attributes.LoggerStubAttribute), inheritedInterfaces)
 		{
-			_inheritedInterfaces = inheritedInterfaces;
 		}
-
-		public InterfaceData[] InheritedInterfaces => _inheritedInterfaces;
-
 		public override string ToString()
 		{
-			var inheritedInterfacesString = string.Join(",", _inheritedInterfaces.Select(_ => $"\"{_.Namespace}.{_.Name}\""));
+			var inheritedInterfacesString = GetInheritedInterfacesSetterString();
 			return $"[{Name}({inheritedInterfacesString})]";
 		}
 	}

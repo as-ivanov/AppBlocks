@@ -1,6 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.63" />
+	<Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.63"/>
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\AppBlocks.CodeGeneration.Attributes.Common\ImplementInterfaceAttribute.cs">
+			<Link>Links\ImplementInterfaceAttribute.cs</Link>
+		</Compile>
+		<Compile Include="..\AppBlocks.CodeGeneration.Attributes.Common\CodeGenerationAttributesConsts.cs">
+			<Link>Links\CodeGenerationAttributesConsts.cs</Link>
+		</Compile>
+	</ItemGroup>
 </Project>

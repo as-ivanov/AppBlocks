@@ -7,9 +7,6 @@
 		<Description>Utility for generating high-performance logger types.</Description>
 	</PropertyGroup>
 	<ItemGroup>
-		<Compile Include="..\AppBlocks.CodeGeneration.Attributes.Common\CodeGenerationAttributesConsts.cs">
-		  <Link>CodeGenerationAttributesConsts.cs</Link>
-		</Compile>
 		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LoggerMethodStubAttribute.cs">
 		  <Link>LoggerMethodStubAttribute.cs</Link>
 		</Compile>
@@ -26,7 +23,6 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\AppBlocks.CodeGeneration.Attributes.Common\AppBlocks.CodeGeneration.Attributes.Common.csproj" />
 	  <ProjectReference Include="..\AppBlocks.CodeGeneration.Roslyn.Common\AppBlocks.CodeGeneration.Roslyn.Common.csproj" />
 	</ItemGroup>
 </Project>
