@@ -213,7 +213,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			}
 			else
 			{
-				metricName = metricsCollectorMethodAttributeData.IsMetricNameSet ? metricsCollectorMethodAttributeData.MetricName : interfaceMethodData.Name;
+				metricName = metricsCollectorMethodAttributeData.IsMetricNameDefined ? metricsCollectorMethodAttributeData.MetricName : interfaceMethodData.Name;
 				measurementUnitName = metricsCollectorMethodAttributeData.MeasurementUnitName;
 			}
 

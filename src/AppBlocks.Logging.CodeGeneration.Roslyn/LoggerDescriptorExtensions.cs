@@ -5,6 +5,7 @@ using AppBlocks.CodeGeneration.Roslyn.Common;
 using CodeGeneration.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn
 {
@@ -44,26 +45,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			TransformationContext context, INamedTypeSymbol exceptionType)
 		{
 			var attributeData = GetAttributeData(context, methodDeclarationSyntax);
-			var logSeverityAttributeData =
-				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(global::AppBlocks.Logging.CodeGeneration.Attributes.LoggerMethodStubAttribute));
+			var loggerMethodStubAttributeData =
+				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.LoggerMethodStubAttribute));
 
-			Microsoft.Extensions.Logging.LogLevel level;
-			string message;
-			if (logSeverityAttributeData == null)
-			{
-				level = Microsoft.Extensions.Logging.LogLevel.Information;
-				message = methodDeclarationSyntax.Identifier.ToFullString();
-			}
-			else
-			{
-				var constructorArguments = logSeverityAttributeData.ConstructorArguments;
-				level = constructorArguments.Length > 0
-					? Enum.Parse<Microsoft.Extensions.Logging.LogLevel>(constructorArguments[0].Value.ToString())
-					: Microsoft.Extensions.Logging.LogLevel.Information;
-				message = constructorArguments.Length > 1
-					? constructorArguments[1].Value as string
-					: methodDeclarationSyntax.Identifier.ToFullString();
-			}
+			var message = loggerMethodStubAttributeData.GetNamedArgumentValue(nameof(Attributes.LoggerMethodStubAttribute.Message), methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
+			var level = loggerMethodStubAttributeData.GetNamedArgumentValue(nameof(Attributes.LoggerMethodStubAttribute.Level), LogLevel.Information);
 
 			var parameters = methodDeclarationSyntax.ParameterList.Parameters
 				.Select(p => p.ToLoggerMethodParameter(context, exceptionType)).ToImmutableArray();

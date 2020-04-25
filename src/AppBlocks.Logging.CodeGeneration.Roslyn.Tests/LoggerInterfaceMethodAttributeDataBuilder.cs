@@ -14,12 +14,18 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			{
 				var message = Guid.NewGuid().ToString();
 				return new AttributeData[]
-					{new LoggerInterfaceMethodAttributeData(Microsoft.Extensions.Logging.LogLevel.Warning, message)};
+					{LoggerInterfaceMethodAttributeData.Create(Microsoft.Extensions.Logging.LogLevel.Warning, message)};
 			};
 			yield return c =>
 			{
 				return new AttributeData[]
-					{new LoggerInterfaceMethodAttributeData(Microsoft.Extensions.Logging.LogLevel.Warning)};
+					{LoggerInterfaceMethodAttributeData.Create(Microsoft.Extensions.Logging.LogLevel.Warning)};
+			};
+			yield return c =>
+			{
+				var message = Guid.NewGuid().ToString();
+				return new AttributeData[]
+					{LoggerInterfaceMethodAttributeData.Create(message)};
 			};
 		}
 	}

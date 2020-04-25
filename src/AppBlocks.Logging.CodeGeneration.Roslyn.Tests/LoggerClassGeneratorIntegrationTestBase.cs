@@ -88,8 +88,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 					}
 					else
 					{
-						message = loggerInterfaceMethodAttributeData.MessageIsDefined ? loggerInterfaceMethodAttributeData.Message : methodName;
-						logLevel = loggerInterfaceMethodAttributeData.Level;
+						message = loggerInterfaceMethodAttributeData.MessageIsDefined
+							? loggerInterfaceMethodAttributeData.Message
+							: methodName;
+						logLevel = loggerInterfaceMethodAttributeData.LogLevelIsDefined
+							? loggerInterfaceMethodAttributeData.Level
+							: LogLevel.Information;
 					}
 
 					var internalLogger = new TestLogger(new EventId(index + 1, methodName), methodName, message, logLevel,
