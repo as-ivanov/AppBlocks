@@ -77,7 +77,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			var classDeclaration = ClassDeclaration(implementationDescriptor.ClassName)
 				.WithModifiers(TokenList(classModifiers))
 				.AddAttributeLists(GetAttributeList())
-				.AddBaseListTypes(baseTypes)
+				.AddBaseListTypes(baseTypes.ToArray())
 				.AddMembers(GetFields(implementationDescriptor).SortMembers())
 				.AddMembers(GetConstructors(implementationDescriptor).SortMembers())
 				.AddMembers(GetMethods(implementationDescriptor).SortMembers());
@@ -91,12 +91,14 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 		protected abstract IEnumerable<MemberDeclarationSyntax> GetMethods(TImplementationDescriptor descriptor);
 
-		private static SimpleBaseTypeSyntax[] GetClassBaseList(TImplementationDescriptor descriptor,
+		private static IEnumerable<SimpleBaseTypeSyntax> GetClassBaseList(TImplementationDescriptor descriptor,
 			IEnumerable<string> inheritedInterfaceTypes)
 		{
-			return inheritedInterfaceTypes.Select(_ =>
-					SimpleBaseType(AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(_))))
-				.ToArray();
+			yield return SimpleBaseType(AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(descriptor.DeclarationSyntax.GetFullTypeName())));
+			foreach (var inheritedInterfaceType in inheritedInterfaceTypes)
+			{
+				yield return SimpleBaseType(AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(inheritedInterfaceType)));
+			}
 		}
 
 		private AttributeListSyntax GetAttributeList()

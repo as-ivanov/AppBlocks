@@ -26,8 +26,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			var methods = InterfaceMethodData.GetPossibleVariations(context.Options).ToList()
 				.GetPossibleCombinations(context.Options.InterfaceMethodsCounts.Max()).First().Select(_ => _.Invoke(context))
 				.ToArray();
-			var loggerInterfaceAttributeData = new LoggerInterfaceAttributeData(Array.Empty<InterfaceData>());
-			return new InterfaceData("ITestInheritedInterface" + index, "TestNamespaceForITestInheritedInterface" + index, new AttributeData[] { loggerInterfaceAttributeData }, methods, Array.Empty<InterfaceData>(), true);
+			return new InterfaceData("ITestInheritedInterface" + index, "TestNamespaceForITestInheritedInterface" + index, Array.Empty<AttributeData>(), methods, Array.Empty<InterfaceData>(), false);
 		}
 	}
 }

@@ -68,29 +68,34 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 			foreach (var sutMember in sutMembers)
 			{
-				BuildAndVerify(sutMember, assembly, logEnabled);
+				Verify(sutMember, assembly, logEnabled);
 			}
 		}
 
-		private void BuildAndVerify(InterfaceData sutMember, Assembly assembly, bool logEnabled)
+		private void Verify(InterfaceData sutMember, Assembly assembly, bool logEnabled)
 		{
+			var loggerType = assembly.GetType(sutMember.Namespace + "." + sutMember.Name.TrimStart('I'), true);
+			if (loggerType == null)
+			{
+				throw new Exception($"Logger type not found in emitted assembly");
+			}
+			var methodIndex = 0;
+			VerifyInterface(sutMember, loggerType, assembly, logEnabled, ref methodIndex);
+		}
+		private void VerifyInterface(InterfaceData interfaceData, Type loggerType, Assembly assembly, bool logEnabled, ref int methodIndex)
+		{
+			_output.WriteLine($"VerifyInterface:'{interfaceData}'");
 			var loggerInterfaceType =
-				assembly.GetType(sutMember.Namespace + "." + sutMember.Name, true);
+				assembly.GetType(interfaceData.Namespace + "." + interfaceData.Name, true);
 			if (loggerInterfaceType == null)
 			{
 				throw new Exception(
 					$"Logger interface for not found in emitted assembly");
 			}
 
-			var loggerType = assembly.GetType(sutMember.Namespace + "." + sutMember.Name.TrimStart('I'), true);
-			if (loggerType == null)
+			for (var index = 0; index < interfaceData.Methods.Length; index++)
 			{
-				throw new Exception($"Logger type not found in emitted assembly");
-			}
-
-			for (var index = 0; index < sutMember.Methods.Length; index++)
-			{
-				var interfaceMethod = sutMember.Methods[index];
+				var interfaceMethod = interfaceData.Methods[index];
 				var methodName = interfaceMethod.Name;
 				var loggerInterfaceMethodAttributeData = interfaceMethod.AttributeDataList
 					.OfType<LoggerInterfaceMethodAttributeData>().FirstOrDefault();
@@ -111,7 +116,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 						: LogLevel.Information;
 				}
 
-				var internalLogger = new TestLogger(new EventId(index + 1, methodName), methodName, message, logLevel,
+				methodIndex += 1;
+				var internalLogger = new TestLogger(new EventId(methodIndex, methodName), methodName, message, logLevel,
 					interfaceMethod.Parameters, logEnabled);
 				var loggerFactory = new TestLoggerFactory(internalLogger);
 				var logger = Activator.CreateInstance(loggerType, loggerFactory);
@@ -127,9 +133,9 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				internalLogger.Verify();
 			}
 
-			foreach (var inheritedInterface in sutMember.InheritedInterfaces)
+			foreach (var inheritedInterface in interfaceData.InheritedInterfaces)
 			{
-				BuildAndVerify(inheritedInterface, assembly, logEnabled);
+				VerifyInterface(inheritedInterface, loggerType, assembly, logEnabled, ref methodIndex);
 			}
 		}
 	}

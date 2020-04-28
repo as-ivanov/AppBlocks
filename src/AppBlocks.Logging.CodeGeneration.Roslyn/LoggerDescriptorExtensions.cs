@@ -27,8 +27,6 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
 			var inheritedInterfaceSymbols = typeSymbol.GetInheritedInterfaceSymbolsWithMeRecursive();
-			inheritedInterfaceTypes = inheritedInterfaceSymbols.Select(_ => _.OriginalDefinition.ToDisplayString())
-				.Union(inheritedInterfaceTypes).ToArray();
 
 			var exceptionType = context.Compilation.GetTypeByMetadataName(typeof(Exception).FullName);
 

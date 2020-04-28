@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using AppBlocks.CodeGeneration.Attributes.Common;
+using AppBlocks.Monitoring.CodeGeneration.Attributes;
 using CodeGeneration.Roslyn;
 
 namespace AppBlocks.Monitoring.CodeGeneration.Attributes

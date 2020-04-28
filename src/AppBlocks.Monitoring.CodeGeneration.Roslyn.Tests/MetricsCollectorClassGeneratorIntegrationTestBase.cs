@@ -74,14 +74,6 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 
 		private void BuildAndVerify(InterfaceData metricsCollectorTypeData, Assembly assembly, bool metricEnabled)
 		{
-			var metricsCollectorInterfaceType =
-				assembly.GetType(metricsCollectorTypeData.Namespace + "." + metricsCollectorTypeData.Name, true);
-			if (metricsCollectorInterfaceType == null)
-			{
-				throw new Exception(
-					$"MetricsCollector interface for not found in emitted assembly");
-			}
-
 			var metricsCollectorType =
 				assembly.GetType(metricsCollectorTypeData.Namespace + "." + metricsCollectorTypeData.Name.TrimStart('I'), true);
 			if (metricsCollectorType == null)
@@ -89,11 +81,32 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 				throw new Exception(
 					$"MetricsCollector implementation for '{metricsCollectorTypeData}' not found in emitted assembly");
 			}
+			var metricsCollectorInterfaceAttributeData = metricsCollectorTypeData.AttributeDataList
+				.OfType<MetricsCollectorInterfaceAttributeData>().FirstOrDefault();
+			if (metricsCollectorInterfaceAttributeData == null)
+			{
+				throw new Exception($"{typeof(MetricsCollectorInterfaceAttributeData)} not found");
+			}
+			var contextName = metricsCollectorInterfaceAttributeData.ContextName;
+			VerifyInterface(metricsCollectorTypeData, metricsCollectorType, assembly, contextName, metricEnabled);
+		}
 
-			var (metricsProvider, metricsPolicy) = GetMetricsProvider(metricsCollectorTypeData, metricEnabled);
+		private void VerifyInterface(InterfaceData interfaceData, Type metricsCollectorType, Assembly assembly, string contextName, bool metricEnabled)
+		{
+			_output.WriteLine($"VerifyInterface:'{interfaceData}'");
+			var metricsCollectorInterfaceType =
+				assembly.GetType(interfaceData.Namespace + "." + interfaceData.Name, true);
+			if (metricsCollectorInterfaceType == null)
+			{
+				throw new Exception(
+					$"MetricsCollector interface for not found in emitted assembly");
+			}
+
+
+			var (metricsProvider, metricsPolicy) = GetMetricsProvider(interfaceData, contextName, metricEnabled);
 
 			var metricsCollector = Activator.CreateInstance(metricsCollectorType, metricsProvider.Object, metricsPolicy.Object);
-			foreach (var interfaceMethodData in metricsCollectorTypeData.Methods)
+			foreach (var interfaceMethodData in interfaceData.Methods)
 			{
 				var metricsCollectorMethod = metricsCollectorInterfaceType.GetMethod(interfaceMethodData.Name);
 				if (metricsCollectorMethod == null)
@@ -124,24 +137,16 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 				}
 			}
 
-			foreach (var inheritedInterface in metricsCollectorTypeData.InheritedInterfaces)
+			foreach (var inheritedInterface in interfaceData.InheritedInterfaces)
 			{
-				BuildAndVerify(inheritedInterface, assembly, metricEnabled);
+				VerifyInterface(inheritedInterface, metricsCollectorType, assembly, contextName, metricEnabled);
 			}
 		}
 
-		private (Mock<IMetricsProvider>, Mock<IMetricsPolicy>) GetMetricsProvider(InterfaceData metricsCollectorTypeData, bool metricEnabled)
+		private (Mock<IMetricsProvider>, Mock<IMetricsPolicy>) GetMetricsProvider(InterfaceData metricsCollectorTypeData, string contextName, bool metricEnabled)
 		{
 			var metricsProviderMock = new Mock<IMetricsProvider>(MockBehavior.Strict);
 			var metricsPolicyMock = new Mock<IMetricsPolicy>(MockBehavior.Strict);
-			var metricsCollectorInterfaceAttributeData = metricsCollectorTypeData.AttributeDataList
-				.OfType<MetricsCollectorInterfaceAttributeData>().FirstOrDefault();
-			if (metricsCollectorInterfaceAttributeData == null)
-			{
-				throw new Exception($"{typeof(MetricsCollectorInterfaceAttributeData)} not found");
-			}
-
-			var contextName = metricsCollectorInterfaceAttributeData.ContextName;
 			foreach (var metricsCollectorMethodData in metricsCollectorTypeData.Methods)
 			{
 				SetupMetricsProviderMember(metricsProviderMock, metricsPolicyMock, contextName, metricsCollectorMethodData, metricEnabled);
