@@ -101,7 +101,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 							.WithVariables(
 								SingletonSeparatedList(
 									VariableDeclarator(
-											Identifier("_" + method.MethodNameCamelCase))
+											Identifier(method.DelegateFieldName))
 										.WithInitializer(
 											EqualsValueClause(
 												InvocationExpression(definitionMethodExpression)
@@ -297,7 +297,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 						SingletonList<StatementSyntax>(
 							ExpressionStatement(
 								InvocationExpression(
-										IdentifierName("_" + loggerMethod.MethodNameCamelCase))
+										IdentifierName(loggerMethod.DelegateFieldName))
 									.WithArgumentList(GetLoggingDelegateCallArgumentList(loggerMethod)))))));
 		}
 

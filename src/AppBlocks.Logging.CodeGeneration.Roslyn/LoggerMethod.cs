@@ -9,26 +9,23 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 	{
 		private readonly Microsoft.Extensions.Logging.LogLevel _logLevel;
 		private readonly string _message;
+		private readonly string _delegateFieldName;
 		private readonly MethodDeclarationSyntax _methodDeclarationSyntax;
 		private readonly ImmutableArray<LoggerMethodParameter> _parameters;
-		private readonly string _methodName;
-		private readonly string _methodNameCamelCase;
 
-		public LoggerMethod(MethodDeclarationSyntax methodDeclarationSyntax, Microsoft.Extensions.Logging.LogLevel logLevel, string message, ImmutableArray<LoggerMethodParameter> parameters)
+		public LoggerMethod(MethodDeclarationSyntax methodDeclarationSyntax, Microsoft.Extensions.Logging.LogLevel logLevel, string message, string delegateFieldName, ImmutableArray<LoggerMethodParameter> parameters)
 		{
 			_logLevel = logLevel;
 			_message = message;
+			_delegateFieldName = delegateFieldName;
 			_methodDeclarationSyntax = methodDeclarationSyntax;
 			_parameters = parameters;
-			_methodName = methodDeclarationSyntax.Identifier.WithoutTrivia().Text;
-			_methodNameCamelCase = _methodName.ToCamelCase();
 		}
 
 		public MethodDeclarationSyntax MethodDeclarationSyntax => _methodDeclarationSyntax;
 		public ImmutableArray<LoggerMethodParameter> Parameters => _parameters;
 		public Microsoft.Extensions.Logging.LogLevel Level => _logLevel;
 		public string Message => _message;
-		public string MethodName => _methodName;
-		public string MethodNameCamelCase => _methodNameCamelCase;
+		public string DelegateFieldName => _delegateFieldName;
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Common;
@@ -36,14 +37,14 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		private static ImmutableArray<LoggerMethod> GetLoggerMethods(this TypeDeclarationSyntax typeDeclarationSyntax,
 			TransformationContext context, INamedTypeSymbol exceptionType)
 		{
+			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
 			return typeDeclarationSyntax.Members.OfType<MethodDeclarationSyntax>()
-				.Select(p => p.ToLoggerMethod(context, exceptionType))
-				.Where(_ => _ != null)
+				.Select(p => p.ToLoggerMethod(context, fieldNameCounter, exceptionType))
 				.ToImmutableArray();
 		}
 
 		private static LoggerMethod ToLoggerMethod(this MethodDeclarationSyntax methodDeclarationSyntax,
-			TransformationContext context, INamedTypeSymbol exceptionType)
+			TransformationContext context, Dictionary<string, int> fieldNameCounter, INamedTypeSymbol exceptionType)
 		{
 			var attributeData = GetAttributeData(context, methodDeclarationSyntax);
 			var logOptionsAttributeAttributeData =
@@ -55,10 +56,24 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			var parameters = methodDeclarationSyntax.ParameterList.Parameters
 				.Select(p => p.ToLoggerMethodParameter(context, exceptionType)).ToImmutableArray();
 
+			var methodNameCamelCase = methodDeclarationSyntax.Identifier.WithoutTrivia().Text.ToCamelCase();
+			string delegateFieldName;
+			if (!fieldNameCounter.TryGetValue(methodNameCamelCase, out var currentFiledCounter))
+			{
+				fieldNameCounter[methodNameCamelCase] = 0;
+				delegateFieldName = $"_{methodNameCamelCase}Delegate";
+			}
+			else
+			{
+				fieldNameCounter[methodNameCamelCase] = currentFiledCounter + 1;
+				delegateFieldName = $"_{methodNameCamelCase}Delegate{currentFiledCounter}";
+			}
+
 			return new LoggerMethod(
 				methodDeclarationSyntax,
 				level,
 				message,
+				delegateFieldName,
 				parameters);
 		}
 
