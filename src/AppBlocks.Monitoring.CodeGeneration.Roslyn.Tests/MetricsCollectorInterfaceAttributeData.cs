@@ -12,7 +12,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		{
 		}
 
-		public MetricsCollectorInterfaceAttributeData(string contextName, InterfaceData[] inheritedInterfaces) : base(nameof(Attributes.MetricsCollectorStubAttribute), inheritedInterfaces)
+		public MetricsCollectorInterfaceAttributeData(string contextName, InterfaceData[] inheritedInterfaces) : base(nameof(Attributes.GenerateMetricsCollectorAttribute), inheritedInterfaces)
 		{
 			_contextName = contextName;
 		}
@@ -26,7 +26,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			{
 				inheritedInterfacesString = $", {inheritedInterfacesString}";
 			}
-			return $"[{Name}({nameof(Attributes.MetricsCollectorStubAttribute.ContextName)} = \"{_contextName}\"{inheritedInterfacesString})]";
+			return $"[{Name}({nameof(Attributes.GenerateMetricsCollectorAttribute.ContextName)} = \"{_contextName}\"{inheritedInterfacesString})]";
 		}
 	}
 }

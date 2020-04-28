@@ -6,7 +6,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 	public class LoggerInterfaceAttributeData: ImplementInterfaceAttributeData
 	{
 		public LoggerInterfaceAttributeData(InterfaceData[] inheritedInterfaces) : base(
-			nameof(Attributes.LoggerStubAttribute), inheritedInterfaces)
+			nameof(Attributes.GenerateLoggerAttribute), inheritedInterfaces)
 		{
 		}
 		public override string ToString()

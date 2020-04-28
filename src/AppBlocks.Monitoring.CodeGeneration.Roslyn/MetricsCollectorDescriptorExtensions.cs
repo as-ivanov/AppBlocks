@@ -29,7 +29,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			var metricsCollectorMethods = inheritedInterfaceSymbols.GetMetricsCollectorMethods(context);
 
 			var contextName =
-				attributeData.GetNamedArgumentValue(nameof(Attributes.MetricsCollectorStubAttribute.ContextName), className);
+				attributeData.GetNamedArgumentValue(nameof(Attributes.GenerateMetricsCollectorAttribute.ContextName), className);
 			return new MetricsCollectorDescriptor(typeDeclarationSyntax, contextName, className,
 				inheritedInterfaceTypes, metricsCollectorMethods);
 		}

@@ -7,11 +7,11 @@
 		<Description>Utility for generating high-performance logger types.</Description>
 	</PropertyGroup>
 	<ItemGroup>
-		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LogOptionsAttribute.cs">
-		  <Link>LogOptionsAttribute.cs</Link>
+		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\GenerateLoggerAttribute.cs">
+		  <Link>Links\GenerateLoggerAttribute.cs</Link>
 		</Compile>
-		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LoggerStubAttribute.cs">
-		  <Link>LoggerStubAttribute.cs</Link>
+		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LogOptionsAttribute.cs">
+		  <Link>Links\LogOptionsAttribute.cs</Link>
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>

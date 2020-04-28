@@ -10,7 +10,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		private readonly string[] _usingNamespaces =
 		{
 			typeof(Action).Namespace,
-			typeof(Attributes.LoggerStubAttribute).Namespace,
+			typeof(Attributes.GenerateLoggerAttribute).Namespace,
 			typeof(ILogger).Namespace
 		};
 

@@ -41,7 +41,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			var extraTypes = new[]
 			{
 				typeof(GeneratedCodeAttribute),
-				typeof(Attributes.LoggerStubAttribute),
+				typeof(Attributes.GenerateLoggerAttribute),
 				typeof(ImplementInterfaceAttribute),
 				typeof(ILogger)
 			};

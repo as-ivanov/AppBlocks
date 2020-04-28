@@ -8,7 +8,7 @@ namespace AppBlocks.Logging.CodeGeneration.Attributes
 	[AttributeUsage(AttributeTargets.Interface)]
 	[Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
 	[CodeGenerationAttribute("AppBlocks.Logging.CodeGeneration.Roslyn.LoggerClassGenerator, AppBlocks.Logging.CodeGeneration.Roslyn")]
-	public class LoggerStubAttribute : ImplementInterfaceAttribute
+	public class GenerateLoggerAttribute : ImplementInterfaceAttribute
 	{
 	}
 }

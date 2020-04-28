@@ -41,7 +41,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			var extraTypes = new[]
 			{
 				typeof(GeneratedCodeAttribute),
-				typeof(Attributes.MetricsCollectorStubAttribute),
+				typeof(Attributes.GenerateMetricsCollectorAttribute),
 				typeof(ImplementInterfaceAttribute),
 				typeof(IMetricsProvider)
 			};
