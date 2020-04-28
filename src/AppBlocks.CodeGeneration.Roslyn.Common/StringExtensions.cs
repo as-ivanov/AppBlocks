@@ -56,7 +56,11 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		}
 		public static LiteralExpressionSyntax GetLiteralExpression(this string input)
 		{
-			var text = input == null ? "\"\"" : "@\"" + input.Replace("\"", "\"\"") + "\"";
+			if (input == null)
+			{
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+			}
+			var text = "@\"" + input.Replace("\"", "\"\"") + "\"";
 			var syntaxToken = SyntaxFactory.Literal(
 				SyntaxFactory.TriviaList(),
 				text,

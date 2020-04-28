@@ -109,7 +109,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 
 			var tagsInitialization = new List<StatementSyntax>();
 
-			static LocalDeclarationStatementSyntax GetLocalStringDeclarationStatement(string variableName,
+			static LocalDeclarationStatementSyntax GetLocalConstStringDeclarationStatement(string variableName,
 				string variableValue)
 			{
 				return LocalDeclarationStatement(
@@ -121,19 +121,16 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									VariableDeclarator(
 											Identifier(variableName))
 										.WithInitializer(
-											EqualsValueClause(
-												variableValue == null
-													? LiteralExpression(SyntaxKind.NullLiteralExpression)
-													: LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(variableValue)))))))
+											EqualsValueClause(variableValue.GetLiteralExpression())))))
 					.WithModifiers(
 						TokenList(
 							Token(SyntaxKind.ConstKeyword)));
 			}
 
-			tagsInitialization.Add(GetLocalStringDeclarationStatement(metricNameVariableName,
+			tagsInitialization.Add(GetLocalConstStringDeclarationStatement(metricNameVariableName,
 				metricsCollectorMethodDescriptor.MetricName));
 			tagsInitialization.Add(
-				GetLocalStringDeclarationStatement(metricUnitVariableName, metricsCollectorMethodDescriptor.UnitName));
+				GetLocalConstStringDeclarationStatement(metricUnitVariableName, metricsCollectorMethodDescriptor.UnitName));
 
 			StatementSyntax GetEnabledCheckStatement()
 			{
