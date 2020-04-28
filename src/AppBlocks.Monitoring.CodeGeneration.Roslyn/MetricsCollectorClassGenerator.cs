@@ -32,7 +32,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		protected override IEnumerable<MemberDeclarationSyntax> GetFields(
 			MetricsCollectorDescriptor metricsCollectorDescriptor)
 		{
-			var generalMetricsCollectorFields = GetGeneralMetricsCollectorFields();
+			var generalMetricsCollectorFields = GetGeneralMetricsCollectorFields(metricsCollectorDescriptor);
 			var metricsCollectorTagKeyFields = GetMetricsCollectorTagKeyFields(metricsCollectorDescriptor);
 			return generalMetricsCollectorFields.Union(metricsCollectorTagKeyFields);
 		}
@@ -62,9 +62,6 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 
 			var statements = new List<StatementSyntax>
 			{
-				ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-					IdentifierName(ContextNameFieldName),
-					LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(metricsCollectorDescriptor.ContextName)))),
 				ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
 					IdentifierName(MetricsProviderFieldName), IdentifierName(metricsProviderVariableName))),
 				ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
@@ -336,15 +333,17 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 														}))))))));
 		}
 
-		private static MemberDeclarationSyntax[] GetGeneralMetricsCollectorFields()
+		private static MemberDeclarationSyntax[] GetGeneralMetricsCollectorFields(MetricsCollectorDescriptor descriptor)
 		{
+			var contextNameFieldNameInitializer = EqualsValueClause(descriptor.ContextName.GetLiteralExpression());
+
 			var contextNameFieldDeclaration = FieldDeclaration(
 					VariableDeclaration(PredefinedType(Token(SyntaxKind.StringKeyword)))
 						.WithVariables(
 							SingletonSeparatedList(
-								VariableDeclarator(
-									Identifier(ContextNameFieldName)))))
-				.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
+								VariableDeclarator(Identifier(ContextNameFieldName)).WithInitializer(contextNameFieldNameInitializer)
+								)))
+				.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ConstKeyword)));
 
 
 			var metricsProviderFieldDeclaration = FieldDeclaration(
