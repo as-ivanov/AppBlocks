@@ -19,6 +19,11 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		private const string TagsVariableName = "tags";
 		private const string ValuesVariableName = "values";
 
+
+		private static readonly TypeSyntax _metricsProviderGlobalTypeSyntax = typeof(IMetricsProvider).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _metricsPolicyGlobalTypeSyntax = typeof(IMetricsPolicy).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _tagsGlobalTypeSyntax = typeof(Tags).GetGlobalTypeSyntax();
+
 		public MetricsCollectorClassGenerator(AttributeData attributeData) : base(attributeData, new Version(1, 0, 0))
 		{
 		}
@@ -46,9 +51,9 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			var constructorParameters = new List<ParameterSyntax>
 			{
 				Parameter(Identifier(metricsProviderVariableName))
-					.WithType(typeof(IMetricsProvider).GetGlobalTypeSyntax()),
+					.WithType(_metricsProviderGlobalTypeSyntax),
 				Parameter(Identifier(metricsPolicyVariableName))
-					.WithType(typeof(IMetricsPolicy).GetGlobalTypeSyntax())
+					.WithType(_metricsPolicyGlobalTypeSyntax)
 					.WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.NullLiteralExpression)))
 			};
 
@@ -216,7 +221,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 										EqualsValueClause(
 											MemberAccessExpression(
 												SyntaxKind.SimpleMemberAccessExpression,
-												typeof(Tags).GetGlobalTypeSyntax(),
+												_tagsGlobalTypeSyntax,
 												IdentifierName(nameof(Tags.Empty)))))))));
 			}
 
@@ -265,7 +270,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									Identifier(TagsVariableName))
 								.WithInitializer(
 									EqualsValueClause(
-										ObjectCreationExpression(typeof(Tags).GetGlobalTypeSyntax())
+										ObjectCreationExpression(_tagsGlobalTypeSyntax)
 											.WithArgumentList(
 												ArgumentList(SeparatedList<ArgumentSyntax>(
 													new SyntaxNodeOrToken[]
@@ -317,7 +322,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									Identifier(TagsVariableName))
 								.WithInitializer(
 									EqualsValueClause(
-										ObjectCreationExpression(typeof(Tags).GetGlobalTypeSyntax())
+										ObjectCreationExpression(_tagsGlobalTypeSyntax)
 											.WithArgumentList(
 												ArgumentList(
 													SeparatedList<ArgumentSyntax>(
@@ -344,12 +349,12 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 
 
 			var metricsProviderFieldDeclaration = FieldDeclaration(
-					VariableDeclaration(typeof(IMetricsProvider).GetGlobalTypeSyntax())
+					VariableDeclaration(_metricsProviderGlobalTypeSyntax)
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsProviderFieldName)))))
 				.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 
 			var metricsPolicyFieldDeclaration = FieldDeclaration(
-					VariableDeclaration(typeof(IMetricsPolicy).GetGlobalTypeSyntax())
+					VariableDeclaration(_metricsPolicyGlobalTypeSyntax)
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsPolicyFieldName)))))
 				.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 
