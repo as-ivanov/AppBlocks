@@ -14,7 +14,7 @@
 		<IncludeSymbols>false</IncludeSymbols>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageOutputPath>$(MSBuildThisFileDirectory)../Packages/$(Configuration)/</PackageOutputPath>
 	</PropertyGroup>
 	<PropertyGroup>
