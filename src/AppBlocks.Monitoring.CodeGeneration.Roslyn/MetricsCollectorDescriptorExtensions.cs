@@ -18,21 +18,21 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			var className = typeDeclarationSyntax.GetClassNameFromInterfaceDeclaration(false);
 			var baseClassName = typeDeclarationSyntax.GetBaseClassName();
 
-			var loggerMethods = typeDeclarationSyntax.GetLoggerMethods(context);
+			var metricsCollectorMethods = typeDeclarationSyntax.GetMetricsCollectorMethods(context);
 
 			if (attributeData.AttributeClass.Name == nameof(Attributes.AbstractMetricsCollectorStubAttribute))
 			{
 				return new MetricsCollectorDescriptor(typeDeclarationSyntax, true, null, className, baseClassName,
-					inheritedInterfaceTypes, loggerMethods);
+					inheritedInterfaceTypes, metricsCollectorMethods);
 			}
 
 			var contextName =
 				attributeData.GetNamedArgumentValue(nameof(Attributes.MetricsCollectorStubAttribute.ContextName), className);
 			return new MetricsCollectorDescriptor(typeDeclarationSyntax, false, contextName, className, baseClassName,
-				inheritedInterfaceTypes, loggerMethods);
+				inheritedInterfaceTypes, metricsCollectorMethods);
 		}
 
-		private static ImmutableArray<MetricsCollectorMethod> GetLoggerMethods(this TypeDeclarationSyntax typeDeclaration,
+		private static ImmutableArray<MetricsCollectorMethod> GetMetricsCollectorMethods(this TypeDeclarationSyntax typeDeclaration,
 			TransformationContext context)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
