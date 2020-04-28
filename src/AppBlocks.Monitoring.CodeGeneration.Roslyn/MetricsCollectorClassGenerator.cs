@@ -107,7 +107,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			const string metricNameVariableName = "metricName";
 			const string metricUnitVariableName = "metricUnit";
 
-			var tagsInitialization = new List<StatementSyntax>();
+			var statements = new List<StatementSyntax>();
 
 			static LocalDeclarationStatementSyntax GetLocalConstStringDeclarationStatement(string variableName,
 				string variableValue)
@@ -127,9 +127,9 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 							Token(SyntaxKind.ConstKeyword)));
 			}
 
-			tagsInitialization.Add(GetLocalConstStringDeclarationStatement(metricNameVariableName,
+			statements.Add(GetLocalConstStringDeclarationStatement(metricNameVariableName,
 				metricsCollectorMethodDescriptor.MetricName));
-			tagsInitialization.Add(
+			statements.Add(
 				GetLocalConstStringDeclarationStatement(metricUnitVariableName, metricsCollectorMethodDescriptor.UnitName));
 
 			StatementSyntax GetEnabledCheckStatement()
@@ -169,7 +169,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									IdentifierName("Instance"))))));
 			}
 
-			tagsInitialization.Add(GetEnabledCheckStatement());
+			statements.Add(GetEnabledCheckStatement());
 
 			if (metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters.Any())
 			{
@@ -200,12 +200,12 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 
 				foreach (var tagsDeclarationStatement in tagsInitializationStatements)
 				{
-					tagsInitialization.Add(tagsDeclarationStatement);
+					statements.Add(tagsDeclarationStatement);
 				}
 			}
 			else
 			{
-				tagsInitialization.Add(LocalDeclarationStatement(
+				statements.Add(LocalDeclarationStatement(
 					VariableDeclaration(
 							IdentifierName("var"))
 						.WithVariables(
@@ -248,9 +248,9 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									}))));
 			}
 
-			tagsInitialization.Add(GetReturnStatement());
+			statements.Add(GetReturnStatement());
 
-			return Block(tagsInitialization.ToArray());
+			return Block(statements.ToArray());
 		}
 
 		private static IEnumerable<LocalDeclarationStatementSyntax> GetSingleTagInitializationStatement(
