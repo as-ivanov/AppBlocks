@@ -45,7 +45,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		{
 			return new MemberDeclarationSyntax[]
 			{
-				FieldDeclaration(VariableDeclaration(IdentifierName(typeof(ILogger).FullName))
+				FieldDeclaration(VariableDeclaration(_loggerGlobalTypeSyntax)
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(LoggerFieldName)))))
 					.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)))
 			};
