@@ -14,35 +14,35 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		public static MetricsCollectorDescriptor ToMetricsCollectorDescriptor(
 			this TypeDeclarationSyntax typeDeclarationSyntax, TransformationContext context, AttributeData attributeData)
 		{
-			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
 			var className = typeDeclarationSyntax.GetClassNameFromInterfaceDeclaration(false);
-			var baseClassName = typeDeclarationSyntax.GetBaseClassName();
 
-			var metricsCollectorMethods = typeDeclarationSyntax.GetMetricsCollectorMethods(context);
-
-			if (attributeData.AttributeClass.Name == nameof(Attributes.AbstractMetricsCollectorStubAttribute))
+			var typeFullName = typeDeclarationSyntax.GetFullTypeName();
+			var typeSymbol = context.Compilation.Assembly.GetTypeByMetadataName(typeFullName);
+			if (typeSymbol == null)
 			{
-				return new MetricsCollectorDescriptor(typeDeclarationSyntax, true, null, className, baseClassName,
-					inheritedInterfaceTypes, metricsCollectorMethods);
+				throw new Exception($"{typeFullName} not found in assembly.");
 			}
+			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
+			var inheritedInterfaceSymbols = typeSymbol.GetInheritedInterfaceSymbolsWithMeRecursive();
+			inheritedInterfaceTypes = inheritedInterfaceSymbols.Select(_ => _.OriginalDefinition.ToDisplayString()).Union(inheritedInterfaceTypes).ToArray();
+
+			var metricsCollectorMethods = inheritedInterfaceSymbols.GetMetricsCollectorMethods(context);
 
 			var contextName =
 				attributeData.GetNamedArgumentValue(nameof(Attributes.MetricsCollectorStubAttribute.ContextName), className);
-			return new MetricsCollectorDescriptor(typeDeclarationSyntax, false, contextName, className, baseClassName,
+			return new MetricsCollectorDescriptor(typeDeclarationSyntax, contextName, className,
 				inheritedInterfaceTypes, metricsCollectorMethods);
 		}
 
-		private static ImmutableArray<MetricsCollectorMethod> GetMetricsCollectorMethods(this TypeDeclarationSyntax typeDeclaration,
+		private static ImmutableArray<MetricsCollectorMethod> GetMetricsCollectorMethods(
+			this IEnumerable<INamedTypeSymbol> inheritedInterfaceSymbols,
 			TransformationContext context)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
-			return typeDeclaration.Members.OfType<MethodDeclarationSyntax>()
-				.Select(p => p.ToMetricsCollectorMethod(context, fieldNameCounter))
-				.ToImmutableArray();
+			return inheritedInterfaceSymbols.GetAllMethodDeclarations().Select(entry => entry.MethodDeclaration.ToMetricsCollectorMethod(context, entry.TypeDeclaration, fieldNameCounter)).ToImmutableArray();;
 		}
 
-		private static MetricsCollectorMethod ToMetricsCollectorMethod(this MethodDeclarationSyntax methodDeclaration,
-			TransformationContext context, Dictionary<string, int> fieldNameCounter)
+		private static MetricsCollectorMethod ToMetricsCollectorMethod(this MethodDeclarationSyntax methodDeclaration, TransformationContext context, TypeDeclarationSyntax typeDeclaration, Dictionary<string, int> fieldNameCounter)
 		{
 			var metricsCollectorType = GetMetricsCollectorType(methodDeclaration.ReturnType);
 			var (metricName, unitName) = GetMetricOptions(methodDeclaration, context);
@@ -60,7 +60,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				methodKeysFieldName = $"_{methodNameCamelCase}Keys{currentFiledCounter}";
 			}
 
-			return new MetricsCollectorMethod(methodDeclaration, metricName, methodKeysFieldName, unitName,
+			return new MetricsCollectorMethod(methodDeclaration, typeDeclaration, metricName, methodKeysFieldName, unitName,
 				metricsCollectorType);
 		}
 

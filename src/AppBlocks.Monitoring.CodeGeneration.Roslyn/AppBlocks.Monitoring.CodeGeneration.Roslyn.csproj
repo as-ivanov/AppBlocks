@@ -57,9 +57,6 @@
 		<Compile Include="..\AppBlocks.Monitoring.Abstractions\Tags.cs">
 		  <Link>Links\Tags.cs</Link>
 		</Compile>
-		<Compile Include="..\AppBlocks.Monitoring.CodeGeneration.Attributes\AbstractMetricsCollectorStubAttribute.cs">
-			<Link>Links\AbstractMetricsCollectorStubAttribute.cs</Link>
-		</Compile>
 		<Compile Include="..\AppBlocks.Monitoring.CodeGeneration.Attributes\MetricOptionsAttribute.cs">
 		  <Link>Links\MetricOptionsAttribute.cs</Link>
 		</Compile>

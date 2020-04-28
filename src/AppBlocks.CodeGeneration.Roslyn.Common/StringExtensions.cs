@@ -54,7 +54,6 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			var namespaces = input.GetNamespacesWithoutTypeName();
 			return string.IsNullOrEmpty(namespaces) ? typeName : namespaces + "." + typeName;
 		}
-
 		public static LiteralExpressionSyntax GetLiteralExpression(this string input)
 		{
 			var text = input == null ? "\"\"" : "@\"" + input.Replace("\"", "\"\"") + "\"";

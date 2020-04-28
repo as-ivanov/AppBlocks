@@ -7,7 +7,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Attributes
 	[Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
 	[CodeGenerationAttribute(
 		"AppBlocks.Monitoring.CodeGeneration.Roslyn.MetricsCollectorClassGenerator, AppBlocks.Monitoring.CodeGeneration.Roslyn")]
-	public class MetricsCollectorStubAttribute : AbstractMetricsCollectorStubAttribute
+	public class MetricsCollectorStubAttribute : ImplementInterfaceAttribute
 	{
 		public string ContextName { get; set; }
 	}

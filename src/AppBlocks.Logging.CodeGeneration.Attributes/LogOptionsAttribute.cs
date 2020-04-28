@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using AppBlocks.CodeGeneration.Attributes.Common;
+using AppBlocks.Logging.CodeGeneration.Attributes;
 
 namespace AppBlocks.Logging.CodeGeneration.Attributes
 {

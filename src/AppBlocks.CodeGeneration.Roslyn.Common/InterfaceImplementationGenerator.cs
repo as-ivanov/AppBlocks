@@ -71,13 +71,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		{
 			var baseTypes = GetClassBaseList(implementationDescriptor, implementationDescriptor.InheritedInterfaceTypes);
 
-			var classModifiers = new List<SyntaxToken> {Token(SyntaxKind.PublicKeyword)};
-			if (implementationDescriptor.IsAbstract)
-			{
-				classModifiers.Add(Token(SyntaxKind.AbstractKeyword));
-			}
-
-			classModifiers.Add(Token(SyntaxKind.PartialKeyword));
+			var classModifiers = new List<SyntaxToken>
+				{Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.PartialKeyword)};
 
 			var classDeclaration = ClassDeclaration(implementationDescriptor.ClassName)
 				.WithModifiers(TokenList(classModifiers))
@@ -96,26 +91,12 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 		protected abstract IEnumerable<MemberDeclarationSyntax> GetMethods(TImplementationDescriptor descriptor);
 
-		private static BaseTypeSyntax[] GetClassBaseList(TImplementationDescriptor descriptor,
-			string[] inheritedInterfaceTypes)
+		private static SimpleBaseTypeSyntax[] GetClassBaseList(TImplementationDescriptor descriptor,
+			IEnumerable<string> inheritedInterfaceTypes)
 		{
-			var baseTypeList = new List<BaseTypeSyntax>();
-
-			if (descriptor.BaseClassName != null)
-			{
-				baseTypeList.Add(SimpleBaseType(IdentifierName(descriptor.BaseClassName)));
-			}
-
-			baseTypeList.Add(SimpleBaseType(IdentifierName(descriptor.DeclarationSyntax.Identifier)));
-			if (inheritedInterfaceTypes != null)
-			{
-				foreach (var inheritedInterfaceType in inheritedInterfaceTypes)
-				{
-					baseTypeList.Add(SimpleBaseType(IdentifierName(inheritedInterfaceType)));
-				}
-			}
-
-			return baseTypeList.ToArray();
+			return inheritedInterfaceTypes.Select(_ =>
+					SimpleBaseType(AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(_))))
+				.ToArray();
 		}
 
 		private AttributeListSyntax GetAttributeList()

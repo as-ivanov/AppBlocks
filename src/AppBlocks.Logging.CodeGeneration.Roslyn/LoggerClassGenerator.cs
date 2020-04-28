@@ -14,7 +14,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 {
 	public class LoggerClassGenerator : InterfaceImplementationGenerator<LoggerDescriptor>
 	{
-		private const string LoggerFieldName = "Logger";
+		private const string LoggerFieldName = "_logger";
 
 		private static readonly TypeSyntax _loggerMessageGlobalTypeSyntax = typeof(LoggerMessage).GetGlobalTypeSyntax();
 		private static readonly TypeSyntax _logLevelGlobalTypeSyntax = typeof(Microsoft.Extensions.Logging.LogLevel).GetGlobalTypeSyntax();
@@ -43,16 +43,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 		private static IEnumerable<MemberDeclarationSyntax> GetGeneralLoggerFields(LoggerDescriptor loggerDescriptor)
 		{
-			if (loggerDescriptor.BaseClassName != null)
-			{
-				return Array.Empty<MemberDeclarationSyntax>();
-			}
-
 			return new MemberDeclarationSyntax[]
 			{
 				FieldDeclaration(VariableDeclaration(IdentifierName(typeof(ILogger).FullName))
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(LoggerFieldName)))))
-					.WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.ReadOnlyKeyword)))
+					.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)))
 			};
 		}
 
@@ -86,6 +81,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 					{
 						message = $"{message} ({sb})";
 					}
+				}
+
+				static NameSyntax GetGlobalMethodIdentifier(LoggerMethod method)
+				{
+					var methodIdentifier = IdentifierName(method.TypeDeclaration.GetFullTypeName() + "." + method.MethodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
+					return AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), methodIdentifier);
 				}
 
 				var definitionMethodExpression = defineMethodParameterTypes.Arguments.Any()
@@ -134,9 +135,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 																									.WithArgumentList(
 																										ArgumentList(
 																											SingletonSeparatedList(
-																												Argument(
-																													IdentifierName(method.MethodDeclarationSyntax.Identifier
-																														.WithoutTrivia()))))))
+																												Argument(GetGlobalMethodIdentifier(method))))))
 																						})))),
 																	Token(SyntaxKind.CommaToken),
 																	Argument(message.GetLiteralExpression())
@@ -209,21 +208,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 									Identifier(loggerFactoryVariableName))
 								.WithType(_loggerFactoryGlobalTypeSyntax))));
 
-			if (loggerDescriptor.BaseClassName != null)
-			{
-				constructorDeclaration = constructorDeclaration
-					.WithInitializer(
-						ConstructorInitializer(
-							SyntaxKind.BaseConstructorInitializer,
-							ArgumentList(
-								SingletonSeparatedList(
-									Argument(
-										IdentifierName(loggerFactoryVariableName))))))
-					.WithBody(
-						Block());
-			}
-			else
-			{
+
 				var createLoggerInvocation = InvocationExpression(
 						MemberAccessExpression(
 							SyntaxKind.SimpleMemberAccessExpression,
@@ -250,24 +235,24 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 										IdentifierName(LoggerFieldName),
 										createLoggerInvocation
 									)))));
-			}
+
 			yield return constructorDeclaration;
 		}
 
 		protected override IEnumerable<MemberDeclarationSyntax> GetMethods(LoggerDescriptor loggerDescriptor)
 		{
-			var publicKeywordToken = Token(SyntaxKind.PublicKeyword);
-
 			var members = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
 			foreach (var method in loggerDescriptor.Methods)
 			{
+				var interfaceGlobalQualifiedName = AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(method.TypeDeclaration.GetFullTypeName()));
+				var explicitInterfaceSpecifier = ExplicitInterfaceSpecifier(interfaceGlobalQualifiedName);
+
 				var methodParameters = method.Parameters.Select(_ => _.ParameterSyntax).ToArray();
 				var methodDeclaration =
 					MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), method.MethodDeclarationSyntax.Identifier)
+						.WithExplicitInterfaceSpecifier(explicitInterfaceSpecifier)
 						.WithTypeParameterList(method.MethodDeclarationSyntax.TypeParameterList)
 						.WithConstraintClauses(method.MethodDeclarationSyntax.ConstraintClauses)
-						.WithModifiers(method.MethodDeclarationSyntax.Modifiers)
-						.AddModifiers(publicKeywordToken)
 						.AddParameterListParameters(methodParameters)
 						.WithBody(Block(GetLoggerMethodBody(method)));
 				members.Add(methodDeclaration);

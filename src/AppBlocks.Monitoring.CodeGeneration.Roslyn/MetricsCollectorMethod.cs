@@ -7,14 +7,18 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 	public class MetricsCollectorMethod
   {
     private readonly MethodDeclarationSyntax _methodDeclarationSyntax;
+    private readonly TypeDeclarationSyntax _typeDeclaration;
     private readonly string _metricName;
     private readonly string _unitName;
     private readonly MetricsCollectorIndicatorType _metricsMetricsCollectorIndicatorType;
     private readonly string _methodKeysFieldName;
 
-    public MetricsCollectorMethod(MethodDeclarationSyntax methodDeclarationSyntax, string metricName, string methodKeysFieldName, string unitName, MetricsCollectorIndicatorType metricsMetricsCollectorIndicatorType)
+    public MetricsCollectorMethod(MethodDeclarationSyntax methodDeclarationSyntax,
+	    TypeDeclarationSyntax typeDeclaration, string metricName, string methodKeysFieldName, string unitName,
+	    MetricsCollectorIndicatorType metricsMetricsCollectorIndicatorType)
     {
       _methodDeclarationSyntax = methodDeclarationSyntax;
+      _typeDeclaration = typeDeclaration;
       _metricName = metricName;
       _methodKeysFieldName = methodKeysFieldName;
       _unitName = unitName;
@@ -26,5 +30,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
     public string MetricName => _metricName;
     public string UnitName => _unitName;
     public string MethodKeysFieldName => _methodKeysFieldName;
+
+    public TypeDeclarationSyntax TypeDeclaration => _typeDeclaration;
   }
 }

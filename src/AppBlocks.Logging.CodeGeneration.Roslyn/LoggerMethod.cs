@@ -11,14 +11,17 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		private readonly string _message;
 		private readonly string _delegateFieldName;
 		private readonly MethodDeclarationSyntax _methodDeclarationSyntax;
+		private readonly TypeDeclarationSyntax _typeDeclaration;
 		private readonly ImmutableArray<LoggerMethodParameter> _parameters;
 
-		public LoggerMethod(MethodDeclarationSyntax methodDeclarationSyntax, Microsoft.Extensions.Logging.LogLevel logLevel, string message, string delegateFieldName, ImmutableArray<LoggerMethodParameter> parameters)
+		public LoggerMethod(MethodDeclarationSyntax methodDeclarationSyntax, TypeDeclarationSyntax typeDeclaration,
+			Microsoft.Extensions.Logging.LogLevel logLevel, string message, string delegateFieldName, ImmutableArray<LoggerMethodParameter> parameters)
 		{
 			_logLevel = logLevel;
 			_message = message;
 			_delegateFieldName = delegateFieldName;
 			_methodDeclarationSyntax = methodDeclarationSyntax;
+			_typeDeclaration = typeDeclaration;
 			_parameters = parameters;
 		}
 
@@ -27,5 +30,6 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		public Microsoft.Extensions.Logging.LogLevel Level => _logLevel;
 		public string Message => _message;
 		public string DelegateFieldName => _delegateFieldName;
+		public TypeDeclarationSyntax TypeDeclaration => _typeDeclaration;
 	}
 }

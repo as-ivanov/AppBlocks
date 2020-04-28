@@ -68,26 +68,34 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 
 			foreach (var sutMember in sutMembers)
 			{
-				var metricsCollectorType =
-					assembly.GetType(sutMember.Namespace + "." + sutMember.Name.TrimStart('I'), true);
-				if (metricsCollectorType == null)
-				{
-					throw new Exception(
-						$"MetricsCollector implementation for '{sutMember}' not found in emitted assembly");
-				}
-
-				BuildAndVerify(sutMember, metricsCollectorType, metricEnabled);
+				BuildAndVerify(sutMember, assembly, metricEnabled);
 			}
 		}
 
-		private void BuildAndVerify(InterfaceData metricsCollectorTypeData, Type metricsCollectorType, bool metricEnabled)
+		private void BuildAndVerify(InterfaceData metricsCollectorTypeData, Assembly assembly, bool metricEnabled)
 		{
+			var metricsCollectorInterfaceType =
+				assembly.GetType(metricsCollectorTypeData.Namespace + "." + metricsCollectorTypeData.Name, true);
+			if (metricsCollectorInterfaceType == null)
+			{
+				throw new Exception(
+					$"MetricsCollector interface for not found in emitted assembly");
+			}
+
+			var metricsCollectorType =
+				assembly.GetType(metricsCollectorTypeData.Namespace + "." + metricsCollectorTypeData.Name.TrimStart('I'), true);
+			if (metricsCollectorType == null)
+			{
+				throw new Exception(
+					$"MetricsCollector implementation for '{metricsCollectorTypeData}' not found in emitted assembly");
+			}
+
 			var (metricsProvider, metricsPolicy) = GetMetricsProvider(metricsCollectorTypeData, metricEnabled);
 
 			var metricsCollector = Activator.CreateInstance(metricsCollectorType, metricsProvider.Object, metricsPolicy.Object);
 			foreach (var interfaceMethodData in metricsCollectorTypeData.Methods)
 			{
-				var metricsCollectorMethod = metricsCollectorType.GetTypeInfo().GetDeclaredMethod(interfaceMethodData.Name);
+				var metricsCollectorMethod = metricsCollectorInterfaceType.GetMethod(interfaceMethodData.Name);
 				if (metricsCollectorMethod == null)
 				{
 					throw new Exception($"Metrics collector method not found in emitted assembly");
@@ -114,6 +122,11 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 				{
 					throw;
 				}
+			}
+
+			foreach (var inheritedInterface in metricsCollectorTypeData.InheritedInterfaces)
+			{
+				BuildAndVerify(inheritedInterface, assembly, metricEnabled);
 			}
 		}
 

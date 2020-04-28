@@ -18,7 +18,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		private readonly IAttributeDataBuilder _methodAttributeDataBuilder = new LoggerInterfaceMethodAttributeDataBuilder();
 		private readonly Type[] _interfaceMethodReturnTypes = new Type[] { typeof(void) };
 		private readonly int[] _interfaceCounts = Enumerable.Range(1, 2).ToArray();
-		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 2).ToArray();
+		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 3).ToArray();
 		private readonly int[] _interfaceMethodsCounts = Enumerable.Range(0, 3).ToArray();
 		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
 

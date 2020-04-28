@@ -68,49 +68,68 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 			foreach (var sutMember in sutMembers)
 			{
-				var loggerType = assembly.GetType(sutMember.Namespace + "." + sutMember.Name.TrimStart('I'), true);
-				if (loggerType == null)
+				BuildAndVerify(sutMember, assembly, logEnabled);
+			}
+		}
+
+		private void BuildAndVerify(InterfaceData sutMember, Assembly assembly, bool logEnabled)
+		{
+			var loggerInterfaceType =
+				assembly.GetType(sutMember.Namespace + "." + sutMember.Name, true);
+			if (loggerInterfaceType == null)
+			{
+				throw new Exception(
+					$"Logger interface for not found in emitted assembly");
+			}
+
+			var loggerType = assembly.GetType(sutMember.Namespace + "." + sutMember.Name.TrimStart('I'), true);
+			if (loggerType == null)
+			{
+				throw new Exception($"Logger type not found in emitted assembly");
+			}
+
+			for (var index = 0; index < sutMember.Methods.Length; index++)
+			{
+				var interfaceMethod = sutMember.Methods[index];
+				var methodName = interfaceMethod.Name;
+				var loggerInterfaceMethodAttributeData = interfaceMethod.AttributeDataList
+					.OfType<LoggerInterfaceMethodAttributeData>().FirstOrDefault();
+				string message;
+				Microsoft.Extensions.Logging.LogLevel logLevel;
+				if (loggerInterfaceMethodAttributeData == null)
 				{
-					throw new Exception($"Logger type not found in emitted assembly");
+					message = methodName.Humanize();
+					logLevel = Microsoft.Extensions.Logging.LogLevel.Information;
+				}
+				else
+				{
+					message = loggerInterfaceMethodAttributeData.MessageIsDefined
+						? loggerInterfaceMethodAttributeData.Message
+						: methodName.Humanize();
+					logLevel = loggerInterfaceMethodAttributeData.LogLevelIsDefined
+						? loggerInterfaceMethodAttributeData.Level
+						: LogLevel.Information;
 				}
 
-				for (var index = 0; index < sutMember.Methods.Length; index++)
+				var internalLogger = new TestLogger(new EventId(index + 1, methodName), methodName, message, logLevel,
+					interfaceMethod.Parameters, logEnabled);
+				var loggerFactory = new TestLoggerFactory(internalLogger);
+				var logger = Activator.CreateInstance(loggerType, loggerFactory);
+
+				var loggerMethod = loggerInterfaceType.GetTypeInfo().GetDeclaredMethod(methodName);
+				if (loggerMethod == null)
 				{
-					var interfaceMethod = sutMember.Methods[index];
-					var methodName = interfaceMethod.Name;
-					var loggerInterfaceMethodAttributeData = interfaceMethod.AttributeDataList
-						.OfType<LoggerInterfaceMethodAttributeData>().FirstOrDefault();
-					string message;
-					Microsoft.Extensions.Logging.LogLevel logLevel;
-					if (loggerInterfaceMethodAttributeData == null)
-					{
-						message = methodName.Humanize();
-						logLevel = Microsoft.Extensions.Logging.LogLevel.Information;
-					}
-					else
-					{
-						message = loggerInterfaceMethodAttributeData.MessageIsDefined
-							? loggerInterfaceMethodAttributeData.Message
-							: methodName.Humanize();
-						logLevel = loggerInterfaceMethodAttributeData.LogLevelIsDefined
-							? loggerInterfaceMethodAttributeData.Level
-							: LogLevel.Information;
-					}
-
-					var internalLogger = new TestLogger(new EventId(index + 1, methodName), methodName, message, logLevel,
-						interfaceMethod.Parameters, logEnabled);
-					var loggerFactory = new TestLoggerFactory(internalLogger);
-					var logger = Activator.CreateInstance(loggerType, loggerFactory);
-					var loggerMethod = loggerType.GetTypeInfo().GetDeclaredMethod(methodName);
-					if (loggerMethod == null)
-					{
-						throw new Exception($"Logger method not found in emitted assembly");
-					}
-
-					var parameters = interfaceMethod.Parameters.Select(p => p.Value).ToArray();
-					loggerMethod.Invoke(logger, parameters);
-					internalLogger.Verify();
+					throw new Exception($"Logger method not found in emitted assembly");
 				}
+
+				var parameters = interfaceMethod.Parameters.Select(p => p.Value).ToArray();
+				loggerMethod.Invoke(logger, parameters);
+				internalLogger.Verify();
+			}
+
+			foreach (var inheritedInterface in sutMember.InheritedInterfaces)
+			{
+				BuildAndVerify(inheritedInterface, assembly, logEnabled);
 			}
 		}
 	}

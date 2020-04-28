@@ -25,7 +25,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		};
 
 		private readonly int[] _interfaceCounts = Enumerable.Range(1, 2).ToArray();
-		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 2).ToArray();
+		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 3).ToArray();
 		private readonly int[] _interfaceMethodsCounts = Enumerable.Range(0, 3).ToArray();
 		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
 

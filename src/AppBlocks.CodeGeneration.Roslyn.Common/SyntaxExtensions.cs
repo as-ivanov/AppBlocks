@@ -16,7 +16,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			return id.ToCamelCase();
 		}
 
-		public static string GetClassNameFromInterfaceDeclaration(this TypeDeclarationSyntax typeDeclarationSyntax, bool fullName = true)
+		public static string GetClassNameFromInterfaceDeclaration(this TypeDeclarationSyntax typeDeclarationSyntax,
+			bool fullName = true)
 		{
 			return typeDeclarationSyntax.Identifier.WithoutTrivia().Text.GetClassNameFromInterfaceName(fullName);
 		}
@@ -41,29 +42,55 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			return nodes.ToSeparatedList();
 		}
 
-		public static SeparatedSyntaxList<T> ToSeparatedList<T>(this IEnumerable<T> nodes, SyntaxKind separator = SyntaxKind.CommaToken)
+		public static SeparatedSyntaxList<T> ToSeparatedList<T>(this IEnumerable<T> nodes,
+			SyntaxKind separator = SyntaxKind.CommaToken)
 			where T : SyntaxNode
 		{
 			var nodesArray = nodes == null ? new T[0] : nodes.ToArray();
-			return SyntaxFactory.SeparatedList(nodesArray, Enumerable.Repeat(SyntaxFactory.Token(separator), Math.Max(nodesArray.Length - 1, 0)));
+			return SyntaxFactory.SeparatedList(nodesArray,
+				Enumerable.Repeat(SyntaxFactory.Token(separator), Math.Max(nodesArray.Length - 1, 0)));
 		}
 
-		public static string GetFullTypeName(this INamedTypeSymbol symbol)
+		public static string GetFullTypeName(this TypeDeclarationSyntax source)
 		{
-			var nameBuilder = new StringBuilder();
-			ISymbol symbolOrParent = symbol;
-			while (symbolOrParent != null && !string.IsNullOrEmpty(symbolOrParent.Name))
+			var namespaces = new LinkedList<NamespaceDeclarationSyntax>();
+			var types = new LinkedList<TypeDeclarationSyntax>();
+			for (var parent = source.Parent; parent is object; parent = parent.Parent)
 			{
-				if (nameBuilder.Length > 0)
+				if (parent is NamespaceDeclarationSyntax @namespace)
 				{
-					nameBuilder.Insert(0, ".");
+					namespaces.AddFirst(@namespace);
 				}
-
-				nameBuilder.Insert(0, symbolOrParent.Name);
-				symbolOrParent = symbolOrParent.ContainingSymbol;
+				else if (parent is TypeDeclarationSyntax type)
+				{
+					types.AddFirst(type);
+				}
 			}
 
-			return nameBuilder.ToString();
+			var result = new StringBuilder();
+			for (var item = namespaces.First; item is object; item = item.Next)
+			{
+				result.Append(item.Value.Name).Append(CSharpConst.NamespaceClassDelimiter);
+			}
+
+			static void AppendName(StringBuilder builder, TypeDeclarationSyntax type)
+			{
+				builder.Append(type.Identifier.Text);
+				var typeArguments = type.TypeParameterList?.ChildNodes()
+					.Count(node => node is TypeParameterSyntax) ?? 0;
+				if (typeArguments != 0)
+					builder.Append(CSharpConst.TypeParameterClassDelimiter).Append(typeArguments);
+			}
+
+			for (var item = types.First; item is object; item = item.Next)
+			{
+				var type = item.Value;
+				AppendName(result, type);
+				result.Append(CSharpConst.NestedClassDelimiter);
+			}
+			AppendName(result, source);
+
+			return result.ToString();
 		}
 
 		public static MemberDeclarationSyntax[] SortMembers(this IEnumerable<MemberDeclarationSyntax> input)
