@@ -6,7 +6,7 @@ namespace AppBlocks.Logging.CodeGeneration.Attributes
 {
 	[AttributeUsage(AttributeTargets.Method)]
 	[Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
-	public class LoggerMethodStubAttribute : Attribute
+	public class LogOptionsAttribute : Attribute
 	{
 		public Microsoft.Extensions.Logging.LogLevel Level { get; set; }
 

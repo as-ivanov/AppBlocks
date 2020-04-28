@@ -46,11 +46,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			TransformationContext context, INamedTypeSymbol exceptionType)
 		{
 			var attributeData = GetAttributeData(context, methodDeclarationSyntax);
-			var loggerMethodStubAttributeData =
-				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.LoggerMethodStubAttribute));
+			var logOptionsAttributeAttributeData =
+				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.LogOptionsAttribute));
 
-			var message = loggerMethodStubAttributeData.GetNamedArgumentValue(nameof(Attributes.LoggerMethodStubAttribute.Message), methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString().Humanize());
-			var level = loggerMethodStubAttributeData.GetNamedArgumentValue(nameof(Attributes.LoggerMethodStubAttribute.Level), LogLevel.Information);
+			var message = logOptionsAttributeAttributeData.GetNamedArgumentValue(nameof(Attributes.LogOptionsAttribute.Message), methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString().Humanize());
+			var level = logOptionsAttributeAttributeData.GetNamedArgumentValue(nameof(Attributes.LogOptionsAttribute.Level), LogLevel.Information);
 
 			var parameters = methodDeclarationSyntax.ParameterList.Parameters
 				.Select(p => p.ToLoggerMethodParameter(context, exceptionType)).ToImmutableArray();

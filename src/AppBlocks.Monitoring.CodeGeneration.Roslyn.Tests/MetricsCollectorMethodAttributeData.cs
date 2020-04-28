@@ -27,7 +27,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		}
 
 		private MetricsCollectorMethodAttributeData(string metricName, bool isMetricNameDefined, string measurementUnitName,bool isMeasurementUnitNameDefined) : base(
-			nameof(Attributes.MetricsCollectorMethodStubAttribute))
+			nameof(Attributes.MetricOptionsAttribute))
 		{
 			_metricName = metricName;
 			_isMetricNameDefined = isMetricNameDefined;
@@ -48,11 +48,11 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			var paramSb = new AttributeNamedParameterStringBuilder();
 			if (IsMetricNameDefined)
 			{
-				paramSb.Append(nameof(Attributes.MetricsCollectorMethodStubAttribute.MetricName), MetricName == null ? "null" : $"\"{MetricName}\"");
+				paramSb.Append(nameof(Attributes.MetricOptionsAttribute.MetricName), MetricName == null ? "null" : $"\"{MetricName}\"");
 			}
 			if (IsMeasurementUnitNameDefined)
 			{
-				paramSb.Append(nameof(Attributes.MetricsCollectorMethodStubAttribute.MeasurementUnitName), MeasurementUnitName == null ? "null" : $"\"{MeasurementUnitName}\"");
+				paramSb.Append(nameof(Attributes.MetricOptionsAttribute.MeasurementUnitName), MeasurementUnitName == null ? "null" : $"\"{MeasurementUnitName}\"");
 			}
 			return $"[{Name}({paramSb})]";
 		}

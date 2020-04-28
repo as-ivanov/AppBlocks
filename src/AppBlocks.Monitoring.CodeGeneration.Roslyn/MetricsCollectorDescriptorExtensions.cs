@@ -49,12 +49,12 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		{
 			var methodSemanticModel = context.Compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
 			var attributeData = methodSemanticModel.GetDeclaredSymbol(methodDeclaration).GetAttributes()
-				.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.MetricsCollectorMethodStubAttribute));
+				.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.MetricOptionsAttribute));
 
-			var metricName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricsCollectorMethodStubAttribute.MetricName),
+			var metricName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricOptionsAttribute.MetricName),
 				methodDeclaration.Identifier.WithoutTrivia().Text);
 
-			var unitName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricsCollectorMethodStubAttribute.MeasurementUnitName));
+			var unitName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricOptionsAttribute.MeasurementUnitName));
 			return (metricName, unitName);
 		}
 

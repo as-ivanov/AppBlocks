@@ -7,8 +7,8 @@
 		<Description>Utility for generating high-performance logger types.</Description>
 	</PropertyGroup>
 	<ItemGroup>
-		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LoggerMethodStubAttribute.cs">
-		  <Link>LoggerMethodStubAttribute.cs</Link>
+		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LogOptionsAttribute.cs">
+		  <Link>LogOptionsAttribute.cs</Link>
 		</Compile>
 		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LoggerStubAttribute.cs">
 		  <Link>LoggerStubAttribute.cs</Link>

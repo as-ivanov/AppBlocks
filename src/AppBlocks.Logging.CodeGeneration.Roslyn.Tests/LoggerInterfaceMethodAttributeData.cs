@@ -29,7 +29,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		private LoggerInterfaceMethodAttributeData(Microsoft.Extensions.Logging.LogLevel logLevel, bool logLevelIsDefined,
 			string message, bool messageIsDefined) :
 			base(
-				nameof(Attributes.LoggerMethodStubAttribute))
+				nameof(Attributes.LogOptionsAttribute))
 		{
 			_logLevel = logLevel;
 			_logLevelIsDefined = logLevelIsDefined;
@@ -50,11 +50,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			var paramSb = new AttributeNamedParameterStringBuilder();
 			if (LogLevelIsDefined)
 			{
-				paramSb.Append(nameof(Attributes.LoggerMethodStubAttribute.Level),  $"LogLevel.{Level}");
+				paramSb.Append(nameof(Attributes.LogOptionsAttribute.Level),  $"LogLevel.{Level}");
 			}
 			if (MessageIsDefined)
 			{
-				paramSb.Append(nameof(Attributes.LoggerMethodStubAttribute.Message),  Message == null ? "null" : $"\"{Message}\"");
+				paramSb.Append(nameof(Attributes.LogOptionsAttribute.Message),  Message == null ? "null" : $"\"{Message}\"");
 			}
 			return $"[{Name}({paramSb})]";
 		}

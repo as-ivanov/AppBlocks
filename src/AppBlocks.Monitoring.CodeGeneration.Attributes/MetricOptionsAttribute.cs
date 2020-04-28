@@ -6,7 +6,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Attributes
 {
 	[Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
 	[AttributeUsage(AttributeTargets.Method)]
-	public class MetricsCollectorMethodStubAttribute : Attribute
+	public class MetricOptionsAttribute : Attribute
 	{
 		public string MetricName { get; set; }
 
