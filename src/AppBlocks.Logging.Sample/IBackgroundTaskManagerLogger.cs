@@ -4,16 +4,13 @@ using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.Sample
 {
-	[LoggerStub("AppBlocks.Logging.Sample.ISingletonDependency", "AppBlocks.Logging.Sample.ILoggerImplementation")]
+	[GenerateLogger(InheritedInterfaceTypes = new []{ "AppBlocks.Logging.Sample.ISingletonDependency", "AppBlocks.Logging.Sample.ILoggerImplementation"} )]
 	public interface IBackgroundTaskManagerLogger
 	{
-		[LoggerMethodStub(LogLevel.Information, "Task execution started")]
 		void ExecutionStarted(string taskName);
-
-		[LoggerMethodStub(LogLevel.Information, "Task execution finished")]
 		void ExecutionFinished(string taskName);
 
-		[LoggerMethodStub(LogLevel.Information, "Task execution failed")]
+		[LogOptions(Level = LogLevel.Warning, Message = "Task execution failed")]
 		void ExecutionFailed(string taskName, Exception error);
 	}
 }

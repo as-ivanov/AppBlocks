@@ -10,7 +10,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		private readonly string[] _usingNamespaces =
 		{
 			typeof(Action).Namespace,
-			typeof(global::AppBlocks.Monitoring.CodeGeneration.Attributes.GenerateMetricsCollectorAttribute).Namespace,
+			typeof(AppBlocks.Monitoring.CodeGeneration.Attributes.GenerateMetricsCollectorAttribute).Namespace,
 			typeof(ICounter).Namespace
 		};
 

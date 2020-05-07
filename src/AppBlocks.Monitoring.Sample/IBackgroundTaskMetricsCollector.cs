@@ -3,20 +3,20 @@ using AppBlocks.Monitoring.CodeGeneration.Attributes;
 
 namespace AppBlocks.Monitoring.Sample
 {
-	[MetricsCollectorStub("BackgroundTask", "AppBlocks.Monitoring.Sample.ISingletonDependency",
-		"AppBlocks.Monitoring.Sample.IMetricsCollectorImplementation")]
+	[GenerateMetricsCollector(ContextName = "BackgroundTask", InheritedInterfaceTypes = new []{ "AppBlocks.Monitoring.Sample.ISingletonDependency",
+		"AppBlocks.Monitoring.Sample.IMetricsCollectorImplementation" })]
 	public interface IBackgroundTaskMetricsCollector
 	{
-			[MetricsCollectorMethodStub("execution_count", "item")]
+			[MetricOptions(MetricName = "execution_count", MeasurementUnitName = "item")]
 			IMeter ExecutionTotal(string taskName);
 
-			[MetricsCollectorMethodStub("execution_active", "item")]
+			[MetricOptions(MetricName = "execution_active", MeasurementUnitName = "item")]
 			ICounter ExecutionActive(string taskName);
 
-			[MetricsCollectorMethodStub("execution_time", "ms")]
+			[MetricOptions(MetricName = "execution_time", MeasurementUnitName = "ms")]
 			ITimer ExecutionTime(string taskName);
 
-			[MetricsCollectorMethodStub("execution_error", "item")]
+			[MetricOptions(MetricName = "execution_error", MeasurementUnitName = "item")]
 			IMeter ExecutionError(string key, string error);
 	}
 }
