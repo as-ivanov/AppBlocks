@@ -108,12 +108,12 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			var metricsCollector = Activator.CreateInstance(metricsCollectorType, metricsProvider.Object, metricsPolicy.Object);
 			foreach (var interfaceMethodData in interfaceData.Methods)
 			{
-				var metricsCollectorMethod = metricsCollectorInterfaceType.GetMethod(interfaceMethodData.Name);
+				var metricsCollectorMethod = metricsCollectorInterfaceType.GetTypeInfo().GetDeclaredMethod(interfaceMethodData.Name);
 				if (metricsCollectorMethod == null)
 				{
 					throw new Exception($"Metrics collector method not found in emitted assembly");
 				}
-
+				metricsCollectorMethod = metricsCollectorMethod.MakeGenericMethod(typeof(string), typeof(Guid));
 				var parameters = interfaceMethodData.Parameters.Select(p => p.Value).ToArray();
 				_output.WriteLine(
 					$"Invoke method:'{interfaceMethodData}' with parameters:{string.Join('|', interfaceMethodData.Parameters.Select(_ => $"{_.Name}:{_.Value}"))}");
