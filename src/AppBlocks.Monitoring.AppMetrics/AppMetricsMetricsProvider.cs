@@ -28,7 +28,7 @@ namespace AppBlocks.Monitoring.AppMetrics
 			{
 				Context = contextName,
 				Name = metricName,
-				MeasurementUnit = measurementUnitName
+				MeasurementUnit = measurementUnitName ?? Unit.Items
 			};
 			return new Counter(_metrics, counterOptions, tags.ToMetricsTags());
 		}
@@ -39,7 +39,7 @@ namespace AppBlocks.Monitoring.AppMetrics
 			{
 				Context = contextName,
 				Name = metricName,
-				MeasurementUnit = measurementUnitName
+				MeasurementUnit = measurementUnitName ?? Unit.Items
 			};
 			return new Histogram(_metrics, histogramOptions, tags.ToMetricsTags());
 		}
@@ -50,7 +50,7 @@ namespace AppBlocks.Monitoring.AppMetrics
 			{
 				Context = contextName,
 				Name = metricName,
-				MeasurementUnit = measurementUnitName
+				MeasurementUnit = measurementUnitName ?? Unit.Items
 			};
 			return new HitPercentageGauge(_metrics, gaugeOptions, tags.ToMetricsTags());
 		}
@@ -61,7 +61,7 @@ namespace AppBlocks.Monitoring.AppMetrics
 			{
 				Context = contextName,
 				Name = metricName,
-				MeasurementUnit = measurementUnitName
+				MeasurementUnit = measurementUnitName ?? Unit.Items
 			};
 			return new Meter(_metrics, meterOptions, tags.ToMetricsTags());
 		}
@@ -72,7 +72,7 @@ namespace AppBlocks.Monitoring.AppMetrics
 			{
 				Context = contextName,
 				Name = metricName,
-				MeasurementUnit = measurementUnitName
+				MeasurementUnit = measurementUnitName ?? Unit.Items
 			};
 			return new Timer(_metrics, timerOptions, tags.ToMetricsTags());
 		}
@@ -83,7 +83,7 @@ namespace AppBlocks.Monitoring.AppMetrics
 			{
 				Context = contextName,
 				Name = metricName,
-				MeasurementUnit = measurementUnitName
+				MeasurementUnit = measurementUnitName ?? Unit.Items
 			};
 			return new Gauge(_metrics, gaugeOptions, tags.ToMetricsTags());
 		}
