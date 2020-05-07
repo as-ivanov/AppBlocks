@@ -18,19 +18,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		{
 			var className = typeDeclarationSyntax.GetClassNameFromInterfaceDeclaration();
 
-			var typeFullName = typeDeclarationSyntax.GetFullTypeName();
-			var typeSymbol = context.Compilation.GetTypeByMetadataName(typeFullName);
-			if (typeSymbol == null)
-			{
-				throw new Exception($"{typeFullName} not found in assembly.");
-			}
-
-			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
-			var inheritedInterfaceSymbols = typeSymbol.GetInheritedInterfaceSymbolsWithMeRecursive();
+			var methodDeclarations = typeDeclarationSyntax.GetAllMethodDeclarations(context);
 
 			var exceptionType = context.Compilation.GetTypeByMetadataName(typeof(Exception).FullName);
+			var methods = methodDeclarations.GetLoggerMethods(context, exceptionType);
 
-			var methods = inheritedInterfaceSymbols.GetLoggerMethods(context, exceptionType);
+			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
 
 			return new LoggerDescriptor(
 				typeDeclarationSyntax,
@@ -39,18 +32,19 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				methods);
 		}
 
-		private static ImmutableArray<LoggerMethod> GetLoggerMethods(this IEnumerable<INamedTypeSymbol> inheritedInterfaceSymbols,
+		private static ImmutableArray<LoggerMethod> GetLoggerMethods(this IEnumerable<(MethodDeclarationSyntax MethodDeclaration, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)> methodDeclarations,
 			TransformationContext context, INamedTypeSymbol exceptionType)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
-			return inheritedInterfaceSymbols.GetAllMethodDeclarations().Select(entry => entry.MethodDeclaration.ToLoggerMethod(context, entry.TypeDeclaration, fieldNameCounter, exceptionType)).ToImmutableArray();;
+			return methodDeclarations.Select(entry => entry.MethodDeclaration.ToLoggerMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter, exceptionType)).ToImmutableArray();;
 		}
 
 		private static LoggerMethod ToLoggerMethod(this MethodDeclarationSyntax methodDeclarationSyntax,
-			TransformationContext context, TypeDeclarationSyntax typeDeclaration, Dictionary<string, int> fieldNameCounter, INamedTypeSymbol exceptionType)
+			TransformationContext context, INamedTypeSymbol declaredInterfaceSymbol, Dictionary<string, int> fieldNameCounter, INamedTypeSymbol exceptionType)
 		{
-			var methodSemanticModel = context.Compilation.GetSemanticModel(methodDeclarationSyntax.SyntaxTree);
-			var attributeData = methodSemanticModel.GetDeclaredSymbol(methodDeclarationSyntax).GetAttributes();
+			var methodSymbol = declaredInterfaceSymbol.GetMembers().OfType<IMethodSymbol>()
+				.FirstOrDefault(_ => _.Name == methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
+			var attributeData = methodSymbol.GetAttributes();
 			var logOptionsAttributeAttributeData =
 				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.LogOptionsAttribute));
 
@@ -61,7 +55,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				LogLevel.Information);
 
 			var parameters = methodDeclarationSyntax.ParameterList.Parameters
-				.Select(p => p.ToLoggerMethodParameter(context, exceptionType)).ToImmutableArray();
+				.Select(p => p.ToLoggerMethodParameter(context, methodSymbol, exceptionType)).ToImmutableArray();
 
 			var methodNameCamelCase = methodDeclarationSyntax.Identifier.WithoutTrivia().Text.ToCamelCase();
 			string delegateFieldName;
@@ -78,7 +72,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 			return new LoggerMethod(
 				methodDeclarationSyntax,
-				typeDeclaration,
+				declaredInterfaceSymbol,
 				level,
 				message,
 				delegateFieldName,
@@ -86,12 +80,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		}
 
 		private static LoggerMethodParameter ToLoggerMethodParameter(this ParameterSyntax parameterSyntax,
-			TransformationContext context, INamedTypeSymbol exceptionType)
+			TransformationContext context, IMethodSymbol methodSymbol, ITypeSymbol exceptionType)
 		{
-			var semanticModel = context.Compilation.GetSemanticModel(parameterSyntax.SyntaxTree);
-			var typeInfo = semanticModel.GetTypeInfo(parameterSyntax.Type);
-			var conversionInfo = context.Compilation.ClassifyCommonConversion(typeInfo.Type, exceptionType);
-			return new LoggerMethodParameter(parameterSyntax, typeInfo, conversionInfo.Exists && conversionInfo.IsImplicit);
+			var parameterSymbol = methodSymbol.Parameters.FirstOrDefault(_ => _.Name == parameterSyntax.Identifier.WithoutTrivia().ToFullString());
+			var conversionInfo = context.Compilation.ClassifyCommonConversion(parameterSymbol.Type, exceptionType);
+			return new LoggerMethodParameter(parameterSyntax, parameterSymbol, conversionInfo.Exists && conversionInfo.IsImplicit);
 		}
 	}
 }

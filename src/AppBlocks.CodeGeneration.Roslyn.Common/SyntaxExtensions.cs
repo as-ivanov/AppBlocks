@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Roslynator.CSharp;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
@@ -36,10 +37,10 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			return null;
 		}
 
-		public static SeparatedSyntaxList<T> ToSeparatedList<T>(params T[] nodes)
+		public static SyntaxList<T> ToSyntaxList<T>(params T[] nodes)
 			where T : SyntaxNode
 		{
-			return nodes.ToSeparatedList();
+			return new SyntaxList<T>(nodes);
 		}
 
 		public static SeparatedSyntaxList<T> ToSeparatedList<T>(this IEnumerable<T> nodes,
@@ -96,6 +97,19 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		public static MemberDeclarationSyntax[] SortMembers(this IEnumerable<MemberDeclarationSyntax> input)
 		{
 			return input.OrderBy(_ => _, new MemberDeclarationSorter()).ToArray();
+		}
+
+		public static SyntaxList<TypeParameterConstraintClauseSyntax> GetAllowedImplicitImplementationConstraintClause(
+			this SyntaxList<TypeParameterConstraintClauseSyntax> typeParameterConstraintClauseSyntaxList)
+		{
+			var methodConstraintClauses = new List<TypeParameterConstraintClauseSyntax>();
+			foreach (var typeConstraintClauses in typeParameterConstraintClauseSyntaxList)
+			{
+				var classOrStructConstraints = typeConstraintClauses.Constraints.OfType<ClassOrStructConstraintSyntax>();
+				var typeClassOrStructConstraintsClauses = typeConstraintClauses.WithConstraints(classOrStructConstraints.ToSeparatedList<TypeParameterConstraintSyntax>());
+				methodConstraintClauses.Add(typeClassOrStructConstraintsClauses);
+			}
+			return methodConstraintClauses.ToSyntaxList();
 		}
 	}
 }

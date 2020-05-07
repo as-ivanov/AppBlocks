@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Simplification;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
@@ -23,11 +25,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		public static string GetTypeNameWithoutNamespaces(this string input)
 		{
 			var index = input.LastIndexOf(".", StringComparison.Ordinal);
-			if (index == -1)
-			{
-				return input;
-			}
-			return input.Substring(index + 1);
+			return index == -1 ? input : input.Substring(index + 1);
 		}
 
 		public static string GetNamespacesWithoutTypeName(this string input)
@@ -68,5 +66,55 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				SyntaxFactory.TriviaList());
 			return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, syntaxToken);
 		}
+
+		public static SyntaxToken ToIdentifierToken(
+			this string identifier,
+			bool isQueryContext = false)
+		{
+			var escaped = identifier.EscapeIdentifier(isQueryContext);
+
+			if (escaped.Length == 0 || escaped[0] != '@')
+			{
+				return SyntaxFactory.Identifier(escaped);
+			}
+
+			var unescaped = identifier.StartsWith("@", StringComparison.Ordinal)
+				? identifier.Substring(1)
+				: identifier;
+
+			var token = SyntaxFactory.Identifier(
+				default, SyntaxKind.None, "@" + unescaped, unescaped, default);
+
+			if (!identifier.StartsWith("@", StringComparison.Ordinal))
+			{
+				token = token.WithAdditionalAnnotations(Simplifier.Annotation);
+			}
+
+			return token;
+		}
+
+		public static string EscapeIdentifier(
+			this string identifier,
+			bool isQueryContext = false)
+		{
+			var nullIndex = identifier.IndexOf('\0');
+			if (nullIndex >= 0)
+			{
+				identifier = identifier.Substring(0, nullIndex);
+			}
+
+			var needsEscaping = SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None;
+
+			// Check if we need to escape this contextual keyword
+			needsEscaping = needsEscaping || (isQueryContext && SyntaxFacts.IsQueryContextualKeyword(SyntaxFacts.GetContextualKeywordKind(identifier)));
+
+			return needsEscaping ? "@" + identifier : identifier;
+		}
+
+		public static IdentifierNameSyntax ToIdentifierName(this string identifier)
+			=> SyntaxFactory.IdentifierName(identifier.ToIdentifierToken());
+
+		public static bool IsPointerType(this ISymbol symbol)
+			=> symbol is IPointerTypeSymbol;
 	}
 }

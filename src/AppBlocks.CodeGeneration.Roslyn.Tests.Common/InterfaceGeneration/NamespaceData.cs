@@ -1,3 +1,5 @@
+using AppBlocks.CodeGeneration.Roslyn.Common;
+
 namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
 	public class NamespaceData

@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
+using Roslynator.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn
@@ -85,7 +86,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 				static NameSyntax GetGlobalMethodIdentifier(LoggerMethod method)
 				{
-					var methodIdentifier = IdentifierName(method.TypeDeclaration.GetFullTypeName() + "." + method.MethodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
+					var methodIdentifier = IdentifierName(method.DeclaredInterfaceSymbol.GetFullTypeName() + "." + method.MethodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
 					return AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), methodIdentifier);
 				}
 
@@ -172,7 +173,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				}
 
 				var typeSyntax = parameter.ParameterSyntax.Type;
-				if (parameter.Info.Type.TypeKind == TypeKind.TypeParameter || parameter.Info.Type.IsReferenceType)
+				if (parameter.ParameterSymbol.Type.TypeKind == TypeKind.TypeParameter || parameter.ParameterSymbol.Type.IsReferenceType)
 				{
 					typeSyntax = IdentifierName("object");
 				}
@@ -244,15 +245,18 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			var members = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
 			foreach (var method in loggerDescriptor.Methods)
 			{
-				var interfaceGlobalQualifiedName = AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(method.TypeDeclaration.GetFullTypeName()));
+				var interfaceGlobalQualifiedName = AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(method.DeclaredInterfaceSymbol.GetFullTypeName()));
 				var explicitInterfaceSpecifier = ExplicitInterfaceSpecifier(interfaceGlobalQualifiedName);
+
+				var methodConstraintClauses = method.MethodDeclarationSyntax.ConstraintClauses
+					.GetAllowedImplicitImplementationConstraintClause();
 
 				var methodParameters = method.Parameters.Select(_ => _.ParameterSyntax).ToArray();
 				var methodDeclaration =
 					MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), method.MethodDeclarationSyntax.Identifier)
 						.WithExplicitInterfaceSpecifier(explicitInterfaceSpecifier)
 						.WithTypeParameterList(method.MethodDeclarationSyntax.TypeParameterList)
-						.WithConstraintClauses(method.MethodDeclarationSyntax.ConstraintClauses)
+						.WithConstraintClauses(methodConstraintClauses)
 						.AddParameterListParameters(methodParameters)
 						.WithBody(Block(GetLoggerMethodBody(method)));
 				members.Add(methodDeclaration);

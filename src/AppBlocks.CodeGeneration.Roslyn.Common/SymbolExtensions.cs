@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CodeGeneration.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -26,30 +28,47 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			return nameBuilder.ToString();
 		}
 
-		public static IEnumerable<INamedTypeSymbol> GetInheritedInterfaceSymbolsWithMeRecursive(this INamedTypeSymbol typeSymbol)
+
+		public static IEnumerable<(MethodDeclarationSyntax MethodDeclaration, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)>
+			GetAllMethodDeclarations(this TypeDeclarationSyntax typeDeclarationSyntax, TransformationContext context)
 		{
-			yield return typeSymbol;
-			foreach (var inheritedInterfaceSymbol in typeSymbol.Interfaces)
+			var typeFullName = typeDeclarationSyntax.GetFullTypeName();
+			var targetInterfaceSymbol = context.SemanticModel.GetDeclaredSymbol(typeDeclarationSyntax) as INamedTypeSymbol;
+			if (targetInterfaceSymbol == null)
 			{
-				foreach (var item in GetInheritedInterfaceSymbolsWithMeRecursive(inheritedInterfaceSymbol))
+				throw new Exception($"{typeFullName} not found in assembly.");
+			}
+
+			static IEnumerable<INamedTypeSymbol> GetAllInterfaceSymbolsRecursive(INamedTypeSymbol typeSymbol)
+			{
+				yield return typeSymbol;
+				foreach (var inheritedInterfaceSymbol in typeSymbol.Interfaces)
 				{
-					yield return item;
+					foreach (var item in GetAllInterfaceSymbolsRecursive(inheritedInterfaceSymbol))
+					{
+						yield return item;
+					}
 				}
 			}
-		}
 
-		public static IEnumerable<(MethodDeclarationSyntax MethodDeclaration, TypeDeclarationSyntax TypeDeclaration)> GetAllMethodDeclarations(
-			this IEnumerable<INamedTypeSymbol> interfaceSymbols)
-		{
-			foreach (var interfaceSymbol in interfaceSymbols)
+			var allInterfaceSymbols = GetAllInterfaceSymbolsRecursive(targetInterfaceSymbol);
+
+			foreach (var interfaceSymbol in allInterfaceSymbols)
 			{
 				var interfaceDeclarations  = interfaceSymbol.DeclaringSyntaxReferences.SelectMany(_ => _.SyntaxTree.GetRoot().DescendantNodesAndSelf())
-					.OfType<TypeDeclarationSyntax>().Where(_ => _.GetFullTypeName() == interfaceSymbol.OriginalDefinition.ToDisplayString());
+					.OfType<TypeDeclarationSyntax>().Where(_ => _.GetFullTypeName() == interfaceSymbol.OriginalDefinition.ToDisplayString()).ToList();
+				if (!interfaceDeclarations.Any()) // interface declared in another assembly
+				{
+					var interfaceDeclaration = NamedTypeGenerator.GetInterfaceDeclarationSyntax(interfaceSymbol); // reconstruct declaration from symbol
+					interfaceDeclarations.Add(interfaceDeclaration);
+				}
+
 				foreach (var interfaceDeclaration in interfaceDeclarations)
 				{
-					foreach (var member in interfaceDeclaration.Members.OfType<MethodDeclarationSyntax>())
+					var methodDeclarations = interfaceDeclaration.Members.OfType<MethodDeclarationSyntax>();
+					foreach (var methodDeclaration in methodDeclarations)
 					{
-						yield return (member, interfaceDeclaration);
+						yield return (methodDeclaration, interfaceDeclaration, interfaceSymbol);
 					}
 				}
 			}

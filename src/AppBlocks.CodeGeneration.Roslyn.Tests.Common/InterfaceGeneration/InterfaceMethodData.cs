@@ -71,7 +71,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 				sb.AppendLine(attributeData.ToString());
 			}
 			var returnType = ReturnType == typeof(void) ? "void" : ReturnType.FullName;
-			sb.AppendLine($"{returnType} {Name}({string.Join(",", Parameters.Select(_ => _.ToString()))});");
+			sb.AppendLine($"{returnType} {Name}<TParam1, TParam2>({string.Join(",", Parameters.Select(_ => _.ToString()))}) where TParam1 : class, IComparable<TParam1> where TParam2 : struct, IEquatable<TParam2>;");
 			return sb.ToString();
 		}
 	}

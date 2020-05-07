@@ -7,6 +7,7 @@ using AppBlocks.Monitoring.Abstractions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Roslynator.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
@@ -85,18 +86,22 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			var members = new List<MemberDeclarationSyntax>(metricsCollectorDescriptor.Methods.Length);
 			foreach (var method in metricsCollectorDescriptor.Methods)
 			{
-				var interfaceGlobalQualifiedName = AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(method.TypeDeclaration.GetFullTypeName()));
+				var interfaceGlobalQualifiedName = AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(method.DeclaringInterfaceSymbol.GetFullTypeName()));
 				var explicitInterfaceSpecifier = ExplicitInterfaceSpecifier(interfaceGlobalQualifiedName);
 
 				var returnTypeNameWithoutNamespaces = method.MethodDeclarationSyntax.ReturnType.WithoutTrivia().ToFullString()
 					.GetTypeNameWithoutNamespaces();
 				var returnTypeIdentifier = IdentifierName(typeof(IMetricsProvider).Namespace + "." + returnTypeNameWithoutNamespaces);
 				var returnType = AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), returnTypeIdentifier);
+
+				var methodConstraintClauses = method.MethodDeclarationSyntax.ConstraintClauses
+					.GetAllowedImplicitImplementationConstraintClause();
+
 				var methodDeclaration =
 					MethodDeclaration(method.MethodDeclarationSyntax.ReturnType, method.MethodDeclarationSyntax.Identifier)
 						.WithExplicitInterfaceSpecifier(explicitInterfaceSpecifier)
 						.WithTypeParameterList(method.MethodDeclarationSyntax.TypeParameterList)
-						.WithConstraintClauses(method.MethodDeclarationSyntax.ConstraintClauses)
+						.WithConstraintClauses(methodConstraintClauses)
 						.WithParameterList(method.MethodDeclarationSyntax.ParameterList)
 						.WithReturnType(returnType)
 						.WithBody(GetMetricsCollectorMethodBody(method));

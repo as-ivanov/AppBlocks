@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Common;
 using CodeGeneration.Roslyn;
@@ -16,16 +17,11 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		{
 			var className = typeDeclarationSyntax.GetClassNameFromInterfaceDeclaration(false);
 
-			var typeFullName = typeDeclarationSyntax.GetFullTypeName();
-			var typeSymbol = context.Compilation.Assembly.GetTypeByMetadataName(typeFullName);
-			if (typeSymbol == null)
-			{
-				throw new Exception($"{typeFullName} not found in assembly.");
-			}
-			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
-			var inheritedInterfaceSymbols = typeSymbol.GetInheritedInterfaceSymbolsWithMeRecursive();
+			var methodDeclarations = typeDeclarationSyntax.GetAllMethodDeclarations(context);
 
-			var metricsCollectorMethods = inheritedInterfaceSymbols.GetMetricsCollectorMethods(context);
+			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
+
+			var metricsCollectorMethods = methodDeclarations.GetMetricsCollectorMethods(context);
 
 			var contextName =
 				attributeData.GetNamedArgumentValue(nameof(Attributes.GenerateMetricsCollectorAttribute.ContextName), className);
@@ -34,17 +30,18 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		}
 
 		private static ImmutableArray<MetricsCollectorMethod> GetMetricsCollectorMethods(
-			this IEnumerable<INamedTypeSymbol> inheritedInterfaceSymbols,
+			this IEnumerable<(MethodDeclarationSyntax MethodDeclaration, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)> methodDeclarations,
 			TransformationContext context)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
-			return inheritedInterfaceSymbols.GetAllMethodDeclarations().Select(entry => entry.MethodDeclaration.ToMetricsCollectorMethod(context, entry.TypeDeclaration, fieldNameCounter)).ToImmutableArray();;
+			return methodDeclarations.Select(entry => entry.MethodDeclaration.ToMetricsCollectorMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter)).ToImmutableArray();;
 		}
 
-		private static MetricsCollectorMethod ToMetricsCollectorMethod(this MethodDeclarationSyntax methodDeclaration, TransformationContext context, TypeDeclarationSyntax typeDeclaration, Dictionary<string, int> fieldNameCounter)
+		private static MetricsCollectorMethod ToMetricsCollectorMethod(this MethodDeclarationSyntax methodDeclaration,
+			TransformationContext context, INamedTypeSymbol declaredInterfaceSymbol, Dictionary<string, int> fieldNameCounter)
 		{
 			var metricsCollectorType = GetMetricsCollectorType(methodDeclaration.ReturnType);
-			var (metricName, unitName) = GetMetricOptions(methodDeclaration, context);
+			var (metricName, unitName) = GetMetricOptions(declaredInterfaceSymbol, methodDeclaration, context);
 
 			var methodNameCamelCase = methodDeclaration.Identifier.WithoutTrivia().Text.ToCamelCase();
 			string methodKeysFieldName;
@@ -59,15 +56,16 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				methodKeysFieldName = $"_{methodNameCamelCase}Keys{currentFiledCounter}";
 			}
 
-			return new MetricsCollectorMethod(methodDeclaration, typeDeclaration, metricName, methodKeysFieldName, unitName,
+			return new MetricsCollectorMethod(methodDeclaration, declaredInterfaceSymbol, metricName, methodKeysFieldName, unitName,
 				metricsCollectorType);
 		}
 
-		private static (string MetricName, string UnitName) GetMetricOptions(MethodDeclarationSyntax methodDeclaration,
+		private static (string MetricName, string UnitName) GetMetricOptions(INamedTypeSymbol declaredInterfaceSymbol, MethodDeclarationSyntax methodDeclaration,
 			TransformationContext context)
 		{
-			var methodSemanticModel = context.Compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
-			var attributeData = methodSemanticModel.GetDeclaredSymbol(methodDeclaration).GetAttributes()
+			var methodSymbol = declaredInterfaceSymbol.GetMembers()
+				.FirstOrDefault(_ => _.Name == methodDeclaration.Identifier.WithoutTrivia().ToFullString());
+			var attributeData = methodSymbol.GetAttributes()
 				.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.MetricOptionsAttribute));
 
 			var metricName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricOptionsAttribute.MetricName),

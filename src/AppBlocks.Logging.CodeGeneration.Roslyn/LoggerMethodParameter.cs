@@ -7,15 +7,15 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 	{
 		private readonly ParameterSyntax _parameterSyntax;
 		private readonly bool _isException;
-		private readonly TypeInfo _typeInfo;
+		private readonly IParameterSymbol _parameterSymbol;
 
 		public LoggerMethodParameter(
 		  ParameterSyntax parameterSyntax,
-		  TypeInfo typeInfo,
+		  IParameterSymbol parameterSymbol,
 		  bool isException)
 		{
 			_parameterSyntax = parameterSyntax;
-			_typeInfo = typeInfo;
+			_parameterSymbol = parameterSymbol;
 			_isException = isException;
 		}
 
@@ -23,6 +23,6 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 		public bool IsException => _isException;
 
-		public TypeInfo Info => _typeInfo;
+		public IParameterSymbol ParameterSymbol => _parameterSymbol;
 	}
 }

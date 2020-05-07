@@ -128,6 +128,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 					throw new Exception($"Logger method not found in emitted assembly");
 				}
 
+				loggerMethod = loggerMethod.MakeGenericMethod(typeof(string), typeof(Guid));
 				var parameters = interfaceMethod.Parameters.Select(p => p.Value).ToArray();
 				loggerMethod.Invoke(logger, parameters);
 				internalLogger.Verify();

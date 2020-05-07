@@ -108,7 +108,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 
 			foreach (var generatorCandidateAttribute in attributeType.GetAttributes())
 			{
-				if (generatorCandidateAttribute.AttributeClass.Name != typeof(CodeGenerationAttributeAttribute).Name)
+				if (generatorCandidateAttribute.AttributeClass.Name != nameof(CodeGenerationAttributeAttribute))
 				{
 					continue;
 				}

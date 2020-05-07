@@ -11,4 +11,9 @@
 			<Link>Links\CodeGenerationAttributesConsts.cs</Link>
 		</Compile>
 	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="System.Buffers" />
+		<PackageReference Include="Roslynator.CSharp" />
+		<PackageReference Include="Microsoft.CodeAnalysis" />
+	</ItemGroup>
 </Project>
