@@ -37,7 +37,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		{
 			if (!(context.ProcessingNode is TypeDeclarationSyntax tds) || !tds.IsKind(SyntaxKind.InterfaceDeclaration))
 			{
-				throw new Exception($"Generator attribute must be declared on interface.");
+				throw new Exception("Generator attribute must be declared on interface.");
 			}
 
 			return GenerateAsync(tds, context, Data);

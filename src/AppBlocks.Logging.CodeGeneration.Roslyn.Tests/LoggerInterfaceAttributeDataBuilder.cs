@@ -23,7 +23,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 						var compilationEntryData = new CompilationEntryData(options.UsingNamespaces, namespaceData);
 						context.AddCompilationEntry(compilationEntryData);
 					}
-					return new AttributeData[] { new LoggerInterfaceAttributeData(interfacesToInherit) };
+
+					return new AttributeData[] {new LoggerInterfaceAttributeData(interfacesToInherit)};
 				};
 			}
 		}

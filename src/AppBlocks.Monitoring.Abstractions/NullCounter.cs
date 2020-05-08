@@ -7,6 +7,7 @@ namespace AppBlocks.Monitoring.Abstractions
 		private NullCounter()
 		{
 		}
+
 		public void Increment(long value = 1)
 		{
 		}

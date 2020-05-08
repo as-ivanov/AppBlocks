@@ -5,8 +5,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
 	public class TestContext : ITestContext
 	{
-		private readonly ITestInterfaceGenerationOptions _options;
 		private readonly List<CompilationEntryData> _entries = new List<CompilationEntryData>();
+		private readonly ITestInterfaceGenerationOptions _options;
 		private int _currentId = 1;
 
 		public TestContext(ITestInterfaceGenerationOptions options)
@@ -22,6 +22,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		public ITestInterfaceGenerationOptions Options => _options;
 
 		public IReadOnlyList<CompilationEntryData> CompilationEntries => _entries;
+
 		public int NextId()
 		{
 			return _currentId++;

@@ -55,7 +55,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 			foreach (var interfaceSymbol in allInterfaceSymbols)
 			{
-				var interfaceDeclarations  = interfaceSymbol.DeclaringSyntaxReferences.SelectMany(_ => _.SyntaxTree.GetRoot().DescendantNodesAndSelf())
+				var interfaceDeclarations = interfaceSymbol.DeclaringSyntaxReferences.SelectMany(_ => _.SyntaxTree.GetRoot().DescendantNodesAndSelf())
 					.OfType<TypeDeclarationSyntax>().Where(_ => _.GetFullTypeName() == interfaceSymbol.OriginalDefinition.ToDisplayString()).ToList();
 				if (!interfaceDeclarations.Any()) // interface declared in another assembly
 				{

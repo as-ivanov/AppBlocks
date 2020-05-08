@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AppBlocks.CodeGeneration.Roslyn.Common;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
 	public class InterfaceData : IMemberData
 	{
-		private readonly string _name;
-		private readonly string _namespace;
 		private readonly AttributeData[] _attributeDataList;
-		private readonly InterfaceMethodData[] _methods;
 		private readonly InterfaceData[] _inheritedInterfaces;
 		private readonly bool _isSut;
+		private readonly InterfaceMethodData[] _methods;
+		private readonly string _name;
+		private readonly string _namespace;
 
 		public InterfaceData(string name, string @namespace) : this(name, @namespace, Array.Empty<AttributeData>(), Array.Empty<InterfaceMethodData>(), Array.Empty<InterfaceData>(), false)
 		{
@@ -31,15 +30,15 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public InterfaceData[] InheritedInterfaces => _inheritedInterfaces;
 
+		public AttributeData[] AttributeDataList => _attributeDataList;
+
+		public InterfaceMethodData[] Methods => _methods;
+
 		public string Name => _name;
 
 		public string Namespace => _namespace;
 
 		public bool IsSut => _isSut;
-
-		public AttributeData[] AttributeDataList => _attributeDataList;
-
-		public InterfaceMethodData[] Methods => _methods;
 
 		public static IEnumerable<Func<ITestContext, InterfaceData>> GetPossibleVariations(ITestInterfaceGenerationOptions options)
 		{
@@ -56,7 +55,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 					{
 						Func<ITestContext, InterfaceData> CreateInterfaceDataVariation(IEnumerable<Func<ITestContext, InterfaceMethodData>> methods)
 						{
-							return (context) => new InterfaceData("ITestInterface" + context.NextId(), options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true);
+							return context => new InterfaceData("ITestInterface" + context.NextId(), options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true);
 						}
 
 						if (methodsCount == 1)
@@ -64,7 +63,6 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 							foreach (var methods in interfaceMethodPossibleVariations
 								.GetPossibleCombinations(methodsCount))
 							{
-
 								yield return CreateInterfaceDataVariation(methods);
 							}
 						}
@@ -87,6 +85,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			{
 				sb.AppendLine(attributeData.ToString());
 			}
+
 			using (sb.Block($"interface {_name}" + (InheritedInterfaces.Any() ? $" : {string.Join(",", InheritedInterfaces.Select(_ => _.Namespace + "." + _.Name))}" : string.Empty)))
 			{
 				foreach (var method in Methods)

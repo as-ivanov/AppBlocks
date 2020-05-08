@@ -17,7 +17,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				var types = new List<BaseTypeSyntax>();
 				if (namedType.TypeKind == TypeKind.Class && namedType.BaseType != null &&
-				    namedType.BaseType.SpecialType != Microsoft.CodeAnalysis.SpecialType.System_Object)
+				    namedType.BaseType.SpecialType != SpecialType.System_Object)
 				{
 					types.Add(SyntaxFactory.SimpleBaseType(namedType.BaseType.GenerateTypeSyntax()));
 				}
@@ -85,7 +85,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				static ParameterSyntax GetParameter(IParameterSymbol p, bool isFirstParam, bool seenOptional)
 				{
 					static SyntaxTokenList GetParameterModifiers(RefKind refKind)
-						=> refKind switch
+					{
+						return refKind switch
 						{
 							RefKind.None => new SyntaxTokenList(),
 							RefKind.Out => SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.OutKeyword)),
@@ -93,6 +94,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 							RefKind.In => SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.InKeyword)),
 							_ => throw new Exception($"Unexpected kind:{refKind}"),
 						};
+					}
 
 					static SyntaxTokenList GenerateModifiers(
 						IParameterSymbol parameter)
@@ -149,17 +151,17 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			static MemberDeclarationSyntax CreateMemberDeclarationSyntax(IMethodSymbol method)
 			{
 				return SyntaxFactory.MethodDeclaration(
-					attributeLists: GenerateAttributeDeclarations(method),
-					modifiers: default,
-					returnType: GenerateReturnTypeSyntax(method),
-					explicitInterfaceSpecifier: default,
-					identifier: SyntaxFactory.Identifier(method.Name),
-					typeParameterList: GenerateTypeParameterList(method.TypeParameters),
-					parameterList: GenerateParameterList(method.Parameters),
-					constraintClauses: GenerateConstraintClauses(method.TypeParameters),
-					body: null,
-					expressionBody: null,
-					semicolonToken: SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+					GenerateAttributeDeclarations(method),
+					default,
+					GenerateReturnTypeSyntax(method),
+					default,
+					SyntaxFactory.Identifier(method.Name),
+					GenerateTypeParameterList(method.TypeParameters),
+					GenerateParameterList(method.Parameters),
+					GenerateConstraintClauses(method.TypeParameters),
+					null,
+					null,
+					SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 			}
 
 			return namedType.GetMembers()

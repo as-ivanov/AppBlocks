@@ -5,7 +5,6 @@ using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 
 namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 {
-
 	public class MetricsCollectorInterfaceAttributeDataBuilder : IAttributeDataBuilder
 	{
 		public IEnumerable<Func<ITestContext, IEnumerable<AttributeData>>> GetPossibleCombinations(ITestInterfaceGenerationOptions options)
@@ -25,7 +24,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 						var compilationEntryData = new CompilationEntryData(options.UsingNamespaces, namespaceData);
 						context.AddCompilationEntry(compilationEntryData);
 					}
-					return new AttributeData[] { new MetricsCollectorInterfaceAttributeData(contextName, interfacesToInherit) };
+
+					return new AttributeData[] {new MetricsCollectorInterfaceAttributeData(contextName, interfacesToInherit)};
 				};
 			}
 		}

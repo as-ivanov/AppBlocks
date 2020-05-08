@@ -7,10 +7,10 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
 	public class InterfaceMethodData
 	{
-		private readonly Type _returnType;
-		private readonly string _name;
 		private readonly AttributeData[] _attributeDataList;
+		private readonly string _name;
 		private readonly MethodParameterData[] _parameters;
+		private readonly Type _returnType;
 
 		private InterfaceMethodData(Type returnType, string name, AttributeData[] attributeDataList,
 			MethodParameterData[] parameters)
@@ -42,8 +42,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 					{
 						Func<ITestContext, InterfaceMethodData> CreateInterfaceMethodDataVariation(IEnumerable<MethodParameterData> parameters)
 						{
-							return (context) => new InterfaceMethodData(returnType, "Method" + context.NextId(), attributeData(context).ToArray(), parameters.ToArray());
+							return context => new InterfaceMethodData(returnType, "Method" + context.NextId(), attributeData(context).ToArray(), parameters.ToArray());
 						}
+
 						if (parametersCount == 1)
 						{
 							foreach (var parameters in methodParameterPossibleVariations
@@ -70,6 +71,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			{
 				sb.AppendLine(attributeData.ToString());
 			}
+
 			var returnType = ReturnType == typeof(void) ? "void" : ReturnType.FullName;
 			sb.AppendLine($"{returnType} {Name}<TParam1, TParam2>({string.Join(",", Parameters.Select(_ => _.ToString()))}) where TParam1 : class, IComparable<TParam1> where TParam2 : struct, IEquatable<TParam2>;");
 			return sb.ToString();

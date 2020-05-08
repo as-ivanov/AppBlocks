@@ -26,7 +26,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			{
 				var unitName = "Unit" + Guid.NewGuid();
 				return new AttributeData[]
-					{MetricsCollectorMethodAttributeData.CreateWithMeasurementUnitNameOnly(measurementUnitName: unitName)};
+					{MetricsCollectorMethodAttributeData.CreateWithMeasurementUnitNameOnly(unitName)};
 			};
 		}
 	}

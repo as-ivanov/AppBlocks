@@ -10,6 +10,7 @@ using AppBlocks.CodeGeneration.Attributes.Common;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using AppBlocks.Monitoring.Abstractions;
+using AppBlocks.Monitoring.CodeGeneration.Attributes;
 using Microsoft.CodeAnalysis.CSharp;
 using Moq;
 using Xunit.Abstractions;
@@ -41,7 +42,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			var extraTypes = new[]
 			{
 				typeof(GeneratedCodeAttribute),
-				typeof(Attributes.GenerateMetricsCollectorAttribute),
+				typeof(GenerateMetricsCollectorAttribute),
 				typeof(ImplementInterfaceAttribute),
 				typeof(IMetricsProvider)
 			};
@@ -81,12 +82,14 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 				throw new Exception(
 					$"MetricsCollector implementation for '{metricsCollectorTypeData}' not found in emitted assembly");
 			}
+
 			var metricsCollectorInterfaceAttributeData = metricsCollectorTypeData.AttributeDataList
 				.OfType<MetricsCollectorInterfaceAttributeData>().FirstOrDefault();
 			if (metricsCollectorInterfaceAttributeData == null)
 			{
 				throw new Exception($"{typeof(MetricsCollectorInterfaceAttributeData)} not found");
 			}
+
 			var contextName = metricsCollectorInterfaceAttributeData.ContextName;
 			VerifyInterface(metricsCollectorTypeData, metricsCollectorType, assembly, contextName, metricEnabled);
 		}
@@ -99,7 +102,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			if (metricsCollectorInterfaceType == null)
 			{
 				throw new Exception(
-					$"MetricsCollector interface for not found in emitted assembly");
+					"MetricsCollector interface for not found in emitted assembly");
 			}
 
 
@@ -111,8 +114,9 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 				var metricsCollectorMethod = metricsCollectorInterfaceType.GetTypeInfo().GetDeclaredMethod(interfaceMethodData.Name);
 				if (metricsCollectorMethod == null)
 				{
-					throw new Exception($"Metrics collector method not found in emitted assembly");
+					throw new Exception("Metrics collector method not found in emitted assembly");
 				}
+
 				metricsCollectorMethod = metricsCollectorMethod.MakeGenericMethod(typeof(string), typeof(Guid));
 				var parameters = interfaceMethodData.Parameters.Select(p => p.Value).ToArray();
 				_output.WriteLine(

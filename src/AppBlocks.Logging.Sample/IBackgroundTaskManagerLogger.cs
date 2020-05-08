@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.Sample
 {
-	[GenerateLogger(InheritedInterfaceTypes = new []{ "AppBlocks.Logging.Sample.ISingletonDependency", "AppBlocks.Logging.Sample.ILoggerImplementation"} )]
+	[GenerateLogger(InheritedInterfaceTypes = new[] {"AppBlocks.Logging.Sample.ISingletonDependency", "AppBlocks.Logging.Sample.ILoggerImplementation"})]
 	public interface IBackgroundTaskManagerLogger
 	{
 		void ExecutionStarted(string taskName);

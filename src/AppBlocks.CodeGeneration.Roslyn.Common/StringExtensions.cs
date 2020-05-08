@@ -35,6 +35,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				return string.Empty;
 			}
+
 			return input.Substring(0, index);
 		}
 
@@ -45,19 +46,23 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				typeName = typeName.Substring(1);
 			}
+
 			if (!fullName)
 			{
 				return typeName;
 			}
+
 			var namespaces = input.GetNamespacesWithoutTypeName();
 			return string.IsNullOrEmpty(namespaces) ? typeName : namespaces + "." + typeName;
 		}
+
 		public static LiteralExpressionSyntax GetLiteralExpression(this string input)
 		{
 			if (input == null)
 			{
 				return SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
 			}
+
 			var text = "@\"" + input.Replace("\"", "\"\"") + "\"";
 			var syntaxToken = SyntaxFactory.Literal(
 				SyntaxFactory.TriviaList(),
@@ -106,15 +111,19 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			var needsEscaping = SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None;
 
 			// Check if we need to escape this contextual keyword
-			needsEscaping = needsEscaping || (isQueryContext && SyntaxFacts.IsQueryContextualKeyword(SyntaxFacts.GetContextualKeywordKind(identifier)));
+			needsEscaping = needsEscaping || isQueryContext && SyntaxFacts.IsQueryContextualKeyword(SyntaxFacts.GetContextualKeywordKind(identifier));
 
 			return needsEscaping ? "@" + identifier : identifier;
 		}
 
 		public static IdentifierNameSyntax ToIdentifierName(this string identifier)
-			=> SyntaxFactory.IdentifierName(identifier.ToIdentifierToken());
+		{
+			return SyntaxFactory.IdentifierName(identifier.ToIdentifierToken());
+		}
 
 		public static bool IsPointerType(this ISymbol symbol)
-			=> symbol is IPointerTypeSymbol;
+		{
+			return symbol is IPointerTypeSymbol;
+		}
 	}
 }

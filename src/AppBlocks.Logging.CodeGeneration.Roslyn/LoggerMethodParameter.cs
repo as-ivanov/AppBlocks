@@ -5,14 +5,14 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 {
 	public class LoggerMethodParameter
 	{
-		private readonly ParameterSyntax _parameterSyntax;
 		private readonly bool _isException;
 		private readonly IParameterSymbol _parameterSymbol;
+		private readonly ParameterSyntax _parameterSyntax;
 
 		public LoggerMethodParameter(
-		  ParameterSyntax parameterSyntax,
-		  IParameterSymbol parameterSymbol,
-		  bool isException)
+			ParameterSyntax parameterSyntax,
+			IParameterSymbol parameterSymbol,
+			bool isException)
 		{
 			_parameterSyntax = parameterSyntax;
 			_parameterSymbol = parameterSymbol;

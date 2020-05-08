@@ -8,7 +8,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 	{
 		public Func<ITestContext, InterfaceData[]> GetInheritedInterfaces(ITestInterfaceGenerationOptions options, int count)
 		{
-			return (context) =>
+			return context =>
 			{
 				var interfaces = Enumerable.Range(context.NextId(), count).Select(_ => GetInheritedInterfaceData(_, context)).ToArray();
 				foreach (var @interface in interfaces)
@@ -17,6 +17,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 					var compilationEntryData = new CompilationEntryData(options.UsingNamespaces, namespaceData);
 					context.AddCompilationEntry(compilationEntryData);
 				}
+
 				return interfaces;
 			};
 		}

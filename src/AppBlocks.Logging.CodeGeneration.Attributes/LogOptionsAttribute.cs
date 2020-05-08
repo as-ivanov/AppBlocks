@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using AppBlocks.CodeGeneration.Attributes.Common;
-using AppBlocks.Logging.CodeGeneration.Attributes;
+using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.CodeGeneration.Attributes
 {
@@ -9,7 +9,7 @@ namespace AppBlocks.Logging.CodeGeneration.Attributes
 	[Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
 	public class LogOptionsAttribute : Attribute
 	{
-		public Microsoft.Extensions.Logging.LogLevel Level { get; set; }
+		public LogLevel Level { get; set; }
 
 		public string Message { get; set; }
 	}

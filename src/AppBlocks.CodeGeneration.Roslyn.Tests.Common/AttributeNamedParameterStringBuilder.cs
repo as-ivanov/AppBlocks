@@ -5,6 +5,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 	public class AttributeNamedParameterStringBuilder
 	{
 		private readonly StringBuilder _stringBuilder;
+
 		public AttributeNamedParameterStringBuilder()
 		{
 			_stringBuilder = new StringBuilder();
@@ -16,6 +17,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 			{
 				_stringBuilder.Append(", ");
 			}
+
 			_stringBuilder.Append($"{parameterName} = {parameterValue}");
 		}
 

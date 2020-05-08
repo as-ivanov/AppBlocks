@@ -1,11 +1,9 @@
-using AppBlocks.CodeGeneration.Roslyn.Common;
-
 namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
 	public class NamespaceData
 	{
-		private readonly string _name;
 		private readonly IMemberData[] _members;
+		private readonly string _name;
 
 		public NamespaceData(string name, params IMemberData[] members)
 		{

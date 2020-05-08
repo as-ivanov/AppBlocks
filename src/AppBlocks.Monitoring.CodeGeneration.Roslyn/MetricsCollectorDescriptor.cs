@@ -4,31 +4,31 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 {
-  public class MetricsCollectorDescriptor: IInterfaceImplementationDescriptor
-  {
-	  private readonly string _className;
-	  private readonly string[] _inheritedInterfaceTypes;
-	  private readonly TypeDeclarationSyntax _typeDeclarationSyntax;
-    private readonly string _contextName;
-    private readonly ImmutableArray<MetricsCollectorMethod> _methods;
+	public class MetricsCollectorDescriptor : IInterfaceImplementationDescriptor
+	{
+		private readonly string _className;
+		private readonly string _contextName;
+		private readonly string[] _inheritedInterfaceTypes;
+		private readonly ImmutableArray<MetricsCollectorMethod> _methods;
+		private readonly TypeDeclarationSyntax _typeDeclarationSyntax;
 
-    public MetricsCollectorDescriptor(TypeDeclarationSyntax typeDeclarationSyntax, string contextName, string className, string[] inheritedInterfaceTypes, ImmutableArray<MetricsCollectorMethod> methods)
-    {
-      _typeDeclarationSyntax = typeDeclarationSyntax;
-      _contextName = contextName;
-      _className = className;
-      _inheritedInterfaceTypes = inheritedInterfaceTypes;
-      _methods = methods;
-    }
+		public MetricsCollectorDescriptor(TypeDeclarationSyntax typeDeclarationSyntax, string contextName, string className, string[] inheritedInterfaceTypes, ImmutableArray<MetricsCollectorMethod> methods)
+		{
+			_typeDeclarationSyntax = typeDeclarationSyntax;
+			_contextName = contextName;
+			_className = className;
+			_inheritedInterfaceTypes = inheritedInterfaceTypes;
+			_methods = methods;
+		}
 
-    public string ClassName => _className;
+		public string ContextName => _contextName;
 
-    public string[] InheritedInterfaceTypes => _inheritedInterfaceTypes;
+		public ImmutableArray<MetricsCollectorMethod> Methods => _methods;
 
-    public TypeDeclarationSyntax DeclarationSyntax => _typeDeclarationSyntax;
+		public string ClassName => _className;
 
-    public string ContextName => _contextName;
+		public string[] InheritedInterfaceTypes => _inheritedInterfaceTypes;
 
-    public ImmutableArray<MetricsCollectorMethod> Methods => _methods;
-  }
+		public TypeDeclarationSyntax DeclarationSyntax => _typeDeclarationSyntax;
+	}
 }

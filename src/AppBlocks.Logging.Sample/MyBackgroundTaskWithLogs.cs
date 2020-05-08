@@ -9,17 +9,28 @@ namespace AppBlocks.Logging.Sample
 	public class MyBackgroundTaskWithLogs : IHostedService, IDisposable
 	{
 		private readonly IBackgroundTaskManagerLogger _logger;
+		private readonly List<string> _tasks = new List<string> {"task1", "task2", "task3"};
 		private Timer _timer;
-		private readonly List<string> _tasks = new List<string>() { "task1", "task2", "task3" };
 
 		public MyBackgroundTaskWithLogs(IBackgroundTaskManagerLogger logger)
 		{
 			_logger = logger;
 		}
 
+		public void Dispose()
+		{
+			_timer?.Dispose();
+		}
+
 		public Task StartAsync(CancellationToken cancellationToken)
 		{
 			_timer = new Timer(RunAll, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+			return Task.CompletedTask;
+		}
+
+		public Task StopAsync(CancellationToken cancellationToken)
+		{
+			_timer?.Change(Timeout.Infinite, 0);
 			return Task.CompletedTask;
 		}
 
@@ -42,23 +53,13 @@ namespace AppBlocks.Logging.Sample
 			{
 				_logger.ExecutionFailed(name, e);
 			}
+
 			_logger.ExecutionFinished(name);
 		}
 
 		private void DoWork()
 		{
 			//...
-		}
-
-		public Task StopAsync(CancellationToken cancellationToken)
-		{
-			_timer?.Change(Timeout.Infinite, 0);
-			return Task.CompletedTask;
-		}
-
-		public void Dispose()
-		{
-			_timer?.Dispose();
 		}
 	}
 }

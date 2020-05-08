@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Common;
-using CodeGeneration.Roslyn;
 using AppBlocks.Monitoring.Abstractions;
+using CodeGeneration.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Roslynator.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
@@ -183,16 +182,6 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 
 			if (metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters.Any())
 			{
-				static ExpressionSyntax GetToStringExpression(string parameterName)
-				{
-					return InvocationExpression(
-						MemberAccessExpression(
-							SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName(parameterName),
-							IdentifierName(nameof(ToString))));
-				}
-
-
 				IEnumerable<LocalDeclarationStatementSyntax> tagsInitializationStatements;
 				if (metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters.Count == 1)
 				{
@@ -203,7 +192,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				else
 				{
 					var values = metricsCollectorMethodDescriptor.MethodDeclarationSyntax.ParameterList.Parameters
-						.Select(_ => GetToStringExpression(_.Identifier.WithoutTrivia().Text)).ToSeparatedList();
+						.Select(_ => _.Identifier.GetToStringExpression()).ToSeparatedList();
 					tagsInitializationStatements =
 						GetMultipleTagsInitializationStatement(metricsCollectorMethodDescriptor, values);
 				}
@@ -263,6 +252,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			return Block(statements.ToArray());
 		}
 
+
 		private static IEnumerable<LocalDeclarationStatementSyntax> GetSingleTagInitializationStatement(
 			ParameterSyntax parameter)
 		{
@@ -285,12 +275,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 																SyntaxKind.StringLiteralExpression,
 																Literal(parameter.Identifier.WithoutTrivia().Text))),
 														Token(SyntaxKind.CommaToken),
-														Argument(
-															InvocationExpression(
-																MemberAccessExpression(
-																	SyntaxKind.SimpleMemberAccessExpression,
-																	IdentifierName(parameter.Identifier),
-																	IdentifierName(nameof(ToString)))))
+														Argument(parameter.Identifier.GetToStringExpression())
 													}))))))));
 		}
 
@@ -349,7 +334,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 						.WithVariables(
 							SingletonSeparatedList(
 								VariableDeclarator(Identifier(ContextNameFieldName)).WithInitializer(contextNameFieldNameInitializer)
-								)))
+							)))
 				.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ConstKeyword)));
 
 

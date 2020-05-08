@@ -14,7 +14,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				return node;
 			}
 
-			return node.WithPrependedLeadingTrivia((IEnumerable<SyntaxTrivia>)trivia);
+			return node.WithPrependedLeadingTrivia((IEnumerable<SyntaxTrivia>) trivia);
 		}
 
 		public static T WithPrependedLeadingTrivia<T>(
@@ -36,9 +36,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				return node;
 			}
 
-			return node.WithAppendedTrailingTrivia((IEnumerable<SyntaxTrivia>)trivia);
+			return node.WithAppendedTrailingTrivia((IEnumerable<SyntaxTrivia>) trivia);
 		}
-		
+
 		public static T WithAppendedTrailingTrivia<T>(
 			this T node,
 			IEnumerable<SyntaxTrivia> trivia) where T : SyntaxNode

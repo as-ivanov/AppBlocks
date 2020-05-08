@@ -11,12 +11,13 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			{
 				return Enumerable.Empty<IEnumerable<T>>();
 			}
-			int size = elements.Count();
+
+			var size = elements.Count();
 
 			IEnumerable<IEnumerable<T>> Runner(IEnumerable<T> list, int n)
 			{
-				int skip = 1;
-				foreach (var headList in list.Take(size - k + 1).Select(h => new T[] { h }))
+				var skip = 1;
+				foreach (var headList in list.Take(size - k + 1).Select(h => new[] {h}))
 				{
 					if (n == 1)
 					{
@@ -28,6 +29,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 						{
 							yield return headList.Concat(tailList);
 						}
+
 						skip++;
 					}
 				}

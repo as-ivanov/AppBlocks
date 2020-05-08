@@ -9,7 +9,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		public Func<ITestContext, InterfaceData[]> GetInheritedInterfaces(ITestInterfaceGenerationOptions options,
 			int count)
 		{
-			return (context) =>
+			return context =>
 			{
 				var interfaces = Enumerable.Range(context.NextId(), count)
 					.Select(_ => GetInheritedInterfaceData(_, context)).ToArray();

@@ -1,6 +1,6 @@
 using System;
-using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
+using AppBlocks.Monitoring.CodeGeneration.Attributes;
 
 namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 {
@@ -8,11 +8,11 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 	{
 		private readonly string _contextName;
 
-		public MetricsCollectorInterfaceAttributeData(string contextName): this(contextName, Array.Empty<InterfaceData>())
+		public MetricsCollectorInterfaceAttributeData(string contextName) : this(contextName, Array.Empty<InterfaceData>())
 		{
 		}
 
-		public MetricsCollectorInterfaceAttributeData(string contextName, InterfaceData[] inheritedInterfaces) : base(nameof(Attributes.GenerateMetricsCollectorAttribute), inheritedInterfaces)
+		public MetricsCollectorInterfaceAttributeData(string contextName, InterfaceData[] inheritedInterfaces) : base(nameof(GenerateMetricsCollectorAttribute), inheritedInterfaces)
 		{
 			_contextName = contextName;
 		}
@@ -26,7 +26,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			{
 				inheritedInterfacesString = $", {inheritedInterfacesString}";
 			}
-			return $"[{Name}({nameof(Attributes.GenerateMetricsCollectorAttribute.ContextName)} = \"{_contextName}\"{inheritedInterfacesString})]";
+
+			return $"[{Name}({nameof(GenerateMetricsCollectorAttribute.ContextName)} = \"{_contextName}\"{inheritedInterfacesString})]";
 		}
 	}
 }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using AppBlocks.CodeGeneration.Attributes.Common;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
+using AppBlocks.Logging.CodeGeneration.Attributes;
 using Humanizer;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
@@ -41,7 +42,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			var extraTypes = new[]
 			{
 				typeof(GeneratedCodeAttribute),
-				typeof(Attributes.GenerateLoggerAttribute),
+				typeof(GenerateLoggerAttribute),
 				typeof(ImplementInterfaceAttribute),
 				typeof(ILogger)
 			};
@@ -77,11 +78,13 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			var loggerType = assembly.GetType(sutMember.Namespace + "." + sutMember.Name.TrimStart('I'), true);
 			if (loggerType == null)
 			{
-				throw new Exception($"Logger type not found in emitted assembly");
+				throw new Exception("Logger type not found in emitted assembly");
 			}
+
 			var methodIndex = 0;
 			VerifyInterface(sutMember, loggerType, assembly, logEnabled, ref methodIndex);
 		}
+
 		private void VerifyInterface(InterfaceData interfaceData, Type loggerType, Assembly assembly, bool logEnabled, ref int methodIndex)
 		{
 			_output.WriteLine($"VerifyInterface:'{interfaceData}'");
@@ -90,7 +93,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			if (loggerInterfaceType == null)
 			{
 				throw new Exception(
-					$"Logger interface for not found in emitted assembly");
+					"Logger interface for not found in emitted assembly");
 			}
 
 			for (var index = 0; index < interfaceData.Methods.Length; index++)
@@ -100,11 +103,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				var loggerInterfaceMethodAttributeData = interfaceMethod.AttributeDataList
 					.OfType<LoggerInterfaceMethodAttributeData>().FirstOrDefault();
 				string message;
-				Microsoft.Extensions.Logging.LogLevel logLevel;
+				LogLevel logLevel;
 				if (loggerInterfaceMethodAttributeData == null)
 				{
 					message = methodName.Humanize();
-					logLevel = Microsoft.Extensions.Logging.LogLevel.Information;
+					logLevel = LogLevel.Information;
 				}
 				else
 				{
@@ -125,7 +128,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				var loggerMethod = loggerInterfaceType.GetTypeInfo().GetDeclaredMethod(methodName);
 				if (loggerMethod == null)
 				{
-					throw new Exception($"Logger method not found in emitted assembly");
+					throw new Exception("Logger method not found in emitted assembly");
 				}
 
 				loggerMethod = loggerMethod.MakeGenericMethod(typeof(string), typeof(Guid));

@@ -8,8 +8,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
-using Roslynator.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn
 {
@@ -18,7 +18,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		private const string LoggerFieldName = "_logger";
 
 		private static readonly TypeSyntax _loggerMessageGlobalTypeSyntax = typeof(LoggerMessage).GetGlobalTypeSyntax();
-		private static readonly TypeSyntax _logLevelGlobalTypeSyntax = typeof(Microsoft.Extensions.Logging.LogLevel).GetGlobalTypeSyntax();
+		private static readonly TypeSyntax _logLevelGlobalTypeSyntax = typeof(LogLevel).GetGlobalTypeSyntax();
 		private static readonly TypeSyntax _eventIdGlobalTypeSyntax = typeof(EventId).GetGlobalTypeSyntax();
 		private static readonly TypeSyntax _loggerGlobalTypeSyntax = typeof(ILogger).GetGlobalTypeSyntax();
 		private static readonly TypeSyntax _exceptionGlobalTypeSyntax = typeof(Exception).GetGlobalTypeSyntax();
@@ -60,7 +60,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				var method = loggerDescriptor.Methods[index];
 				var defineMethodParameterTypes = GetLoggingDelegateParameterTypes(method, true);
 
-				string message = method.Message;
+				var message = method.Message;
 				if (method.Parameters.Length > 0)
 				{
 					var sb = new StringBuilder();
@@ -75,9 +75,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 							{
 								sb.Append(" ");
 							}
+
 							sb.Append($"{pascalCaseParameter}: '{{{pascalCaseParameter}}}'");
 						}
 					}
+
 					if (sb.Length > 0)
 					{
 						message = $"{message} ({sb})";
@@ -98,8 +100,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				var declaration = FieldDeclaration(
 						VariableDeclaration(
 								AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)),
-								GenericName(Identifier(typeof(Action).FullName))
-									.WithTypeArgumentList(GetLoggingDelegateParameterTypes(method, false))))
+									GenericName(Identifier(typeof(Action).FullName))
+										.WithTypeArgumentList(GetLoggingDelegateParameterTypes(method, false))))
 							.WithVariables(
 								SingletonSeparatedList(
 									VariableDeclarator(
@@ -210,32 +212,34 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 								.WithType(_loggerFactoryGlobalTypeSyntax))));
 
 
-				var createLoggerInvocation = InvocationExpression(
-						MemberAccessExpression(
-							SyntaxKind.SimpleMemberAccessExpression,
-							_loggerFactoryExtensionsGlobalTypeSyntax,
-							IdentifierName(nameof(ILoggerFactory.CreateLogger))))
-					.WithArgumentList(
-						ArgumentList(
-							SeparatedList<ArgumentSyntax>(
-								new SyntaxNodeOrToken[]{
-									Argument(
-										IdentifierName(loggerFactoryVariableName)),
-									Token(SyntaxKind.CommaToken),
-									Argument(
-										InvocationExpression(
-											IdentifierName(nameof(GetType))))})));
+			var createLoggerInvocation = InvocationExpression(
+					MemberAccessExpression(
+						SyntaxKind.SimpleMemberAccessExpression,
+						_loggerFactoryExtensionsGlobalTypeSyntax,
+						IdentifierName(nameof(ILoggerFactory.CreateLogger))))
+				.WithArgumentList(
+					ArgumentList(
+						SeparatedList<ArgumentSyntax>(
+							new SyntaxNodeOrToken[]
+							{
+								Argument(
+									IdentifierName(loggerFactoryVariableName)),
+								Token(SyntaxKind.CommaToken),
+								Argument(
+									InvocationExpression(
+										IdentifierName(nameof(GetType))))
+							})));
 
-				constructorDeclaration = constructorDeclaration
-					.WithBody(
-						Block(
-							SingletonList<StatementSyntax>(
-								ExpressionStatement(
-									AssignmentExpression(
-										SyntaxKind.SimpleAssignmentExpression,
-										IdentifierName(LoggerFieldName),
-										createLoggerInvocation
-									)))));
+			constructorDeclaration = constructorDeclaration
+				.WithBody(
+					Block(
+						SingletonList<StatementSyntax>(
+							ExpressionStatement(
+								AssignmentExpression(
+									SyntaxKind.SimpleAssignmentExpression,
+									IdentifierName(LoggerFieldName),
+									createLoggerInvocation
+								)))));
 
 			yield return constructorDeclaration;
 		}
@@ -292,7 +296,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 		private static ArgumentListSyntax GetLoggingDelegateCallArgumentList(LoggerMethod loggerMethod)
 		{
-			var arguments = new List<SyntaxNodeOrToken> { Argument(IdentifierName(LoggerFieldName)) };
+			var arguments = new List<SyntaxNodeOrToken> {Argument(IdentifierName(LoggerFieldName))};
 			foreach (var parameter in loggerMethod.Parameters)
 			{
 				if (arguments.Any())

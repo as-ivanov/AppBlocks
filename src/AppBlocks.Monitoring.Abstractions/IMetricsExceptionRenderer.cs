@@ -4,7 +4,7 @@ namespace AppBlocks.Monitoring.Abstractions
 {
 	public interface IMetricsExceptionRenderer
 	{
-		Type ExceptionType { get;}
+		Type ExceptionType { get; }
 		string Render(Exception error);
 	}
 }

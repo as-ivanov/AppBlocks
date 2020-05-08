@@ -13,10 +13,10 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			SyntaxToken? target = null)
 		{
 			var attributeDeclarations = attributes.OrderBy(a => a.AttributeClass.Name)
-				.Select(a => GenerateAttributeDeclaration(a, target)).Where(_=>_ != null).ToList();
+				.Select(a => GenerateAttributeDeclaration(a, target)).Where(_ => _ != null).ToList();
 			return attributeDeclarations.Count == 0
 				? default
-				: SyntaxFactory.List<AttributeListSyntax>(attributeDeclarations);
+				: SyntaxFactory.List(attributeDeclarations);
 		}
 
 		private static AttributeListSyntax GenerateAttributeDeclaration(

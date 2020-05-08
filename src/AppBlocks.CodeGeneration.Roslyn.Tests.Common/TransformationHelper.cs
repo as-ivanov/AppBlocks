@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
 using AppBlocks.CodeGeneration.Roslyn.Common;
@@ -18,7 +19,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 {
 	public static class TransformationHelper
 	{
-		public static async Task<Assembly> ProcessTransformationAndCompile(this SyntaxTree[] syntaxTrees, IEnumerable<Type> extraTypes,  ITestOutputHelper output, CancellationToken cancellationToken)
+		public static async Task<Assembly> ProcessTransformationAndCompile(this SyntaxTree[] syntaxTrees, IEnumerable<Type> extraTypes, ITestOutputHelper output, CancellationToken cancellationToken)
 		{
 			var references = GetAssemblyReferences(extraTypes);
 			var compilation = CreateCompilation(syntaxTrees, references);
@@ -26,7 +27,6 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 
 			foreach (var syntaxTree in compilation.SyntaxTrees)
 			{
-
 				var nodes = (await syntaxTree.GetRootAsync(cancellationToken))
 					.DescendantNodesAndSelf().OfType<CSharpSyntaxNode>();
 
@@ -48,7 +48,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 						var compilationUnit =
 							SyntaxFactory.CompilationUnit(
 									default, usings, default,
-									SyntaxFactory.List<MemberDeclarationSyntax>(emitted.Members))
+									SyntaxFactory.List(emitted.Members))
 								.NormalizeWhitespace();
 
 						output.WriteLine($"Generated compilation unit:{Environment.NewLine}{compilationUnit}");
@@ -86,14 +86,15 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 					IRichCodeGenerator generator;
 					try
 					{
-						generator = (IRichCodeGenerator)Activator.CreateInstance(generatorType, attributeData);
+						generator = (IRichCodeGenerator) Activator.CreateInstance(generatorType, attributeData);
 					}
 					catch (MissingMethodException)
 					{
 						throw new InvalidOperationException(
 							$"Failed to instantiate {generatorType}. ICodeGenerator implementations must have" +
-							$" a constructor accepting Microsoft.CodeAnalysis.AttributeData argument.");
+							" a constructor accepting Microsoft.CodeAnalysis.AttributeData argument.");
 					}
+
 					yield return generator;
 				}
 			}
@@ -119,8 +120,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 				if (firstArg.Value is string typeName)
 				{
 					// This string is the full name of the type, which MAY be assembly-qualified.
-					int commaIndex = typeName.IndexOf(',');
-					bool isAssemblyQualified = commaIndex >= 0;
+					var commaIndex = typeName.IndexOf(',');
+					var isAssemblyQualified = commaIndex >= 0;
 					if (isAssemblyQualified)
 					{
 						fullTypeName = typeName.Substring(0, commaIndex);
@@ -245,7 +246,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 			var result = compilation.Emit(ms);
 			ThrowExceptionIfCompilationFailure(result);
 			ms.Seek(0, SeekOrigin.Begin);
-			return System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromStream(ms);
+			return AssemblyLoadContext.Default.LoadFromStream(ms);
 		}
 	}
 }

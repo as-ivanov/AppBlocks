@@ -16,6 +16,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 					return false;
 			}
 		}
+
 		public static bool IsSignedNumericType(this object o)
 		{
 			switch (Type.GetTypeCode(o.GetType()))

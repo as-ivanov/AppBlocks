@@ -11,6 +11,7 @@ namespace AppBlocks.Monitoring.AppMetrics
 			{
 				return new MetricTags(tags.Key, tags.Value);
 			}
+
 			return new MetricTags(tags.Keys, tags.Values);
 		}
 	}

@@ -1,25 +1,23 @@
 using System;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
+using AppBlocks.Logging.CodeGeneration.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 {
 	public class LoggerInterfaceGeneratorOptions : ITestInterfaceGenerationOptions
 	{
-		private readonly string[] _usingNamespaces =
-		{
-			typeof(Action).Namespace,
-			typeof(Attributes.GenerateLoggerAttribute).Namespace,
-			typeof(ILogger).Namespace
-		};
+		private const string _interfaceNamespace = "TestNamespace";
+
+		private readonly IInheritanceListBuilder _inheritanceListBuilder = new LoggerInterfaceInheritanceListBuilder();
+		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 3).ToArray();
 
 		private readonly IAttributeDataBuilder _interfaceAttributeDataBuilder = new LoggerInterfaceAttributeDataBuilder();
-		private readonly IAttributeDataBuilder _methodAttributeDataBuilder = new LoggerInterfaceMethodAttributeDataBuilder();
-		private readonly Type[] _interfaceMethodReturnTypes = new Type[] { typeof(void) };
 		private readonly int[] _interfaceCounts = Enumerable.Range(1, 2).ToArray();
-		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 3).ToArray();
+		private readonly Type[] _interfaceMethodReturnTypes = {typeof(void)};
 		private readonly int[] _interfaceMethodsCounts = Enumerable.Range(0, 3).ToArray();
+		private readonly IAttributeDataBuilder _methodAttributeDataBuilder = new LoggerInterfaceMethodAttributeDataBuilder();
 		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
 
 
@@ -37,10 +35,14 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			typeof(Exception)
 		};
 
-		private const string _interfaceNamespace = "TestNamespace";
-
-		private readonly IInheritanceListBuilder _inheritanceListBuilder = new LoggerInterfaceInheritanceListBuilder();
 		private readonly IParameterValuesBuilder _parameterValuesBuilder = new LoggerInterfaceParameterValuesBuilder();
+
+		private readonly string[] _usingNamespaces =
+		{
+			typeof(Action).Namespace,
+			typeof(GenerateLoggerAttribute).Namespace,
+			typeof(ILogger).Namespace
+		};
 
 		public string[] UsingNamespaces => _usingNamespaces;
 

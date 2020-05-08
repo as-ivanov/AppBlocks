@@ -12,4 +12,3 @@ namespace AppBlocks.Monitoring.CodeGeneration.Attributes
 		public string ContextName { get; set; }
 	}
 }
-

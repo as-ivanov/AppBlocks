@@ -10,8 +10,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		{
 			return SyntaxFactory.MemberAccessExpression(
 				SyntaxKind.SimpleMemberAccessExpression,
-				ParenthesizeLeft((ExpressionSyntax)expression),
-				(SimpleNameSyntax)memberName);
+				ParenthesizeLeft((ExpressionSyntax) expression),
+				(SimpleNameSyntax) memberName);
 		}
 
 		internal static ExpressionSyntax ParenthesizeLeft(ExpressionSyntax expression)
@@ -27,12 +27,13 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				return expression;
 			}
+
 			return Parenthesize(expression);
 		}
 
 		private static ExpressionSyntax Parenthesize(SyntaxNode expression)
 		{
-			return ((ExpressionSyntax)expression).Parenthesize();
+			return ((ExpressionSyntax) expression).Parenthesize();
 		}
 
 		public static SyntaxNode DefaultExpression(ITypeSymbol type)
@@ -71,9 +72,13 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		}
 
 		public static SyntaxNode BitwiseOrExpression(SyntaxNode left, SyntaxNode right)
-			=> CreateBinaryExpression(SyntaxKind.BitwiseOrExpression, left, right);
+		{
+			return CreateBinaryExpression(SyntaxKind.BitwiseOrExpression, left, right);
+		}
 
 		private static SyntaxNode CreateBinaryExpression(SyntaxKind syntaxKind, SyntaxNode left, SyntaxNode right)
-			=> SyntaxFactory.BinaryExpression(syntaxKind, Parenthesize(left), Parenthesize(right));
+		{
+			return SyntaxFactory.BinaryExpression(syntaxKind, Parenthesize(left), Parenthesize(right));
+		}
 	}
 }

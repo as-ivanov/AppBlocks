@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
-	internal static partial class ExpressionSyntaxExtensions
+	internal static class ExpressionSyntaxExtensions
 	{
 		public static ExpressionSyntax Parenthesize(
 			this ExpressionSyntax expression, bool includeElasticTrivia = true)
@@ -25,7 +25,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 			return ParenthesizeWorker(expression, includeElasticTrivia);
 		}
-		
+
 		private static ExpressionSyntax ParenthesizeWorker(
 			this ExpressionSyntax expression, bool includeElasticTrivia)
 		{

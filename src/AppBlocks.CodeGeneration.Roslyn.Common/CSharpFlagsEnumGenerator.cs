@@ -16,12 +16,10 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				return CreateFlagsEnumConstantValue(enumType, constantValue);
 			}
-			else
-			{
-				// Try to see if its one of the enum values.  If so, add that.  Otherwise, just add
-				// the literal value of the enum.
-				return CreateNonFlagsEnumConstantValue(enumType, constantValue);
-			}
+
+			// Try to see if its one of the enum values.  If so, add that.  Otherwise, just add
+			// the literal value of the enum.
+			return CreateNonFlagsEnumConstantValue(enumType, constantValue);
 		}
 
 		private static SyntaxNode CreateNonFlagsEnumConstantValue(INamedTypeSymbol enumType, object constantValue)
@@ -60,10 +58,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 					enumType.GenerateTypeSyntax(),
 					SyntaxFactory.IdentifierName(field.Name));
 			}
-			else
-			{
-				return CreateExplicitlyCastedLiteralValue(enumType, underlyingSpecialType, field.ConstantValue);
-			}
+
+			return CreateExplicitlyCastedLiteralValue(enumType, underlyingSpecialType, field.ConstantValue);
 		}
 
 		private static SyntaxNode CreateExplicitlyCastedLiteralValue(
@@ -72,7 +68,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			object constantValue)
 		{
 			var expression = ExpressionGenerator.GenerateNonEnumValueExpression(
-				enumType.EnumUnderlyingType, constantValue, canUseFieldReference: true);
+				enumType.EnumUnderlyingType, constantValue, true);
 
 			var constantValueULong = EnumUtilities.ConvertEnumUnderlyingTypeToUInt64(constantValue, underlyingSpecialType);
 			if (constantValueULong == 0)
@@ -165,22 +161,17 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 				return finalNode;
 			}
-			else
-			{
-				// We couldn't find fields to OR together to make the value.
+			// We couldn't find fields to OR together to make the value.
 
-				// If we had 0 as the value, and there's an enum value equal to 0, then use that.
-				var zeroField = GetZeroField(allFieldsAndValues);
-				if (constantValueULong == 0 && zeroField != null)
-				{
-					return CreateMemberAccessExpression(zeroField, enumType, underlyingSpecialType);
-				}
-				else
-				{
-					// Add anything else in as a literal value.
-					return CreateExplicitlyCastedLiteralValue(enumType, underlyingSpecialType, constantValue);
-				}
+			// If we had 0 as the value, and there's an enum value equal to 0, then use that.
+			var zeroField = GetZeroField(allFieldsAndValues);
+			if (constantValueULong == 0 && zeroField != null)
+			{
+				return CreateMemberAccessExpression(zeroField, enumType, underlyingSpecialType);
 			}
+
+			// Add anything else in as a literal value.
+			return CreateExplicitlyCastedLiteralValue(enumType, underlyingSpecialType, constantValue);
 		}
 
 		private static IFieldSymbol GetZeroField(List<(IFieldSymbol field, ulong value)> allFieldsAndValues)

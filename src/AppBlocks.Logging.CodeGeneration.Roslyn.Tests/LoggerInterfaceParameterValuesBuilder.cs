@@ -27,7 +27,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			}
 			else if (type.IsAssignableFrom(typeof(float)))
 			{
-				yield return (float)Guid.NewGuid().GetHashCode() / Guid.NewGuid().GetHashCode();
+				yield return (float) Guid.NewGuid().GetHashCode() / Guid.NewGuid().GetHashCode();
 			}
 			else if (type.IsAssignableFrom(typeof(uint)))
 			{

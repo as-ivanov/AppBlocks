@@ -9,17 +9,28 @@ namespace AppBlocks.Monitoring.Sample
 	public class MyBackgroundTaskManagerWithMetrics : IHostedService, IDisposable
 	{
 		private readonly IBackgroundTaskMetricsCollector _metricsCollector;
+		private readonly List<string> _tasks = new List<string> {"task1", "task2", "task3"};
 		private Timer _timer;
-		private readonly List<string> _tasks = new List<string>() { "task1", "task2", "task3"};
 
 		public MyBackgroundTaskManagerWithMetrics(IBackgroundTaskMetricsCollector metricsCollector)
 		{
 			_metricsCollector = metricsCollector;
 		}
 
+		public void Dispose()
+		{
+			_timer?.Dispose();
+		}
+
 		public Task StartAsync(CancellationToken stoppingToken)
 		{
 			_timer = new Timer(RunAll, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+			return Task.CompletedTask;
+		}
+
+		public Task StopAsync(CancellationToken stoppingToken)
+		{
+			_timer?.Change(Timeout.Infinite, 0);
 			return Task.CompletedTask;
 		}
 
@@ -56,17 +67,6 @@ namespace AppBlocks.Monitoring.Sample
 		private void DoWork(string name)
 		{
 			//...
-		}
-
-		public Task StopAsync(CancellationToken stoppingToken)
-		{
-			_timer?.Change(Timeout.Infinite, 0);
-			return Task.CompletedTask;
-		}
-
-		public void Dispose()
-		{
-			_timer?.Dispose();
 		}
 	}
 }

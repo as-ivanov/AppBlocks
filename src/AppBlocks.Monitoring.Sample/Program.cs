@@ -21,7 +21,7 @@ namespace AppBlocks.Monitoring.Sample
 					services.AddSingleton<IMetricsProvider, AppMetricsMetricsProvider>();
 
 					var metrics = new MetricsBuilder()
-						.Configuration.Configure((options) =>
+						.Configuration.Configure(options =>
 						{
 							options.Enabled = true;
 							options.ReportingEnabled = true;
@@ -35,8 +35,8 @@ namespace AppBlocks.Monitoring.Sample
 							})
 						.Build();
 
-					services.AddSingleton<IMetrics>((_) => metrics);
-					services.AddSingleton((_) => metrics);
+					services.AddSingleton<IMetrics>(_ => metrics);
+					services.AddSingleton(_ => metrics);
 				})
 				.Build();
 			await host.StartAsync();

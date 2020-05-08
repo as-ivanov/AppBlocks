@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
+using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 {
@@ -14,12 +15,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			{
 				var message = Guid.NewGuid().ToString();
 				return new AttributeData[]
-					{LoggerInterfaceMethodAttributeData.Create(Microsoft.Extensions.Logging.LogLevel.Warning, message)};
+					{LoggerInterfaceMethodAttributeData.Create(LogLevel.Warning, message)};
 			};
 			yield return c =>
 			{
 				return new AttributeData[]
-					{LoggerInterfaceMethodAttributeData.Create(Microsoft.Extensions.Logging.LogLevel.Warning)};
+					{LoggerInterfaceMethodAttributeData.Create(LogLevel.Warning)};
 			};
 			yield return c =>
 			{

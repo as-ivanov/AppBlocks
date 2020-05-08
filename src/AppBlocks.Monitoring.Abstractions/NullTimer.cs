@@ -10,6 +10,10 @@ namespace AppBlocks.Monitoring.Abstractions
 		{
 		}
 
+		public void Dispose()
+		{
+		}
+
 		public void Record(double milliseconds)
 		{
 		}
@@ -17,10 +21,6 @@ namespace AppBlocks.Monitoring.Abstractions
 		public IDisposable Time()
 		{
 			return this;
-		}
-
-		public void Dispose()
-		{
 		}
 	}
 }

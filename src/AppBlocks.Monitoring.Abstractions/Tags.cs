@@ -137,7 +137,7 @@ namespace AppBlocks.Monitoring.Abstractions
 			}
 
 			var sb = new StringBuilder();
-			for (int i = 0; i < _keys.Length; i++)
+			for (var i = 0; i < _keys.Length; i++)
 			{
 				sb.Append($"{_keys[i]}:{_values[i]}");
 			}

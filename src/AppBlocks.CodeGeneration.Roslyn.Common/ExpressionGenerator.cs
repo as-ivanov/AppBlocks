@@ -12,7 +12,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 	internal static class ExpressionGenerator
 	{
 		private static bool IsSpecialType(ITypeSymbol type, SpecialType specialType)
-			=> type != null && type.SpecialType == specialType;
+		{
+			return type != null && type.SpecialType == specialType;
+		}
 
 		internal static ExpressionSyntax GenerateExpression(
 			TypedConstant typedConstant)
@@ -21,7 +23,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				case TypedConstantKind.Primitive:
 				case TypedConstantKind.Enum:
-					return GenerateExpression(typedConstant.Type, typedConstant.Value, canUseFieldReference: true);
+					return GenerateExpression(typedConstant.Type, typedConstant.Value, true);
 
 				case TypedConstantKind.Type:
 					return typedConstant.Value is ITypeSymbol
@@ -41,7 +43,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		}
 
 		private static ExpressionSyntax GenerateNullLiteral()
-			=> SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+		{
+			return SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+		}
 
 		internal static ExpressionSyntax GenerateExpression(
 			ITypeSymbol type,
@@ -55,7 +59,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 					var enumType = (INamedTypeSymbol) type;
 					return (ExpressionSyntax) CSharpFlagsEnumGenerator.CreateEnumConstantValue(enumType, value);
 				}
-				else if (type.IsNullable())
+
+				if (type.IsNullable())
 				{
 					// If the type of the argument is T?, then the type of the supplied default value can either be T
 					// (e.g. int? x = 5) or it can be T? (e.g. SomeStruct? x = null). The below statement handles the case
@@ -69,7 +74,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 		internal static ExpressionSyntax GenerateNonEnumValueExpression(ITypeSymbol type, object value,
 			bool canUseFieldReference)
-			=> value switch
+		{
+			return value switch
 			{
 				bool val => GenerateBooleanLiteralExpression(val),
 				string val => GenerateStringLiteralExpression(val),
@@ -98,6 +104,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 					? GenerateNullLiteral()
 					: (ExpressionSyntax) CSharpSyntaxGenerator.DefaultExpression(type),
 			};
+		}
 
 		private static ExpressionSyntax GenerateBooleanLiteralExpression(bool val)
 		{
@@ -108,14 +115,14 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 		private static ExpressionSyntax GenerateStringLiteralExpression(string val)
 		{
-			var valueString = SymbolDisplay.FormatLiteral(val, quote: true);
+			var valueString = SymbolDisplay.FormatLiteral(val, true);
 			return SyntaxFactory.LiteralExpression(
 				SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(valueString, val));
 		}
 
 		private static ExpressionSyntax GenerateCharLiteralExpression(char val)
 		{
-			var literal = SymbolDisplay.FormatLiteral(val, quote: true);
+			var literal = SymbolDisplay.FormatLiteral(val, true);
 			return SyntaxFactory.LiteralExpression(
 				SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal(literal, val));
 		}
@@ -185,13 +192,15 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 						GenerateDoubleLiteralExpression(null, 0.0, false),
 						GenerateDoubleLiteralExpression(null, 0.0, false));
 				}
-				else if (double.IsPositiveInfinity(value))
+
+				if (double.IsPositiveInfinity(value))
 				{
 					return SyntaxFactory.BinaryExpression(SyntaxKind.DivideExpression,
 						GenerateDoubleLiteralExpression(null, 1.0, false),
 						GenerateDoubleLiteralExpression(null, 0.0, false));
 				}
-				else if (double.IsNegativeInfinity(value))
+
+				if (double.IsNegativeInfinity(value))
 				{
 					return SyntaxFactory.BinaryExpression(SyntaxKind.DivideExpression,
 						SyntaxFactory.PrefixUnaryExpression(SyntaxKind.UnaryMinusExpression,
@@ -216,13 +225,15 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 						GenerateSingleLiteralExpression(null, 0.0F, false),
 						GenerateSingleLiteralExpression(null, 0.0F, false));
 				}
-				else if (float.IsPositiveInfinity(value))
+
+				if (float.IsPositiveInfinity(value))
 				{
 					return SyntaxFactory.BinaryExpression(SyntaxKind.DivideExpression,
 						GenerateSingleLiteralExpression(null, 1.0F, false),
 						GenerateSingleLiteralExpression(null, 0.0F, false));
 				}
-				else if (float.IsNegativeInfinity(value))
+
+				if (float.IsNegativeInfinity(value))
 				{
 					return SyntaxFactory.BinaryExpression(SyntaxKind.DivideExpression,
 						SyntaxFactory.PrefixUnaryExpression(SyntaxKind.UnaryMinusExpression,
@@ -244,7 +255,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		{
 			return GenerateLiteralExpression(
 				type, value, constants, formatString, canUseFieldReference,
-				tokenFactory, isNegative: x => false, negate: t => throw new InvalidOperationException(), null);
+				tokenFactory, x => false, t => throw new InvalidOperationException(), null);
 		}
 
 		private static ExpressionSyntax GenerateLiteralExpression<T>(

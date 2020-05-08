@@ -7,6 +7,6 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="App.Metrics.Reporting.Console" Version="4.0.0-preview1.0.7" />
-		<PackageReference Include="AppBlocks.Monitoring.AppMetrics" Version="$(PackageVersion)"/>
+		<PackageReference Include="AppBlocks.Monitoring.AppMetrics" Version="$(PackageVersion)" />
 	</ItemGroup>
 </Project>

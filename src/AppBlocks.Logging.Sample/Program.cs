@@ -14,7 +14,6 @@ namespace AppBlocks.Logging.Sample
 				{
 					services.AddHostedService<MyBackgroundTaskWithLogs>();
 					services.AddSingleton<IBackgroundTaskManagerLogger, BackgroundTaskManagerLogger>();
-
 				})
 				.ConfigureLogging(logging => { logging.AddConsole(); })
 				.Build();

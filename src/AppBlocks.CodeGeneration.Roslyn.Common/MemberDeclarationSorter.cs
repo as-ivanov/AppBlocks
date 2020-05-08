@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -9,7 +6,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
 	public class MemberDeclarationSorter : IComparer<MemberDeclarationSyntax>
 	{
-		private readonly MemberDeclarationByModifierSorter[] _sorters = {
+		private readonly MemberDeclarationByModifierSorter[] _sorters =
+		{
 			new MemberDeclarationByModifierSorter(SyntaxKind.ConstKeyword),
 			new MemberDeclarationByModifierSorter(SyntaxKind.StaticKeyword),
 			new MemberDeclarationByModifierSorter(SyntaxKind.ReadOnlyKeyword),
@@ -25,6 +23,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 					return result;
 				}
 			}
+
 			return 0;
 		}
 	}

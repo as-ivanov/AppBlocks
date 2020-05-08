@@ -1,21 +1,21 @@
 using System.Collections.Immutable;
-using AppBlocks.CodeGeneration.Roslyn.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn
 {
 	public class LoggerMethod
 	{
-		private readonly Microsoft.Extensions.Logging.LogLevel _logLevel;
-		private readonly string _message;
-		private readonly string _delegateFieldName;
-		private readonly MethodDeclarationSyntax _methodDeclarationSyntax;
 		private readonly INamedTypeSymbol _declaredInterfaceSymbol;
+		private readonly string _delegateFieldName;
+		private readonly LogLevel _logLevel;
+		private readonly string _message;
+		private readonly MethodDeclarationSyntax _methodDeclarationSyntax;
 		private readonly ImmutableArray<LoggerMethodParameter> _parameters;
 
 		public LoggerMethod(MethodDeclarationSyntax methodDeclarationSyntax, INamedTypeSymbol declaredInterfaceSymbol,
-			Microsoft.Extensions.Logging.LogLevel logLevel, string message, string delegateFieldName, ImmutableArray<LoggerMethodParameter> parameters)
+			LogLevel logLevel, string message, string delegateFieldName, ImmutableArray<LoggerMethodParameter> parameters)
 		{
 			_logLevel = logLevel;
 			_message = message;
@@ -27,7 +27,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 		public MethodDeclarationSyntax MethodDeclarationSyntax => _methodDeclarationSyntax;
 		public ImmutableArray<LoggerMethodParameter> Parameters => _parameters;
-		public Microsoft.Extensions.Logging.LogLevel Level => _logLevel;
+		public LogLevel Level => _logLevel;
 		public string Message => _message;
 		public string DelegateFieldName => _delegateFieldName;
 		public INamedTypeSymbol DeclaredInterfaceSymbol => _declaredInterfaceSymbol;

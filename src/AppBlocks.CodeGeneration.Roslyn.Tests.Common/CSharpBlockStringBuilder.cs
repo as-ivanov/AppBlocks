@@ -6,8 +6,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 {
 	internal class CSharpBlockStringBuilder
 	{
-		private readonly StringBuilder _stringBuilder;
 		private static readonly Regex _newLineRegex = new Regex(@"^", RegexOptions.Compiled | RegexOptions.Multiline);
+		private readonly StringBuilder _stringBuilder;
 		private int _currentLevel;
 
 		public CSharpBlockStringBuilder()
@@ -47,6 +47,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 			Append(text);
 			AppendLine();
 		}
+
 		public void AppendLine()
 		{
 			_stringBuilder.AppendLine();

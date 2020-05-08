@@ -17,7 +17,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		public int Compare(MemberDeclarationSyntax x, MemberDeclarationSyntax y)
 		{
 			static bool ContainsToken(MemberDeclarationSyntax list, SyntaxKind kind)
-				=> list.Modifiers.Any(modifier => modifier.Kind() == kind);
+			{
+				return list.Modifiers.Any(modifier => modifier.Kind() == kind);
+			}
 
 			var xHasModifier = ContainsToken(x, _modifierSyntax);
 			var yHasModifier = ContainsToken(y, _modifierSyntax);
@@ -25,6 +27,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				return 0;
 			}
+
 			return xHasModifier ? -1 : 1;
 		}
 	}

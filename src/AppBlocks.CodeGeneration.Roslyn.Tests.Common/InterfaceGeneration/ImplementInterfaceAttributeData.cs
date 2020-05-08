@@ -1,8 +1,9 @@
 using System.Linq;
+using AppBlocks.CodeGeneration.Attributes.Common;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
-	public abstract class ImplementInterfaceAttributeData: AttributeData
+	public abstract class ImplementInterfaceAttributeData : AttributeData
 	{
 		private readonly InterfaceData[] _inheritedInterfaces;
 
@@ -19,8 +20,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			{
 				return null;
 			}
+
 			var inheritedInterfacesString = string.Join(",", InheritedInterfaces.Select(_ => $"\"{_.Namespace}.{_.Name}\""));
-			return $"{nameof(Attributes.Common.ImplementInterfaceAttribute.InheritedInterfaceTypes)} = new[] {{ {inheritedInterfacesString} }}";
+			return $"{nameof(ImplementInterfaceAttribute.InheritedInterfaceTypes)} = new[] {{ {inheritedInterfacesString} }}";
 		}
 	}
 }

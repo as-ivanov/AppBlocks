@@ -89,6 +89,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				AppendName(result, type);
 				result.Append(CSharpConst.NestedClassDelimiter);
 			}
+
 			AppendName(result, source);
 
 			return result.ToString();
@@ -109,7 +110,17 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				var typeClassOrStructConstraintsClauses = typeConstraintClauses.WithConstraints(classOrStructConstraints.ToSeparatedList<TypeParameterConstraintSyntax>());
 				methodConstraintClauses.Add(typeClassOrStructConstraintsClauses);
 			}
+
 			return methodConstraintClauses.ToSyntaxList();
+		}
+
+		public static ExpressionSyntax GetToStringExpression(this SyntaxToken identifier)
+		{
+			return SyntaxFactory.InvocationExpression(
+				SyntaxFactory.MemberAccessExpression(
+					SyntaxKind.SimpleMemberAccessExpression,
+					SyntaxFactory.IdentifierName(identifier.WithoutTrivia().ToFullString()),
+					SyntaxFactory.IdentifierName(nameof(ToString))));
 		}
 	}
 }

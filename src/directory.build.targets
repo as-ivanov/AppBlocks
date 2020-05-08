@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Project>
 	<PropertyGroup>
 		<CodeGenerationRoslynPackagesVersion>0.7.63</CodeGenerationRoslynPackagesVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Update="CodeGeneration.Roslyn"            Version="$(CodeGenerationRoslynPackagesVersion)" />
+		<PackageReference Update="CodeGeneration.Roslyn" Version="$(CodeGenerationRoslynPackagesVersion)" />
 		<PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="$(CodeGenerationRoslynPackagesVersion)" />
-		<PackageReference Update="CodeGeneration.Roslyn.Tool"       Version="$(CodeGenerationRoslynPackagesVersion)" PrivateAssets="all" />
+		<PackageReference Update="CodeGeneration.Roslyn.Tool" Version="$(CodeGenerationRoslynPackagesVersion)" PrivateAssets="all" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="1.0"/>
-		<PackageReference Update="xunit" Version="2.4.1"/>
-		<PackageReference Update="FluentAssertions" Version="5.10.3"/>
+		<PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="1.0" />
+		<PackageReference Update="xunit" Version="2.4.1" />
+		<PackageReference Update="FluentAssertions" Version="5.10.3" />
 		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.5.0" />
 		<PackageReference Update="xunit.runner.visualstudio" Version="2.4.1" />
 		<PackageReference Update="Microsoft.Bcl.HashCode" Version="1.1.0" />

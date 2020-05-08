@@ -7,7 +7,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 	internal static class ITypeSymbolExtensions
 	{
 		public static bool IsNullable(this ITypeSymbol symbol)
-			=> symbol?.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
+		{
+			return symbol?.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
+		}
 
 		public static TypeSyntax GenerateTypeSyntax(
 			this INamespaceOrTypeSymbol symbol)

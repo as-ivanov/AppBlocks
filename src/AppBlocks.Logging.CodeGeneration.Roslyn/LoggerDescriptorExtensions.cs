@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Common;
+using AppBlocks.Logging.CodeGeneration.Attributes;
 using CodeGeneration.Roslyn;
 using Humanizer;
 using Microsoft.CodeAnalysis;
@@ -36,7 +37,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			TransformationContext context, INamedTypeSymbol exceptionType)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
-			return methodDeclarations.Select(entry => entry.MethodDeclaration.ToLoggerMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter, exceptionType)).ToImmutableArray();;
+			return methodDeclarations.Select(entry => entry.MethodDeclaration.ToLoggerMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter, exceptionType)).ToImmutableArray();
+			;
 		}
 
 		private static LoggerMethod ToLoggerMethod(this MethodDeclarationSyntax methodDeclarationSyntax,
@@ -46,12 +48,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				.FirstOrDefault(_ => _.Name == methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
 			var attributeData = methodSymbol.GetAttributes();
 			var logOptionsAttributeAttributeData =
-				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.LogOptionsAttribute));
+				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(LogOptionsAttribute));
 
-			var message = logOptionsAttributeAttributeData.GetNamedArgumentValue(
-				nameof(Attributes.LogOptionsAttribute.Message),
+			var message = logOptionsAttributeAttributeData.GetNamedArgumentValueOrDefault(
+				nameof(LogOptionsAttribute.Message),
 				methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString().Humanize());
-			var level = logOptionsAttributeAttributeData.GetNamedArgumentValue(nameof(Attributes.LogOptionsAttribute.Level),
+			var level = logOptionsAttributeAttributeData.GetNamedArgumentValueOrDefault(nameof(LogOptionsAttribute.Level),
 				LogLevel.Information);
 
 			var parameters = methodDeclarationSyntax.ParameterList.Parameters

@@ -9,22 +9,22 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 	public class TestLogger : ILogger
 	{
 		private readonly EventId _eventId;
-		private readonly string _methodName;
-		private readonly string _message;
-		private readonly Microsoft.Extensions.Logging.LogLevel _logLevel;
-		private readonly MethodParameterData[] _methodParameters;
 		private readonly bool _logEnabled;
+		private readonly LogLevel _logLevel;
+		private readonly string _message;
+		private readonly string _methodName;
+		private readonly MethodParameterData[] _methodParameters;
+		private EventId _actualEventId;
+
+		private LogLevel _actualIsEnabledLogLevel;
+		private LogLevel _actualLogLogLevel;
+		private string _actualMessage;
 		private bool _isEnabledCalled;
 		private bool _logCalled;
 
-		private Microsoft.Extensions.Logging.LogLevel _actualIsEnabledLogLevel;
-		private Microsoft.Extensions.Logging.LogLevel _actualLogLogLevel;
-		private EventId _actualEventId;
-		private string _actualMessage;
-
 
 		public TestLogger(EventId eventId, string methodName, string message,
-			Microsoft.Extensions.Logging.LogLevel logLevel,
+			LogLevel logLevel,
 			MethodParameterData[] methodParameters, bool logEnabled)
 		{
 			_eventId = eventId;
@@ -39,20 +39,24 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				{
 					continue;
 				}
+
 				if (sb.Length > 0)
 				{
 					sb.Append(" ");
 				}
+
 				sb.Append($"{methodParameter.Name.ToPascalCase()}: '{methodParameter.GetFormattedValue()}'");
 			}
+
 			if (sb.Length > 0)
 			{
 				message = $"{message} ({sb})";
 			}
+
 			_message = message;
 		}
 
-		public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state,
+		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
 			Exception exception, Func<TState, Exception, string> formatter)
 		{
 			if (_logCalled)
@@ -66,7 +70,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			_actualMessage = state.ToString();
 		}
 
-		public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel)
+		public bool IsEnabled(LogLevel logLevel)
 		{
 			_isEnabledCalled = true;
 			_actualIsEnabledLogLevel = logLevel;
@@ -91,6 +95,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				{
 					throw new Exception($"{nameof(Log)} was called with disabled logging");
 				}
+
 				return;
 			}
 

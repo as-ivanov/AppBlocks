@@ -1,11 +1,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Import Project="Version.props"/>
+	<Import Project="Version.props" />
 	<ItemGroup>
-		<PackageReference Include="CodeGeneration.Roslyn.Tool" Version="$(EmittedCodeGenerationRoslynPackagesVersion)"/>
+		<PackageReference Include="CodeGeneration.Roslyn.Tool" Version="$(EmittedCodeGenerationRoslynPackagesVersion)" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="AppBlocks.Monitoring.CodeGeneration.Roslyn" Version="$(EmittedPackageVersion)"/>
-		<PackageReference Include="AppBlocks.Monitoring.CodeGeneration.Attributes" Version="$(EmittedPackageVersion)"/>
-		<PackageReference Include="AppBlocks.Monitoring.Abstractions" Version="$(EmittedPackageVersion)"/>
+		<PackageReference Include="AppBlocks.Monitoring.CodeGeneration.Roslyn" Version="$(EmittedPackageVersion)" />
+		<PackageReference Include="AppBlocks.Monitoring.CodeGeneration.Attributes" Version="$(EmittedPackageVersion)" />
+		<PackageReference Include="AppBlocks.Monitoring.Abstractions" Version="$(EmittedPackageVersion)" />
 	</ItemGroup>
 </Project>

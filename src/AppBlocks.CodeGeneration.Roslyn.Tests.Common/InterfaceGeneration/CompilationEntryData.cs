@@ -1,11 +1,9 @@
-using AppBlocks.CodeGeneration.Roslyn.Common;
-
 namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
 	public class CompilationEntryData
 	{
-		private readonly string[] _usingNamespaces;
 		private readonly NamespaceData[] _namespaces;
+		private readonly string[] _usingNamespaces;
 
 		public CompilationEntryData(string[] usingNamespaces, params NamespaceData[] namespaces)
 		{

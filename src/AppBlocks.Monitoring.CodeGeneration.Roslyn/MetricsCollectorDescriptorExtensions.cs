@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Common;
+using AppBlocks.Monitoring.CodeGeneration.Attributes;
 using CodeGeneration.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -24,7 +24,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			var metricsCollectorMethods = methodDeclarations.GetMetricsCollectorMethods(context);
 
 			var contextName =
-				attributeData.GetNamedArgumentValue(nameof(Attributes.GenerateMetricsCollectorAttribute.ContextName), className);
+				attributeData.GetNamedArgumentValueOrDefault(nameof(GenerateMetricsCollectorAttribute.ContextName), className);
 			return new MetricsCollectorDescriptor(typeDeclarationSyntax, contextName, className,
 				inheritedInterfaceTypes, metricsCollectorMethods);
 		}
@@ -34,7 +34,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			TransformationContext context)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
-			return methodDeclarations.Select(entry => entry.MethodDeclaration.ToMetricsCollectorMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter)).ToImmutableArray();;
+			return methodDeclarations.Select(entry => entry.MethodDeclaration.ToMetricsCollectorMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter)).ToImmutableArray();
+			;
 		}
 
 		private static MetricsCollectorMethod ToMetricsCollectorMethod(this MethodDeclarationSyntax methodDeclaration,
@@ -66,12 +67,12 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			var methodSymbol = declaredInterfaceSymbol.GetMembers()
 				.FirstOrDefault(_ => _.Name == methodDeclaration.Identifier.WithoutTrivia().ToFullString());
 			var attributeData = methodSymbol.GetAttributes()
-				.FirstOrDefault(_ => _.AttributeClass.Name == nameof(Attributes.MetricOptionsAttribute));
+				.FirstOrDefault(_ => _.AttributeClass.Name == nameof(MetricOptionsAttribute));
 
-			var metricName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricOptionsAttribute.MetricName),
+			var metricName = attributeData.GetNamedArgumentValueOrDefault(nameof(MetricOptionsAttribute.MetricName),
 				methodDeclaration.Identifier.WithoutTrivia().Text);
 
-			var unitName = attributeData.GetNamedArgumentValue(nameof(Attributes.MetricOptionsAttribute.MeasurementUnitName));
+			var unitName = attributeData.GetNamedArgumentValueOrDefault(nameof(MetricOptionsAttribute.MeasurementUnitName));
 			return (metricName, unitName);
 		}
 
