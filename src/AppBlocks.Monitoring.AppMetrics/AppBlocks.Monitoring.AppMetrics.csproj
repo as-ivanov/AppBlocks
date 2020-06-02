@@ -3,8 +3,8 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="App.Metrics" Version="4.0.0-preview1.0.7" />
-		<PackageReference Include="App.Metrics.Abstractions" Version="4.0.0-preview1.0.7" />
+		<PackageReference Include="App.Metrics" Version="4.1.0-preview.0.15" />
+		<PackageReference Include="App.Metrics.Abstractions" Version="4.1.0-preview.0.15" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\AppBlocks.Monitoring.Abstractions\AppBlocks.Monitoring.Abstractions.csproj" />
