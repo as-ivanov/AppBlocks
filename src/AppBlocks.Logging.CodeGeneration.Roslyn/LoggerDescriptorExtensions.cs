@@ -33,19 +33,27 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				methods);
 		}
 
-		private static ImmutableArray<LoggerMethod> GetLoggerMethods(this IEnumerable<(MethodDeclarationSyntax MethodDeclaration, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)> methodDeclarations,
+		private static ImmutableArray<LoggerMethod> GetLoggerMethods(
+			this IEnumerable<(MethodDeclarationSyntax MethodDeclaration, IMethodSymbol methodSymbol, TypeDeclarationSyntax
+				DeclaredInterface,
+				INamedTypeSymbol DeclaredInterfaceSymbol)> methodDeclarations,
 			TransformationContext context, INamedTypeSymbol exceptionType)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
-			return methodDeclarations.Select(entry => entry.MethodDeclaration.ToLoggerMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter, exceptionType)).ToImmutableArray();
+			return methodDeclarations
+				.Select((entry) =>
+					entry.MethodDeclaration.ToLoggerMethod(entry.methodSymbol, context, entry.DeclaredInterfaceSymbol,
+						fieldNameCounter,
+						exceptionType))
+				.ToImmutableArray();
 			;
 		}
 
 		private static LoggerMethod ToLoggerMethod(this MethodDeclarationSyntax methodDeclarationSyntax,
-			TransformationContext context, INamedTypeSymbol declaredInterfaceSymbol, Dictionary<string, int> fieldNameCounter, INamedTypeSymbol exceptionType)
+			IMethodSymbol methodSymbol,
+			TransformationContext context, INamedTypeSymbol declaredInterfaceSymbol, Dictionary<string, int> fieldNameCounter,
+			INamedTypeSymbol exceptionType)
 		{
-			var methodSymbol = declaredInterfaceSymbol.GetMembers().OfType<IMethodSymbol>()
-				.FirstOrDefault(_ => _.Name == methodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
 			var attributeData = methodSymbol.GetAttributes();
 			var logOptionsAttributeAttributeData =
 				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(LogOptionsAttribute));
@@ -84,9 +92,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		private static LoggerMethodParameter ToLoggerMethodParameter(this ParameterSyntax parameterSyntax,
 			TransformationContext context, IMethodSymbol methodSymbol, ITypeSymbol exceptionType)
 		{
-			var parameterSymbol = methodSymbol.Parameters.FirstOrDefault(_ => _.Name == parameterSyntax.Identifier.WithoutTrivia().ToFullString());
+			var parameterSymbol =
+				methodSymbol.Parameters.FirstOrDefault(_ =>
+					_.Name == parameterSyntax.Identifier.WithoutTrivia().ToFullString());
 			var conversionInfo = context.Compilation.ClassifyCommonConversion(parameterSymbol.Type, exceptionType);
-			return new LoggerMethodParameter(parameterSyntax, parameterSymbol, conversionInfo.Exists && conversionInfo.IsImplicit);
+			return new LoggerMethodParameter(parameterSyntax, parameterSymbol,
+				conversionInfo.Exists && conversionInfo.IsImplicit);
 		}
 	}
 }

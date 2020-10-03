@@ -30,7 +30,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 		}
 
 		private static ImmutableArray<MetricsCollectorMethod> GetMetricsCollectorMethods(
-			this IEnumerable<(MethodDeclarationSyntax MethodDeclaration, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)> methodDeclarations,
+			this IEnumerable<(MethodDeclarationSyntax MethodDeclaration, IMethodSymbol MethodSymbol, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)> methodDeclarations,
 			TransformationContext context)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name

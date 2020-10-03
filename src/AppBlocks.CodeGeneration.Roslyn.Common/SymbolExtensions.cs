@@ -29,7 +29,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		}
 
 
-		public static IEnumerable<(MethodDeclarationSyntax MethodDeclaration, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)>
+		public static IEnumerable<(MethodDeclarationSyntax MethodDeclaration, IMethodSymbol methodSymbol, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)>
 			GetAllMethodDeclarations(this TypeDeclarationSyntax typeDeclarationSyntax, TransformationContext context)
 		{
 			var typeFullName = typeDeclarationSyntax.GetFullTypeName();
@@ -55,6 +55,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 			foreach (var interfaceSymbol in allInterfaceSymbols)
 			{
+				var interfaceMethodSymbols = interfaceSymbol.GetMembers().OfType<IMethodSymbol>().ToArray();
 				var interfaceDeclarations = interfaceSymbol.DeclaringSyntaxReferences.SelectMany(_ => _.SyntaxTree.GetRoot().DescendantNodesAndSelf())
 					.OfType<TypeDeclarationSyntax>().Where(_ => _.GetFullTypeName() == interfaceSymbol.OriginalDefinition.ToDisplayString()).ToList();
 				if (!interfaceDeclarations.Any()) // interface declared in another assembly
@@ -66,9 +67,12 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				foreach (var interfaceDeclaration in interfaceDeclarations)
 				{
 					var methodDeclarations = interfaceDeclaration.Members.OfType<MethodDeclarationSyntax>();
+					var index = -1;
 					foreach (var methodDeclaration in methodDeclarations)
 					{
-						yield return (methodDeclaration, interfaceDeclaration, interfaceSymbol);
+						index++;
+						var methodSymbol = interfaceMethodSymbols[index];
+						yield return (methodDeclaration, methodSymbol, interfaceDeclaration, interfaceSymbol);
 					}
 				}
 			}
