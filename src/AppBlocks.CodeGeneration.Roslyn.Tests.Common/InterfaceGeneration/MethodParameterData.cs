@@ -36,7 +36,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 				foreach (var value in values)
 				{
 					index++;
-					yield return new MethodParameterData("param" + index, type, value);
+					var prefix = index % 2 == 0 ? "@" : "";
+					yield return new MethodParameterData( prefix + "param" + index, type, value);
 				}
 			}
 		}

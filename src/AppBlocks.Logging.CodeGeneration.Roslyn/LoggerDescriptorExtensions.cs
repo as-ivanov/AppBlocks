@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using AppBlocks.CodeGeneration.Roslyn.Common;
 using AppBlocks.Logging.CodeGeneration.Attributes;
@@ -92,12 +93,20 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		private static LoggerMethodParameter ToLoggerMethodParameter(this ParameterSyntax parameterSyntax,
 			TransformationContext context, IMethodSymbol methodSymbol, ITypeSymbol exceptionType)
 		{
-			var parameterSymbol =
-				methodSymbol.Parameters.FirstOrDefault(_ =>
-					_.Name == parameterSyntax.Identifier.WithoutTrivia().ToFullString());
-			var conversionInfo = context.Compilation.ClassifyCommonConversion(parameterSymbol.Type, exceptionType);
-			return new LoggerMethodParameter(parameterSyntax, parameterSymbol,
-				conversionInfo.Exists && conversionInfo.IsImplicit);
+			try
+			{
+				var parameterSymbol =
+					methodSymbol.Parameters.FirstOrDefault(_ =>
+						_.Name == parameterSyntax.Identifier.WithoutTrivia().ToFullString().TrimStart('@'));
+				var conversionInfo = context.Compilation.ClassifyCommonConversion(parameterSymbol.Type, exceptionType);
+				return new LoggerMethodParameter(parameterSyntax, parameterSymbol,
+					conversionInfo.Exists && conversionInfo.IsImplicit);
+			}
+			catch (Exception e)
+			{
+				//Debugger.Launch();
+				throw;
+			}
 		}
 	}
 }
