@@ -8,12 +8,14 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		private readonly string _name;
 		private readonly Type _type;
 		private readonly object _value;
+		private readonly string _aliasTypeName;
 
-		private MethodParameterData(string name, Type type, object value)
+		private MethodParameterData(string name, Type type, object value, string aliasTypeName)
 		{
 			_name = name;
 			_type = type;
 			_value = value;
+			_aliasTypeName = aliasTypeName;
 		}
 
 		public object Value => _value;
@@ -22,9 +24,21 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public Type ParameterType => _type;
 
+		public string AliasTypeName => _aliasTypeName;
+
 		public override string ToString()
 		{
-			return $"{ParameterType} {Name}";
+			return $"{_aliasTypeName ?? ParameterType.Name.ToString()} {Name}";
+		}
+
+		public TypeNameAliasUsingData GetTypeNameAliasUsingData()
+		{
+			if (_aliasTypeName == null)
+			{
+				return TypeNameAliasUsingData.Empty;
+			}
+
+			return new TypeNameAliasUsingData(_type, _aliasTypeName);
 		}
 
 		public static IEnumerable<MethodParameterData> GetPossibleVariations(ITestInterfaceGenerationOptions options)
@@ -37,7 +51,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 				{
 					index++;
 					var prefix = index % 2 == 0 ? "@" : "";
-					yield return new MethodParameterData( prefix + "param" + index, type, value);
+					var aliasTypeName = index % 1 == 0 ? "AliasType" + index : null;
+					yield return new MethodParameterData(prefix + "param" + index, type, value, aliasTypeName);
 				}
 			}
 		}

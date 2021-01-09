@@ -48,6 +48,15 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 			AppendLine();
 		}
 
+		public void AppendLineIfNotEmpty(string @string)
+		{
+			if (string.IsNullOrEmpty(@string))
+			{
+				return;
+			}
+			AppendLine(@string);
+		}
+
 		public void AppendLine()
 		{
 			_stringBuilder.AppendLine();

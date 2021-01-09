@@ -10,7 +10,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
 	public static class SymbolExtensions
 	{
-		public static string GetFullTypeName(this INamedTypeSymbol symbol)
+		public static string GetFullTypeName(this ITypeSymbol symbol)
 		{
 			var nameBuilder = new StringBuilder();
 			ISymbol symbolOrParent = symbol;

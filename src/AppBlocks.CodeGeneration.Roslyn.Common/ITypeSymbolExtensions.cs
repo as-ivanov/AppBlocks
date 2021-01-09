@@ -1,6 +1,8 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Roslynator.CSharp;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
@@ -15,6 +17,12 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			this INamespaceOrTypeSymbol symbol)
 		{
 			return symbol.ToTypeSyntax();
+		}
+
+		public static AliasQualifiedNameSyntax ToGlobalAliasQualifiedName(this ITypeSymbol symbol)
+		{
+			var identifierName = IdentifierName(symbol.GetFullTypeName());
+			return AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), identifierName);
 		}
 	}
 }

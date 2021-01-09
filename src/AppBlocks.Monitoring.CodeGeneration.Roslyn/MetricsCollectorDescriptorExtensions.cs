@@ -34,12 +34,13 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			TransformationContext context)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
-			return methodDeclarations.Select(entry => entry.MethodDeclaration.ToMetricsCollectorMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter)).ToImmutableArray();
+			return methodDeclarations.Select((entry, index)
+				=> entry.MethodDeclaration.ToMetricsCollectorMethod(context, entry.DeclaredInterfaceSymbol, fieldNameCounter, entry.MethodSymbol)).ToImmutableArray();
 			;
 		}
 
 		private static MetricsCollectorMethod ToMetricsCollectorMethod(this MethodDeclarationSyntax methodDeclaration,
-			TransformationContext context, INamedTypeSymbol declaredInterfaceSymbol, Dictionary<string, int> fieldNameCounter)
+			TransformationContext context, INamedTypeSymbol declaredInterfaceSymbol, Dictionary<string, int> fieldNameCounter, IMethodSymbol methodSymbol)
 		{
 			var metricsCollectorType = GetMetricsCollectorType(methodDeclaration.ReturnType);
 			var (metricName, unitName) = GetMetricOptions(declaredInterfaceSymbol, methodDeclaration, context);
@@ -56,9 +57,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				fieldNameCounter[methodNameCamelCase] = currentFiledCounter + 1;
 				methodKeysFieldName = $"_{methodNameCamelCase}Keys{currentFiledCounter}";
 			}
-
 			return new MetricsCollectorMethod(methodDeclaration, declaredInterfaceSymbol, metricName, methodKeysFieldName, unitName,
-				metricsCollectorType);
+				metricsCollectorType, methodSymbol);
 		}
 
 		private static (string MetricName, string UnitName) GetMetricOptions(INamedTypeSymbol declaredInterfaceSymbol, MethodDeclarationSyntax methodDeclaration,

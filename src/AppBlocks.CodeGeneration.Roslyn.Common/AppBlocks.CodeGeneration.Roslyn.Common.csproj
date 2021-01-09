@@ -16,4 +16,12 @@
 		<PackageReference Include="Roslynator.CSharp" />
 		<PackageReference Include="Microsoft.CodeAnalysis" />
 	</ItemGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>AppBlocks.Logging.CodeGeneration.Roslyn</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>AppBlocks.Monitoring.CodeGeneration.Roslyn</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 </Project>

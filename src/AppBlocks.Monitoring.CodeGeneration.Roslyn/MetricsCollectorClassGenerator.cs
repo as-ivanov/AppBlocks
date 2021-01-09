@@ -96,12 +96,19 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				var methodConstraintClauses = method.MethodDeclarationSyntax.ConstraintClauses
 					.GetAllowedImplicitImplementationConstraintClause();
 
+				var methodParameters = method.MethodSymbol.Parameters.Select((parameterSymbol, index)=>
+				{
+					var aliasQualifiedName = parameterSymbol.Type.ToGlobalAliasQualifiedName();
+					var parameterSyntax = method.MethodDeclarationSyntax.ParameterList.Parameters[index];
+					return parameterSyntax.WithType(aliasQualifiedName);
+				}).ToArray();
+
 				var methodDeclaration =
 					MethodDeclaration(method.MethodDeclarationSyntax.ReturnType, method.MethodDeclarationSyntax.Identifier)
 						.WithExplicitInterfaceSpecifier(explicitInterfaceSpecifier)
 						.WithTypeParameterList(method.MethodDeclarationSyntax.TypeParameterList)
 						.WithConstraintClauses(methodConstraintClauses)
-						.WithParameterList(method.MethodDeclarationSyntax.ParameterList)
+						.WithParameterList(ParameterList(methodParameters.ToSeparatedList()))
 						.WithReturnType(returnType)
 						.WithBody(GetMetricsCollectorMethodBody(method));
 
