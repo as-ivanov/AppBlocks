@@ -34,6 +34,17 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public InterfaceMethodData[] Methods => _methods;
 
+		public IEnumerable<TypeNameAliasUsingData> GetTypeNameAliasUsingDataList()
+		{
+			foreach (var methodData in Methods)
+			{
+				foreach (var typeNameAliasUsingData in methodData.GetTypeNameAliasUsingDataList())
+				{
+					yield return typeNameAliasUsingData;
+				}
+			}
+		}
+
 		public string Name => _name;
 
 		public string Namespace => _namespace;
@@ -80,6 +91,13 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		public override string ToString()
 		{
 			var sb = new CSharpBlockStringBuilder();
+			sb.AppendLine();
+
+			foreach (var typeNameAliasUsingData in GetTypeNameAliasUsingDataList())
+			{
+				sb.AppendLineIfNotEmpty(typeNameAliasUsingData.ToString());
+			}
+
 			sb.AppendLine($"//interface with {Methods.Length} methods.");
 			foreach (var attributeData in _attributeDataList)
 			{

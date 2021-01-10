@@ -22,8 +22,9 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 			var methodDeclarations = typeDeclarationSyntax.GetAllMethodDeclarations(context);
 
-			var exceptionType = context.Compilation.GetTypeByMetadataName(typeof(Exception).FullName);
-			var methods = methodDeclarations.GetLoggerMethods(context, exceptionType);
+			var exceptionTypeSymbol = context.Compilation.GetTypeByMetadataName(typeof(Exception).FullName);
+			var objectTypeSymbol = context.Compilation.GetTypeByMetadataName(typeof(object).FullName);
+			var methods = methodDeclarations.GetLoggerMethods(context, exceptionTypeSymbol);
 
 			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
 
@@ -31,7 +32,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				typeDeclarationSyntax,
 				className,
 				inheritedInterfaceTypes,
-				methods);
+				methods,
+				objectTypeSymbol);
 		}
 
 		private static ImmutableArray<LoggerMethod> GetLoggerMethods(

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using AppBlocks.Logging.CodeGeneration.Attributes;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
 
 
-		private readonly Type[] _methodParameterTypes =
+		private static readonly Type[] _methodParameterTypes =
 		{
 			typeof(string),
 			typeof(char),
@@ -32,17 +33,19 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			typeof(decimal),
 			typeof(DateTime),
 			typeof(object),
-			typeof(Exception)
+			typeof(Exception),
+			typeof(Task)
 		};
 
 		private readonly IParameterValuesBuilder _parameterValuesBuilder = new LoggerInterfaceParameterValuesBuilder();
 
-		private readonly string[] _usingNamespaces =
-		{
-			typeof(Action).Namespace,
-			typeof(GenerateLoggerAttribute).Namespace,
-			typeof(ILogger).Namespace
-		};
+		private readonly string[] _usingNamespaces = _methodParameterTypes.Select(_ => _.Namespace).Union(
+			new[]
+			{
+				typeof(Action).Namespace,
+				typeof(GenerateLoggerAttribute).Namespace,
+				typeof(ILogger).Namespace
+			}).Distinct().ToArray();
 
 		public string[] UsingNamespaces => _usingNamespaces;
 

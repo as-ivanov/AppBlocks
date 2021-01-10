@@ -58,7 +58,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			for (var index = 0; index < loggerDescriptor.Methods.Length; index++)
 			{
 				var method = loggerDescriptor.Methods[index];
-				var defineMethodParameterTypes = GetLoggingDelegateParameterTypes(method, true);
+				var defineMethodParameterTypes = GetLoggingDelegateParameterTypes(method, loggerDescriptor.ObjectTypeSymbol, true);
 
 				var message = method.Message;
 				if (method.Parameters.Length > 0)
@@ -101,7 +101,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 						VariableDeclaration(
 								AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)),
 									GenericName(Identifier(typeof(Action).FullName))
-										.WithTypeArgumentList(GetLoggingDelegateParameterTypes(method, false))))
+										.WithTypeArgumentList(GetLoggingDelegateParameterTypes(method, loggerDescriptor.ObjectTypeSymbol, false))))
 							.WithVariables(
 								SingletonSeparatedList(
 									VariableDeclarator(
@@ -152,7 +152,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			return fieldMemberDeclarations;
 		}
 
-		private static TypeArgumentListSyntax GetLoggingDelegateParameterTypes(LoggerMethod loggerMethod, bool definition)
+		private static TypeArgumentListSyntax GetLoggingDelegateParameterTypes(LoggerMethod loggerMethod, INamedTypeSymbol objectTypeSymbol, bool definition)
 		{
 			var result = new List<SyntaxNodeOrToken>(loggerMethod.Parameters.Length);
 
@@ -174,13 +174,14 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 					result.Add(Token(SyntaxKind.CommaToken));
 				}
 
-				var typeSyntax = parameter.ParameterSyntax.Type;
+				var parameterTypeSymbol = parameter.ParameterSymbol.Type;
 				if (parameter.ParameterSymbol.Type.TypeKind == TypeKind.TypeParameter || parameter.ParameterSymbol.Type.IsReferenceType)
 				{
-					typeSyntax = IdentifierName("object");
+					parameterTypeSymbol = objectTypeSymbol;
 				}
 
-				result.Add(IdentifierName(typeSyntax.GetText().ToString().Trim()));
+				var globalAliasQualifiedName = parameterTypeSymbol.ToGlobalAliasQualifiedName();
+				result.Add(globalAliasQualifiedName);
 			}
 
 			if (!definition)
@@ -249,13 +250,17 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			var members = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
 			foreach (var method in loggerDescriptor.Methods)
 			{
-				var interfaceGlobalQualifiedName = AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(method.DeclaredInterfaceSymbol.GetFullTypeName()));
+				var interfaceGlobalQualifiedName = method.DeclaredInterfaceSymbol.ToGlobalAliasQualifiedName();;
 				var explicitInterfaceSpecifier = ExplicitInterfaceSpecifier(interfaceGlobalQualifiedName);
 
 				var methodConstraintClauses = method.MethodDeclarationSyntax.ConstraintClauses
 					.GetAllowedImplicitImplementationConstraintClause();
 
-				var methodParameters = method.Parameters.Select(_ => _.ParameterSyntax).ToArray();
+				var methodParameters = method.Parameters.Select(delegate(LoggerMethodParameter _)
+				{
+					var aliasQualifiedName = _.ParameterSymbol.Type.ToGlobalAliasQualifiedName();
+					return _.ParameterSyntax.WithType(aliasQualifiedName);
+				}).ToArray();
 				var methodDeclaration =
 					MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), method.MethodDeclarationSyntax.Identifier)
 						.WithExplicitInterfaceSpecifier(explicitInterfaceSpecifier)

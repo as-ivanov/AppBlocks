@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using AppBlocks.Monitoring.Abstractions;
 using AppBlocks.Monitoring.CodeGeneration.Attributes;
@@ -37,7 +38,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 
 		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
 
-		private readonly Type[] _methodParameterTypes =
+		private static readonly Type[] _methodParameterTypes =
 		{
 			typeof(string),
 			typeof(char),
@@ -54,15 +55,16 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			// typeof(decimal),
 			typeof(DateTime),
 			typeof(object),
-			typeof(Exception)
+			typeof(Exception),
+			typeof(Task)
 		};
 
-		private readonly string[] _usingNamespaces =
+		private readonly string[] _usingNamespaces = _methodParameterTypes.Select(_=>_.Namespace).Union(new[]
 		{
 			typeof(Action).Namespace,
 			typeof(GenerateMetricsCollectorAttribute).Namespace,
 			typeof(ICounter).Namespace
-		};
+		}).Distinct().ToArray();
 
 		private readonly IParameterValuesBuilder _parameterValuesBuilder = new MetricsCollectorInterfaceParameterValuesBuilder();
 

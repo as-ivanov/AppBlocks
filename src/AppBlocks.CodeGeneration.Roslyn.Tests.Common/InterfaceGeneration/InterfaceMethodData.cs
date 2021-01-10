@@ -29,6 +29,14 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public MethodParameterData[] Parameters => _parameters;
 
+		public IEnumerable<TypeNameAliasUsingData> GetTypeNameAliasUsingDataList()
+		{
+			foreach (var parameterData in Parameters)
+			{
+				yield return parameterData.GetTypeNameAliasUsingData();
+			}
+		}
+
 		public static IEnumerable<Func<ITestContext, InterfaceMethodData>> GetPossibleVariations(
 			ITestInterfaceGenerationOptions options)
 		{
@@ -38,13 +46,13 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			{
 				foreach (var returnType in options.InterfaceMethodReturnTypes)
 				{
+					Func<ITestContext, InterfaceMethodData> CreateInterfaceMethodDataVariation(IEnumerable<MethodParameterData> parameters)
+					{
+						return context => new InterfaceMethodData(returnType, "Method" + context.NextId(), attributeData(context).ToArray(), parameters.ToArray());
+					}
+					yield return CreateInterfaceMethodDataVariation(new MethodParameterData[0]);
 					foreach (var parametersCount in options.MethodParameterCounts)
 					{
-						Func<ITestContext, InterfaceMethodData> CreateInterfaceMethodDataVariation(IEnumerable<MethodParameterData> parameters)
-						{
-							return context => new InterfaceMethodData(returnType, "Method" + context.NextId(), attributeData(context).ToArray(), parameters.ToArray());
-						}
-
 						if (parametersCount == 1)
 						{
 							foreach (var parameters in methodParameterPossibleVariations
