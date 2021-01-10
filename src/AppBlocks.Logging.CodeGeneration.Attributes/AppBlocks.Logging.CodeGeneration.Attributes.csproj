@@ -12,4 +12,9 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\AppBlocks.CodeGeneration.Attributes.Common\AppBlocks.CodeGeneration.Attributes.Common.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>AppBlocks.Logging.CodeGeneration.Roslyn.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 </Project>

@@ -15,8 +15,14 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			var logLevels = Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>().ToArray();
 			foreach (var logLevel in logLevels)
 			{
-				yield return c => { return new[]
-					{LoggerMethodParameterAttributeData.Create(logLevel)}; };
+				yield return c =>
+				{
+					return new[] {LogConditionAttributeData.Create(logLevel)};
+				};
+				yield return c =>
+				{
+					return new[] {LogConditionAttributeData.Create(logLevel, Guid.NewGuid().ToString())};
+				};
 			}
 		}
 	}

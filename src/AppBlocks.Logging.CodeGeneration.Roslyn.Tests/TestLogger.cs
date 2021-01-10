@@ -44,8 +44,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				{
 					sb.Append(" ");
 				}
-
-				sb.Append($"{methodParameter.Name.ToPascalCase()}: '{methodParameter.GetFormattedValue()}'");
+				var value = methodParameter.GetFormattedValue(logLevel);
+				sb.Append($"{methodParameter.Name.ToPascalCase()}: '{value}'");
 			}
 
 			if (sb.Length > 0)

@@ -29,9 +29,11 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public string AliasTypeName => _aliasTypeName;
 
+		public AttributeData[] AttributeDataList => _attributeDataList;
+
 		public override string ToString()
 		{
-			var attributes = string.Join(Environment.NewLine, _attributeDataList.Select(_=>_.ToString()));
+			var attributes = string.Join(Environment.NewLine, AttributeDataList.Select(_=>_.ToString()));
 			return $"{attributes} {_aliasTypeName ?? ParameterType.Name.ToString()} {Name}";
 		}
 
