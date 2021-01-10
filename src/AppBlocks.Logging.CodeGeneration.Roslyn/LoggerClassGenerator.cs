@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using AppBlocks.CodeGeneration.Roslyn.Common;
@@ -52,22 +53,25 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			};
 		}
 
-		private static IEnumerable<MemberDeclarationSyntax> GetLoggingDelegateLoggerFields(LoggerDescriptor loggerDescriptor)
+		private static string GetLoggerMethodDelegateFieldName(LoggerMethod loggerMethod, LogLevel? subLevel = null)
 		{
-			var fieldMemberDeclarations = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
-			for (var index = 0; index < loggerDescriptor.Methods.Length; index++)
-			{
-				var method = loggerDescriptor.Methods[index];
-				var defineMethodParameterTypes = GetLoggingDelegateParameterTypes(method, loggerDescriptor.ObjectTypeSymbol, true);
+			return loggerMethod.DelegateFieldName + (subLevel.HasValue ? subLevel.ToString() : string.Empty);
+		}
+
+		private static MemberDeclarationSyntax GetLoggingMethodDelegateLoggerField(LoggerDescriptor loggerDescriptor,
+			LoggerMethod method, int index, LogLevel? subLevel = null)
+		{
+			var parameters = subLevel.HasValue ? method.GetLoggerMethodParametersForSubLevel(subLevel.Value) : method.Parameters;
+			var defineMethodParameterTypes = GetLoggingDelegateParameterTypes(parameters, loggerDescriptor.ObjectTypeSymbol, true);
 
 				var message = method.Message;
-				if (method.Parameters.Length > 0)
+				if (parameters.Length > 0)
 				{
 					var sb = new StringBuilder();
-					for (var i = 0; i < method.Parameters.Length; ++i)
+					for (var i = 0; i < parameters.Length; ++i)
 					{
-						var parameter = method.Parameters[i];
-						if (i + 1 < method.Parameters.Length || !parameter.IsException)
+						var parameter = parameters[i];
+						if (i + 1 < parameters.Length || !parameter.IsException)
 						{
 							var pascalCaseParameter =
 								parameter.ParameterSyntax.Identifier.WithoutTrivia().ToFullString().ToPascalCase();
@@ -92,6 +96,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 					return AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), methodIdentifier);
 				}
 
+				var loggerMethodDelegateFieldName = GetLoggerMethodDelegateFieldName(method, subLevel);
+
 				var definitionMethodExpression = defineMethodParameterTypes.Arguments.Any()
 					? MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, _loggerMessageGlobalTypeSyntax,
 						GenericName(Identifier(nameof(LoggerMessage.Define))).WithTypeArgumentList(defineMethodParameterTypes))
@@ -101,11 +107,11 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 						VariableDeclaration(
 								AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)),
 									GenericName(Identifier(typeof(Action).FullName))
-										.WithTypeArgumentList(GetLoggingDelegateParameterTypes(method, loggerDescriptor.ObjectTypeSymbol, false))))
+										.WithTypeArgumentList(GetLoggingDelegateParameterTypes(parameters, loggerDescriptor.ObjectTypeSymbol, false))))
 							.WithVariables(
 								SingletonSeparatedList(
 									VariableDeclarator(
-											Identifier(method.DelegateFieldName))
+											Identifier(loggerMethodDelegateFieldName))
 										.WithInitializer(
 											EqualsValueClause(
 												InvocationExpression(definitionMethodExpression)
@@ -145,26 +151,48 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 																}))))))))
 					.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.StaticKeyword),
 						Token(SyntaxKind.ReadOnlyKeyword)));
+				return declaration;
+		}
 
-				fieldMemberDeclarations.Add(declaration);
+		private static IEnumerable<MemberDeclarationSyntax> GetLoggingDelegateLoggerFields(LoggerDescriptor loggerDescriptor)
+		{
+			var fieldMemberDeclarations = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
+			for (var index = 0; index < loggerDescriptor.Methods.Length; index++)
+			{
+				var method = loggerDescriptor.Methods[index];
+				if (method.SubLevels.Length > 0)
+				{
+					var defaultDeclaration = GetLoggingMethodDelegateLoggerField(loggerDescriptor, method, index, method.Level);
+					fieldMemberDeclarations.Add(defaultDeclaration);
+					foreach (var subLevel in method.SubLevels)
+					{
+						var subLevelDeclaration = GetLoggingMethodDelegateLoggerField(loggerDescriptor, method, index, subLevel);
+						fieldMemberDeclarations.Add(subLevelDeclaration);
+					}
+				}
+				else
+				{
+					var declaration = GetLoggingMethodDelegateLoggerField(loggerDescriptor, method, index);
+					fieldMemberDeclarations.Add(declaration);
+				}
 			}
 
 			return fieldMemberDeclarations;
 		}
 
-		private static TypeArgumentListSyntax GetLoggingDelegateParameterTypes(LoggerMethod loggerMethod, INamedTypeSymbol objectTypeSymbol, bool definition)
+		private static TypeArgumentListSyntax GetLoggingDelegateParameterTypes(ImmutableArray<LoggerMethodParameter> parameters, INamedTypeSymbol objectTypeSymbol, bool definition)
 		{
-			var result = new List<SyntaxNodeOrToken>(loggerMethod.Parameters.Length);
+			var result = new List<SyntaxNodeOrToken>(parameters.Length);
 
 			if (!definition)
 			{
 				result.Add(_loggerGlobalTypeSyntax);
 			}
 
-			for (var index = 0; index < loggerMethod.Parameters.Length; index++)
+			for (var index = 0; index < parameters.Length; index++)
 			{
-				var parameter = loggerMethod.Parameters[index];
-				if (index == loggerMethod.Parameters.Length - 1 && parameter.IsException)
+				var parameter = parameters[index];
+				if (index == parameters.Length - 1 && parameter.IsException)
 				{
 					continue;
 				}
@@ -256,11 +284,13 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				var methodConstraintClauses = method.MethodDeclarationSyntax.ConstraintClauses
 					.GetAllowedImplicitImplementationConstraintClause();
 
+
 				var methodParameters = method.Parameters.Select(delegate(LoggerMethodParameter _)
 				{
 					var aliasQualifiedName = _.ParameterSymbol.Type.ToGlobalAliasQualifiedName();
 					return _.ParameterSyntax.WithType(aliasQualifiedName);
 				}).ToArray();
+
 				var methodDeclaration =
 					MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), method.MethodDeclarationSyntax.Identifier)
 						.WithExplicitInterfaceSpecifier(explicitInterfaceSpecifier)
@@ -274,35 +304,77 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			return members;
 		}
 
-		private static SyntaxList<StatementSyntax> GetLoggerMethodBody(LoggerMethod loggerMethod)
+		private static IfStatementSyntax GetLoggerIsEnabledInvocationStatement(LogLevel logLevel, SyntaxList<StatementSyntax> statements)
 		{
-			return SingletonList<StatementSyntax>(
-				IfStatement(
-					InvocationExpression(
-							MemberAccessExpression(
-								SyntaxKind.SimpleMemberAccessExpression,
-								IdentifierName(LoggerFieldName),
-								IdentifierName(nameof(ILogger.IsEnabled))))
-						.WithArgumentList(
-							ArgumentList(
-								SingletonSeparatedList(
-									Argument(
-										MemberAccessExpression(
-											SyntaxKind.SimpleMemberAccessExpression,
-											_logLevelGlobalTypeSyntax,
-											IdentifierName(loggerMethod.Level.ToString())))))),
-					Block(
-						SingletonList<StatementSyntax>(
-							ExpressionStatement(
-								InvocationExpression(
-										IdentifierName(loggerMethod.DelegateFieldName))
-									.WithArgumentList(GetLoggingDelegateCallArgumentList(loggerMethod)))))));
+			var condition = InvocationExpression(
+					MemberAccessExpression(
+						SyntaxKind.SimpleMemberAccessExpression,
+						IdentifierName(LoggerFieldName),
+						IdentifierName(nameof(ILogger.IsEnabled))))
+				.WithArgumentList(
+					ArgumentList(
+						SingletonSeparatedList(
+							Argument(
+								MemberAccessExpression(
+									SyntaxKind.SimpleMemberAccessExpression,
+									_logLevelGlobalTypeSyntax,
+									IdentifierName(logLevel.ToString()))))));
+			return IfStatement(condition, Block(statements));
 		}
 
-		private static ArgumentListSyntax GetLoggingDelegateCallArgumentList(LoggerMethod loggerMethod)
+		private static StatementSyntax GetLoggerInvocationStatement(LoggerMethod loggerMethod,
+			LogLevel? subLevel = null)
 		{
+			var loggerMethodDelegateFieldName = GetLoggerMethodDelegateFieldName(loggerMethod, subLevel);
+
+			return
+				ExpressionStatement(
+					InvocationExpression(
+							IdentifierName(loggerMethodDelegateFieldName))
+						.WithArgumentList(GetLoggingDelegateCallArgumentList(loggerMethod, subLevel)));
+		}
+
+		private static IfStatementSyntax GetLoggerConditionalInvocationStatement(LoggerMethod loggerMethod, LogLevel level, LogLevel? subLevel = null)
+		{
+			var invocationStatement = GetLoggerInvocationStatement(loggerMethod, subLevel);
+			return GetLoggerIsEnabledInvocationStatement(level, SingletonList<StatementSyntax>(invocationStatement));
+		}
+
+		private static SyntaxList<StatementSyntax> GetLoggerMethodBody(LoggerMethod loggerMethod)
+		{
+			if (loggerMethod.SubLevels.Length > 0)
+			{
+				var list = new List<StatementSyntax>(loggerMethod.SubLevels.Length);
+				IfStatementSyntax headIfSyntax = null;
+				for (var index = 0; index < loggerMethod.SubLevels.Length; index++)
+				{
+					var subLevel = loggerMethod.SubLevels[index];
+					IfStatementSyntax syntaxList;
+					syntaxList = GetLoggerConditionalInvocationStatement(loggerMethod, subLevel, subLevel);
+					if (headIfSyntax == null)
+					{
+						headIfSyntax = syntaxList;
+					}
+					else
+					{
+						headIfSyntax = headIfSyntax.WithElse(ElseClause(syntaxList));
+					}
+					//list.Add(syntaxList);
+				}
+				var invocationStatement = GetLoggerInvocationStatement(loggerMethod, loggerMethod.Level);
+				headIfSyntax = headIfSyntax.WithElse(ElseClause(Block(invocationStatement)));
+				list.Add(headIfSyntax);
+				return SingletonList<StatementSyntax>(GetLoggerIsEnabledInvocationStatement(loggerMethod.Level, List(list)));
+			}
+			return SingletonList<StatementSyntax>(GetLoggerConditionalInvocationStatement(loggerMethod, loggerMethod.Level));
+		}
+
+		private static ArgumentListSyntax GetLoggingDelegateCallArgumentList(LoggerMethod loggerMethod, LogLevel? subLevel)
+		{
+			var parameters = subLevel.HasValue ? loggerMethod.GetLoggerMethodParametersForSubLevel(subLevel.Value) : loggerMethod.Parameters;
+
 			var arguments = new List<SyntaxNodeOrToken> {Argument(IdentifierName(LoggerFieldName))};
-			foreach (var parameter in loggerMethod.Parameters)
+			foreach (var parameter in parameters)
 			{
 				if (arguments.Any())
 				{
@@ -312,7 +384,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				arguments.Add(Argument(IdentifierName(parameter.ParameterSyntax.Identifier.WithoutTrivia().ToCamelCase())));
 			}
 
-			var lastParameter = loggerMethod.Parameters.LastOrDefault();
+			var lastParameter = parameters.LastOrDefault();
 			if (lastParameter == null || !lastParameter.IsException)
 			{
 				if (arguments.Any())

@@ -1,7 +1,10 @@
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using AppBlocks.CodeGeneration.Roslyn.Common;
 using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
+using AppBlocks.Logging.CodeGeneration.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
@@ -19,7 +22,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		private LogLevel _actualIsEnabledLogLevel;
 		private LogLevel _actualLogLogLevel;
 		private string _actualMessage;
-		private bool _isEnabledCalled;
+		private bool _isEnabledFirstTimeCalled;
 		private bool _logCalled;
 
 
@@ -35,6 +38,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			var sb = new StringBuilder();
 			foreach (var methodParameter in methodParameters)
 			{
+				var logConditionAttributeData = methodParameter.AttributeDataList.OfType<LogConditionAttributeData>().FirstOrDefault();
+				if (logConditionAttributeData !=null && logConditionAttributeData.MinLogLevel < logLevel)
+				{
+					continue;
+				}
+
 				if (typeof(Exception).IsAssignableFrom(methodParameter.ParameterType))
 				{
 					continue;
@@ -44,7 +53,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				{
 					sb.Append(" ");
 				}
-				var value = methodParameter.GetFormattedValue(logLevel);
+				var value = methodParameter.GetFormattedValue();
 				sb.Append($"{methodParameter.Name.ToPascalCase()}: '{value}'");
 			}
 
@@ -72,9 +81,13 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 		public bool IsEnabled(LogLevel logLevel)
 		{
-			_isEnabledCalled = true;
-			_actualIsEnabledLogLevel = logLevel;
-			return _logEnabled;
+			if (!_isEnabledFirstTimeCalled)
+			{
+				_actualIsEnabledLogLevel = logLevel;
+				_isEnabledFirstTimeCalled = true;
+			}
+
+			return _logEnabled && logLevel >= _logLevel;
 		}
 
 		public IDisposable BeginScope<TState>(TState state)
@@ -84,7 +97,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 		public void Verify()
 		{
-			if (!_isEnabledCalled)
+			if (!_isEnabledFirstTimeCalled)
 			{
 				throw new Exception($"{nameof(IsEnabled)} was not called");
 			}
@@ -116,6 +129,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 			if (_actualMessage != _message)
 			{
+				Debugger.Launch();
 				throw new Exception($"{nameof(Log)} was called with unexpected log message:{_actualMessage}. Expected:{_message}");
 			}
 

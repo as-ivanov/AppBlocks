@@ -11,17 +11,13 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		public IEnumerable<Func<ITestContext, IEnumerable<AttributeData>>> GetPossibleCombinations(
 			ITestInterfaceGenerationOptions options)
 		{
-			yield return c => { return new AttributeData[0]; };
+			yield return c => new AttributeData[0];
 			var logLevels = Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>().ToArray();
 			foreach (var logLevel in logLevels)
 			{
 				yield return c =>
 				{
 					return new[] {LogConditionAttributeData.Create(logLevel)};
-				};
-				yield return c =>
-				{
-					return new[] {LogConditionAttributeData.Create(logLevel, Guid.NewGuid().ToString())};
 				};
 			}
 		}

@@ -14,6 +14,12 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				.InheritedInterfaceTypes));
 		}
 
+		public static T GetConstructorArgumentValue<T>(this AttributeData attributeData, int index = 0)
+		{
+			var constructorArgument = attributeData.ConstructorArguments[index];
+			return (T) constructorArgument.Value;
+		}
+
 		public static string GetNamedArgumentValueOrDefault(this AttributeData attributeData, string name, string @default = default)
 		{
 			return GetNamedArgumentValueOrDefault<string>(attributeData, name, @default);

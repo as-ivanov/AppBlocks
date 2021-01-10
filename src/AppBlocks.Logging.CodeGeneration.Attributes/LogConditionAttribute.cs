@@ -9,8 +9,12 @@ namespace AppBlocks.Logging.CodeGeneration.Attributes
 	[Conditional(CodeGenerationAttributesConsts.CodeGenerationConditionName)]
 	public class LogConditionAttribute : Attribute
 	{
-		internal static readonly string DefaultPlaceholder = "{...}";
-		public LogLevel MinLevel { get; set; }
-		public string Placeholder { get; set; } = DefaultPlaceholder;
+		private readonly LogLevel _minLevel;
+		public LogConditionAttribute(LogLevel minLevel)
+		{
+			_minLevel = minLevel;
+		}
+
+		public LogLevel MinLevel => _minLevel;
 	}
 }
