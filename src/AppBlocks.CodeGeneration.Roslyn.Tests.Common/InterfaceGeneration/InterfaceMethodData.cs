@@ -46,11 +46,16 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			{
 				foreach (var returnType in options.InterfaceMethodReturnTypes)
 				{
-					Func<ITestContext, InterfaceMethodData> CreateInterfaceMethodDataVariation(IEnumerable<MethodParameterData> parameters)
+					Func<ITestContext, InterfaceMethodData> CreateInterfaceMethodDataVariation(IEnumerable<Func<ITestContext, MethodParameterData>> parameters)
 					{
-						return context => new InterfaceMethodData(returnType, "Method" + context.NextId(), attributeData(context).ToArray(), parameters.ToArray());
+						return context => new InterfaceMethodData(returnType, "Method" + context.NextId(), attributeData(context).ToArray(), parameters.Select((avaluator)=>avaluator(context)).ToArray());
 					}
-					yield return CreateInterfaceMethodDataVariation(new MethodParameterData[0]);
+
+					static IEnumerable<Func<ITestContext, MethodParameterData>> EmptyMethodParameterData()
+					{
+						yield break;
+					}
+					yield return CreateInterfaceMethodDataVariation(EmptyMethodParameterData());
 					foreach (var parametersCount in options.MethodParameterCounts)
 					{
 						if (parametersCount == 1)

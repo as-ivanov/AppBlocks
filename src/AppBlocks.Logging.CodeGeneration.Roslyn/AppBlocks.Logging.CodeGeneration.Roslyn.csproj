@@ -13,6 +13,9 @@
 		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LogOptionsAttribute.cs">
 		  <Link>Links\LogOptionsAttribute.cs</Link>
 		</Compile>
+		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LogConditionAttribute.cs">
+			<Link>Links\LogConditionAttribute.cs</Link>
+		</Compile>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Humanizer" Version="2.8.2" />
@@ -20,7 +23,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>CodeGeneration.Roslyn.Logger.Tests</_Parameter1>
+			<_Parameter1>AppBlocks.Logging.CodeGeneration.Roslyn.Tests</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
 	<ItemGroup>

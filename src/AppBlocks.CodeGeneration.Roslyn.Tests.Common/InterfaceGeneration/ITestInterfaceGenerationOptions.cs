@@ -7,6 +7,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		string[] UsingNamespaces { get; }
 		IAttributeDataBuilder InterfaceAttributeDataBuilder { get; }
 		IAttributeDataBuilder MethodAttributeDataBuilder { get; }
+		IAttributeDataBuilder ParameterAttributeDataBuilder { get; }
 		Type[] InterfaceMethodReturnTypes { get; }
 		int[] InterfaceCounts { get; }
 		int[] InheritedInterfaceCounts { get; }

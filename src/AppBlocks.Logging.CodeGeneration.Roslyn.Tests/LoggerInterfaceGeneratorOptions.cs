@@ -20,6 +20,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		private readonly int[] _interfaceMethodsCounts = Enumerable.Range(0, 3).ToArray();
 		private readonly IAttributeDataBuilder _methodAttributeDataBuilder = new LoggerInterfaceMethodAttributeDataBuilder();
 		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
+		private readonly IAttributeDataBuilder _parameterAttributeDataBuilder = new LoggerMethodParameterAttributeDataBuilder();
 
 
 		private static readonly Type[] _methodParameterTypes =
@@ -52,6 +53,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		public IAttributeDataBuilder InterfaceAttributeDataBuilder => _interfaceAttributeDataBuilder;
 
 		public IAttributeDataBuilder MethodAttributeDataBuilder => _methodAttributeDataBuilder;
+
+		public IAttributeDataBuilder ParameterAttributeDataBuilder => _parameterAttributeDataBuilder;
 
 		public Type[] InterfaceMethodReturnTypes => _interfaceMethodReturnTypes;
 

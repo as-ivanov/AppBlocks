@@ -68,7 +68,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				LogLevel.Information);
 
 			var parameters = methodDeclarationSyntax.ParameterList.Parameters
-				.Select(p => p.ToLoggerMethodParameter(context, methodSymbol, exceptionType)).ToImmutableArray();
+				.Select(p => p.ToLoggerMethodParameter(context, methodSymbol, exceptionType, level)).ToImmutableArray();
 
 			var methodNameCamelCase = methodDeclarationSyntax.Identifier.WithoutTrivia().Text.ToCamelCase();
 			string delegateFieldName;
@@ -83,17 +83,20 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				delegateFieldName = $"_{methodNameCamelCase}Delegate{currentFiledCounter}";
 			}
 
+			var subLevels = parameters.Where(_ => _.MinLogLevel.HasValue).Select(_=>_.MinLogLevel.Value).Distinct().ToArray();
+
 			return new LoggerMethod(
 				methodDeclarationSyntax,
 				declaredInterfaceSymbol,
 				level,
 				message,
 				delegateFieldName,
-				parameters);
+				parameters,
+				subLevels);
 		}
 
 		private static LoggerMethodParameter ToLoggerMethodParameter(this ParameterSyntax parameterSyntax,
-			TransformationContext context, IMethodSymbol methodSymbol, ITypeSymbol exceptionType)
+			TransformationContext context, IMethodSymbol methodSymbol, ITypeSymbol exceptionType, LogLevel methodLogLevel)
 		{
 			try
 			{
@@ -101,8 +104,21 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 					methodSymbol.Parameters.FirstOrDefault(_ =>
 						_.Name == parameterSyntax.Identifier.WithoutTrivia().ToFullString().TrimStart('@'));
 				var conversionInfo = context.Compilation.ClassifyCommonConversion(parameterSymbol.Type, exceptionType);
-				return new LoggerMethodParameter(parameterSyntax, parameterSymbol,
-					conversionInfo.Exists && conversionInfo.IsImplicit);
+
+				var attributeData = parameterSymbol.GetAttributes();
+				var logConditionAttributeData =
+					attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(LogConditionAttribute));
+				LogLevel? minLogLevel = null;
+				if (logConditionAttributeData != null)
+				{
+					minLogLevel = logConditionAttributeData.GetConstructorArgumentValue<LogLevel>();
+					if (minLogLevel >= methodLogLevel) // no sense to check if LogLevel.Critical enabled if we are inside LogLevel.Information enabled condition
+					{
+						minLogLevel = null;
+					}
+				}
+
+				return new LoggerMethodParameter(parameterSyntax, parameterSymbol,  conversionInfo.Exists && conversionInfo.IsImplicit, minLogLevel);
 			}
 			catch (Exception e)
 			{
