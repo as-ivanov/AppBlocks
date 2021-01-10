@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
@@ -9,13 +10,15 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		private readonly Type _type;
 		private readonly object _value;
 		private readonly string _aliasTypeName;
+		private readonly AttributeData[] _attributeDataList;
 
-		private MethodParameterData(string name, Type type, object value, string aliasTypeName)
+		private MethodParameterData(string name, Type type, object value, string aliasTypeName,  AttributeData[] attributeDataList)
 		{
 			_name = name;
 			_type = type;
 			_value = value;
 			_aliasTypeName = aliasTypeName;
+			_attributeDataList = attributeDataList;
 		}
 
 		public object Value => _value;
@@ -28,7 +31,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public override string ToString()
 		{
-			return $"{_aliasTypeName ?? ParameterType.Name.ToString()} {Name}";
+			var attributes = string.Join(Environment.NewLine, _attributeDataList.Select(_=>_.ToString()));
+			return $"{attributes} {_aliasTypeName ?? ParameterType.Name.ToString()} {Name}";
 		}
 
 		public TypeNameAliasUsingData GetTypeNameAliasUsingData()
@@ -41,18 +45,22 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			return new TypeNameAliasUsingData(_type, _aliasTypeName);
 		}
 
-		public static IEnumerable<MethodParameterData> GetPossibleVariations(ITestInterfaceGenerationOptions options)
+		public static IEnumerable<Func<ITestContext, MethodParameterData>> GetPossibleVariations(ITestInterfaceGenerationOptions options)
 		{
 			var index = 0;
-			foreach (var type in options.MethodParameterTypes)
+			foreach (var parameterAttributeCombination in
+				options.ParameterAttributeDataBuilder.GetPossibleCombinations(options))
 			{
-				var values = options.ParameterValuesBuilder.GetValues(type);
-				foreach (var value in values)
+				foreach (var type in options.MethodParameterTypes)
 				{
-					index++;
-					var prefix = index % 2 == 0 ? "@" : "";
-					var aliasTypeName = index % 1 == 0 ? "AliasType" + index : null;
-					yield return new MethodParameterData(prefix + "param" + index, type, value, aliasTypeName);
+					var values = options.ParameterValuesBuilder.GetValues(type);
+					foreach (var value in values)
+					{
+						index++;
+						var prefix = index % 2 == 0 ? "@" : "";
+						var aliasTypeName = index % 1 == 0 ? "AliasType" + index : null;
+						yield  return (context)=> new MethodParameterData(prefix + "param" + context.NextId(), type, value, aliasTypeName, parameterAttributeCombination(context).ToArray());
+					}
 				}
 			}
 		}

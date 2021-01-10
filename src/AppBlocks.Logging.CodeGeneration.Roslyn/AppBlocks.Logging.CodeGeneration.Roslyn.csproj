@@ -13,6 +13,9 @@
 		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LogOptionsAttribute.cs">
 		  <Link>Links\LogOptionsAttribute.cs</Link>
 		</Compile>
+		<Compile Include="..\AppBlocks.Logging.CodeGeneration.Attributes\LogConditionAttribute.cs">
+			<Link>Links\LogConditionAttribute.cs</Link>
+		</Compile>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Humanizer" Version="2.8.2" />

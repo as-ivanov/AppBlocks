@@ -37,6 +37,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			new MetricsCollectorInterfaceMethodAttributeDataBuilder();
 
 		private readonly int[] _methodParameterCounts = Enumerable.Range(0, 3).ToArray();
+		private readonly IAttributeDataBuilder _parameterAttributeDataBuilder = new EmptyAttributeDataBuilder();
 
 		private static readonly Type[] _methodParameterTypes =
 		{
@@ -73,6 +74,8 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		public IAttributeDataBuilder InterfaceAttributeDataBuilder => _interfaceAttributeDataBuilder;
 
 		public IAttributeDataBuilder MethodAttributeDataBuilder => _methodAttributeDataBuilder;
+
+		public IAttributeDataBuilder ParameterAttributeDataBuilder => _parameterAttributeDataBuilder;
 
 		public Type[] InterfaceMethodReturnTypes => _interfaceMethodReturnTypes;
 
