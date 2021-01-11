@@ -27,6 +27,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			typeof(string),
 			typeof(char),
 			typeof(byte),
+			typeof(byte?),
 			typeof(short),
 			typeof(long),
 			typeof(float),

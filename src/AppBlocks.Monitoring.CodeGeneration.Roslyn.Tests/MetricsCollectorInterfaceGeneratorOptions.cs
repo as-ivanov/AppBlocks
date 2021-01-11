@@ -43,6 +43,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			typeof(string),
 			typeof(char),
 			typeof(byte),
+			typeof(byte?),
 			typeof(sbyte),
 			//typeof(ushort),
 			typeof(short),
