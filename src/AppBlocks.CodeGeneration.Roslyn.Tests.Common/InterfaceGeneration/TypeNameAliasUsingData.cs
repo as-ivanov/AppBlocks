@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using AppBlocks.CodeGeneration.Roslyn.Common;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 {
@@ -26,7 +28,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			{
 				return string.Empty;
 			}
-			return $"using {_alias} = {_type};";
+
+			return $"using {_alias} = {_type.GetFriendlyName()};";
 		}
 	}
 }

@@ -85,7 +85,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 			var members = new List<MemberDeclarationSyntax>(metricsCollectorDescriptor.Methods.Length);
 			foreach (var method in metricsCollectorDescriptor.Methods)
 			{
-				var interfaceGlobalQualifiedName = AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(method.DeclaringInterfaceSymbol.GetFullTypeName()));
+				var interfaceGlobalQualifiedName = IdentifierName(method.DeclaringInterfaceSymbol.GetFullTypeName());
 				var explicitInterfaceSpecifier = ExplicitInterfaceSpecifier(interfaceGlobalQualifiedName);
 
 				var returnTypeNameWithoutNamespaces = method.MethodDeclarationSyntax.ReturnType.WithoutTrivia().ToFullString()

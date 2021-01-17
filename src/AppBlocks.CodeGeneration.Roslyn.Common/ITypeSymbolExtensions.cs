@@ -19,10 +19,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			return symbol.ToTypeSyntax();
 		}
 
-		public static AliasQualifiedNameSyntax ToGlobalAliasQualifiedName(this ITypeSymbol symbol)
+		public static NameSyntax ToGlobalAliasQualifiedName(this ITypeSymbol symbol)
 		{
-			var identifierName = IdentifierName(symbol.GetFullTypeName());
-			return AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), identifierName);
+			return IdentifierName(symbol.GetFullTypeName());
 		}
 	}
 }

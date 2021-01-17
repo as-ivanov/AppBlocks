@@ -10,23 +10,11 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
 	public static class SymbolExtensions
 	{
-		public static string GetFullTypeName(this ITypeSymbol symbol)
-		{
-			var nameBuilder = new StringBuilder();
-			ISymbol symbolOrParent = symbol;
-			while (symbolOrParent != null && !string.IsNullOrEmpty(symbolOrParent.Name))
-			{
-				if (nameBuilder.Length > 0)
-				{
-					nameBuilder.Insert(0, CSharpConst.NamespaceClassDelimiter);
-				}
-
-				nameBuilder.Insert(0, symbolOrParent.Name);
-				symbolOrParent = symbolOrParent.ContainingSymbol;
-			}
-
-			return nameBuilder.ToString();
-		}
+		private static readonly SymbolDisplayFormat _format = new SymbolDisplayFormat(SymbolDisplayGlobalNamespaceStyle.Included,
+			SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+			SymbolDisplayGenericsOptions.IncludeTypeParameters,
+			miscellaneousOptions: SymbolDisplayMiscellaneousOptions.ExpandNullable);
+		public static string GetFullTypeName(this ITypeSymbol symbol) => symbol.ToDisplayString(_format);
 
 
 		public static IEnumerable<(MethodDeclarationSyntax MethodDeclaration, IMethodSymbol methodSymbol, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)>
