@@ -92,8 +92,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 				static NameSyntax GetGlobalMethodIdentifier(LoggerMethod method)
 				{
-					var methodIdentifier = IdentifierName(method.DeclaredInterfaceSymbol.GetFullTypeName() + "." + method.MethodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
-					return AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), methodIdentifier);
+					return IdentifierName(method.DeclaredInterfaceSymbol.GetFullTypeName() + "." + method.MethodDeclarationSyntax.Identifier.WithoutTrivia().ToFullString());
 				}
 
 				var loggerMethodDelegateFieldName = GetLoggerMethodDelegateFieldName(method, subLevel);
