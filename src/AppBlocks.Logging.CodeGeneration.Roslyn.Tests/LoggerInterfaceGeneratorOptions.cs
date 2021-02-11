@@ -26,17 +26,17 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		private static readonly Type[] _methodParameterTypes =
 		{
 			typeof(string),
-			typeof(char),
-			typeof(byte),
-			typeof(byte?),
-			typeof(short),
-			typeof(long),
-			typeof(float),
-			typeof(decimal),
-			typeof(DateTime),
-			typeof(object),
-			typeof(Exception),
-			typeof(Task)
+			// typeof(char),
+			// typeof(byte),
+			// typeof(byte?),
+			// typeof(short),
+			// typeof(long),
+			// typeof(float),
+			// typeof(decimal),
+			// typeof(DateTime),
+			// typeof(object),
+			// typeof(Exception),
+			// typeof(Task)
 		};
 
 		private readonly IParameterValuesBuilder _parameterValuesBuilder = new LoggerInterfaceParameterValuesBuilder();

@@ -13,7 +13,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		private readonly string _name;
 		private readonly string _namespace;
 
-		public InterfaceData(string name, string @namespace) : this(name, @namespace, Array.Empty<AttributeData>(), Array.Empty<InterfaceMethodData>(), Array.Empty<InterfaceData>(), false)
+		public InterfaceData(string name, string @namespace)
+			: this(name, @namespace, Array.Empty<AttributeData>(), Array.Empty<InterfaceMethodData>(), Array.Empty<InterfaceData>(), false)
 		{
 		}
 
@@ -66,7 +67,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 					{
 						Func<ITestContext, InterfaceData> CreateInterfaceDataVariation(IEnumerable<Func<ITestContext, InterfaceMethodData>> methods)
 						{
-							return context => new InterfaceData("ITestInterface" + context.NextId(), options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true);
+							return context => new InterfaceData("ITestInterface" + context.NextId() + "<TParam1, TParam2>", options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true);
 						}
 
 						if (methodsCount == 1)
@@ -104,7 +105,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 				sb.AppendLine(attributeData.ToString());
 			}
 
-			using (sb.Block($"interface {_name}" + (InheritedInterfaces.Any() ? $" : {string.Join(",", InheritedInterfaces.Select(_ => _.Namespace + "." + _.Name))}" : string.Empty)))
+			using (sb.Block($"interface {_name}" + (InheritedInterfaces.Any() ? $" : {string.Join(",", InheritedInterfaces.Select(_ => _.Namespace + "." + _.Name))} where TParam1 : class where TParam2 : struct" : string.Empty)))
 			{
 				foreach (var method in Methods)
 				{

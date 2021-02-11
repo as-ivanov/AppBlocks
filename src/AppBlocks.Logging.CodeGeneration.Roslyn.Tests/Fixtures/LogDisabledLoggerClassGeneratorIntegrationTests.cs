@@ -3,7 +3,7 @@ using AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
+namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests.Fixtures
 {
 	public class LogDisabledLoggerClassGeneratorIntegrationTests : LoggerClassGeneratorIntegrationTestBase
 	{

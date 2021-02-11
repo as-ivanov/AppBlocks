@@ -80,7 +80,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				var typeArguments = type.TypeParameterList?.ChildNodes()
 					.Count(node => node is TypeParameterSyntax) ?? 0;
 				if (typeArguments != 0)
-					builder.Append(CSharpConst.TypeParameterClassDelimiter).Append(typeArguments);
+					builder.Append(type.TypeParameterList);
 			}
 
 			for (var item = types.First; item is object; item = item.Next)
