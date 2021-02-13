@@ -76,7 +76,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		private void BuildAndVerify(InterfaceData metricsCollectorTypeData, Assembly assembly, bool metricEnabled)
 		{
 			var metricsCollectorType =
-				assembly.GetType(metricsCollectorTypeData.Namespace + "." + metricsCollectorTypeData.Name.TrimStart('I'), true);
+				assembly.GetType(metricsCollectorTypeData.Namespace + "." + metricsCollectorTypeData.Name.TrimStart('I').Replace("<TInterfaceParam1, TInterfaceParam2>", "`2"), true);
 			if (metricsCollectorType == null)
 			{
 				throw new Exception(
@@ -98,11 +98,23 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		{
 			_output.WriteLine($"VerifyInterface:'{interfaceData}'");
 			var metricsCollectorInterfaceType =
-				assembly.GetType(interfaceData.Namespace + "." + interfaceData.Name, true);
+				assembly.GetType(interfaceData.Namespace + "." + interfaceData.Name.Replace("<TInterfaceParam1, TInterfaceParam2>", "`2"), true);
 			if (metricsCollectorInterfaceType == null)
 			{
 				throw new Exception(
 					"MetricsCollector interface for not found in emitted assembly");
+			}
+
+			if (metricsCollectorType.IsGenericTypeDefinition)
+			{
+				var metricsCollectorTypeParams = new[] { typeof(object), typeof(int) };
+				metricsCollectorType = metricsCollectorType.MakeGenericType(metricsCollectorTypeParams);
+			}
+
+			if (metricsCollectorInterfaceType.IsGenericTypeDefinition)
+			{
+				var metricsCollectorInterfaceTypeParams = new[] { typeof(object), typeof(int) };
+				metricsCollectorInterfaceType = metricsCollectorInterfaceType.MakeGenericType(metricsCollectorInterfaceTypeParams);
 			}
 
 
@@ -218,7 +230,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 		private static (MetricsCollectorIndicatorType metricsCollectorIndicatorType, string metricName, string
 			measurementUnitName, Tags tags) GetMetricsCollectorIndicatorInfo(InterfaceMethodData interfaceMethodData)
 		{
-			var metricsCollectorIndicatorTypeString = interfaceMethodData.ReturnType.Name.TrimStart('I');
+			var metricsCollectorIndicatorTypeString = interfaceMethodData.ReturnType.Name.TrimStart('I').Replace("<TInterfaceParam1, TInterfaceParam2>", "`2");
 			if (!Enum.TryParse<MetricsCollectorIndicatorType>(metricsCollectorIndicatorTypeString, true,
 				out var metricsCollectorIndicatorType))
 			{
