@@ -67,7 +67,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 					{
 						Func<ITestContext, InterfaceData> CreateInterfaceDataVariation(IEnumerable<Func<ITestContext, InterfaceMethodData>> methods)
 						{
-							return context => new InterfaceData("ITestInterface" + context.NextId() + "<TParam1, TParam2>", options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true);
+							return context => new InterfaceData("ITestInterface" + context.NextId() + "<TInterfaceParam1, TInterfaceParam2>", options.InterfaceNamespace, attributeData(context).ToArray(), methods.Select(_ => _.Invoke(context)).ToArray(), inheritedInterfaces(context), true);
 						}
 
 						if (methodsCount == 1)
@@ -105,7 +105,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 				sb.AppendLine(attributeData.ToString());
 			}
 
-			using (sb.Block($"interface {_name}" + (InheritedInterfaces.Any() ? $" : {string.Join(",", InheritedInterfaces.Select(_ => _.Namespace + "." + _.Name))} where TParam1 : class where TParam2 : struct" : string.Empty)))
+			using (sb.Block($"interface {_name}" + (InheritedInterfaces.Any() ? $" : {string.Join(",", InheritedInterfaces.Select(_ => _.Namespace + "." + _.Name))} where TInterfaceParam1 : class where TInterfaceParam2 : struct" : string.Empty)))
 			{
 				foreach (var method in Methods)
 				{

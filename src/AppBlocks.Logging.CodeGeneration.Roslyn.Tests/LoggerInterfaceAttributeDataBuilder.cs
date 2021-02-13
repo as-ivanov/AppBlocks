@@ -31,7 +31,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 		private static InterfaceData GetBaseTypeInterfaceData(int index)
 		{
-			return new InterfaceData("ITestInterfaceToInherit" + index + "<TParam1, TParam2>", "TestNamespaceForITestInterfaceToInherit" + index);
+			return new InterfaceData("ITestInterfaceToInherit" + index + "<TInterfaceParam1, TInterfaceParam2>", "TestNamespaceForITestInterfaceToInherit" + index);
 		}
 	}
 }
