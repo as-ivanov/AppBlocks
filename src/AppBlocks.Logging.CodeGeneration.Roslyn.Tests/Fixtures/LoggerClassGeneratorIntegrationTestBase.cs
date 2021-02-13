@@ -15,7 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
+namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests.Fixtures
 {
 	public class LoggerClassGeneratorIntegrationTestBase
 	{
@@ -75,7 +75,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 		private void Verify(InterfaceData sutMember, Assembly assembly, bool logEnabled)
 		{
-			var loggerType = assembly.GetType(sutMember.Namespace + "." + sutMember.Name.TrimStart('I'), true);
+			var loggerType = assembly.GetType(sutMember.Namespace + "." + sutMember.Name.Replace("<TInterfaceParam1, TInterfaceParam2>", "`2").TrimStart('I'), true);
 			if (loggerType == null)
 			{
 				throw new Exception("Logger type not found in emitted assembly");
@@ -89,7 +89,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		{
 			_output.WriteLine($"VerifyInterface:'{interfaceData}'");
 			var loggerInterfaceType =
-				assembly.GetType(interfaceData.Namespace + "." + interfaceData.Name, true);
+				assembly.GetType(interfaceData.Namespace + "." + interfaceData.Name.Replace("<TInterfaceParam1, TInterfaceParam2>", "`2"), true);
 			if (loggerInterfaceType == null)
 			{
 				throw new Exception(
@@ -123,6 +123,18 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				var internalLogger = new TestLogger(new EventId(methodIndex, methodName), methodName, message, logLevel,
 					interfaceMethod.Parameters, logEnabled);
 				var loggerFactory = new TestLoggerFactory(internalLogger);
+				if (loggerType.IsGenericTypeDefinition)
+				{
+					var loggerTypeParams = new[] { typeof(object), typeof(int) };
+					loggerType = loggerType.MakeGenericType(loggerTypeParams);
+				}
+
+				if (loggerInterfaceType.IsGenericTypeDefinition)
+				{
+					var loggerTypeParams = new[] { typeof(object), typeof(int) };
+					loggerInterfaceType = loggerInterfaceType.MakeGenericType(loggerTypeParams);
+				}
+
 				var logger = Activator.CreateInstance(loggerType, loggerFactory);
 
 				var loggerMethod = loggerInterfaceType.GetTypeInfo().GetDeclaredMethod(methodName);
@@ -133,8 +145,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 				loggerMethod = loggerMethod.MakeGenericMethod(typeof(string), typeof(Guid));
 				var parameters = interfaceMethod.Parameters.Select(p => p.Value).ToArray();
-				loggerMethod.Invoke(logger, parameters);
-				internalLogger.Verify();
+				 loggerMethod.Invoke(logger, parameters);
+				 internalLogger.Verify();
 			}
 
 			foreach (var inheritedInterface in interfaceData.InheritedInterfaces)
