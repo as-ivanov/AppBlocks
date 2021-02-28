@@ -86,7 +86,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 					IRichCodeGenerator generator;
 					try
 					{
-						generator = (IRichCodeGenerator) Activator.CreateInstance(generatorType, attributeData);
+						generator = (IRichCodeGenerator)Activator.CreateInstance(generatorType, attributeData);
 					}
 					catch (MissingMethodException)
 					{
@@ -155,15 +155,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 
 		private static IEnumerable<MetadataReference> GetAssemblyReferences(IEnumerable<Type> extraTypes)
 		{
-			var coreAssemblyNames = new[]
-			{
-				"mscorlib.dll",
-				"netstandard.dll",
-				"System.dll",
-				"System.Core.dll",
-				"System.Private.CoreLib.dll",
-				"System.Runtime.dll",
-			};
+			var coreAssemblyNames = new[] {"mscorlib.dll", "netstandard.dll", "System.dll", "System.Core.dll", "System.Private.CoreLib.dll", "System.Runtime.dll"};
 
 			var coreAssemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location);
 			var coreMetaReferences =

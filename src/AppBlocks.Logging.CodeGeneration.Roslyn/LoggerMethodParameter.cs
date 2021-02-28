@@ -16,7 +16,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			IParameterSymbol parameterSymbol,
 			bool isException,
 			LogLevel? minLogLevel
-			)
+		)
 		{
 			_parameterSyntax = parameterSyntax;
 			_parameterSymbol = parameterSymbol;

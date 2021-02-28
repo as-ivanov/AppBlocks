@@ -83,7 +83,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				delegateFieldName = $"_{methodNameCamelCase}Delegate{currentFiledCounter}";
 			}
 
-			var subLevels = parameters.Where(_ => _.MinLogLevel.HasValue).Select(_=>_.MinLogLevel.Value).Distinct().ToArray();
+			var subLevels = parameters.Where(_ => _.MinLogLevel.HasValue).Select(_ => _.MinLogLevel.Value).Distinct().ToArray();
 
 			return new LoggerMethod(
 				methodDeclarationSyntax,
@@ -118,7 +118,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 					}
 				}
 
-				return new LoggerMethodParameter(parameterSyntax, parameterSymbol,  conversionInfo.Exists && conversionInfo.IsImplicit, minLogLevel);
+				return new LoggerMethodParameter(parameterSyntax, parameterSymbol, conversionInfo.Exists && conversionInfo.IsImplicit, minLogLevel);
 			}
 			catch (Exception e)
 			{

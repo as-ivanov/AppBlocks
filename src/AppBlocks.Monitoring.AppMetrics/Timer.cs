@@ -20,7 +20,7 @@ namespace AppBlocks.Monitoring.AppMetrics
 
 		public void Record(double milliseconds)
 		{
-			_metrics.Provider.Timer.Instance(_timerOptions, _metricTags).Record((long) milliseconds, TimeUnit.Milliseconds);
+			_metrics.Provider.Timer.Instance(_timerOptions, _metricTags).Record((long)milliseconds, TimeUnit.Milliseconds);
 		}
 
 		public IDisposable Time()

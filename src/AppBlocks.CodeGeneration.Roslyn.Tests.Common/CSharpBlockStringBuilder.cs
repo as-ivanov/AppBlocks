@@ -54,6 +54,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common
 			{
 				return;
 			}
+
 			AppendLine(@string);
 		}
 

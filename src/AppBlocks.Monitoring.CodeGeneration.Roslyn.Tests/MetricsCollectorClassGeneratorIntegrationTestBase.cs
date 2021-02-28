@@ -39,13 +39,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			var syntaxTrees = context.CompilationEntries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString()))
 				.ToArray();
 
-			var extraTypes = new[]
-			{
-				typeof(GeneratedCodeAttribute),
-				typeof(GenerateMetricsCollectorAttribute),
-				typeof(ImplementInterfaceAttribute),
-				typeof(IMetricsProvider)
-			};
+			var extraTypes = new[] {typeof(GeneratedCodeAttribute), typeof(GenerateMetricsCollectorAttribute), typeof(ImplementInterfaceAttribute), typeof(IMetricsProvider)};
 
 			Assembly assembly = null;
 			try
@@ -107,13 +101,13 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 
 			if (metricsCollectorType.IsGenericTypeDefinition)
 			{
-				var metricsCollectorTypeParams = new[] { typeof(object), typeof(int) };
+				var metricsCollectorTypeParams = new[] {typeof(object), typeof(int)};
 				metricsCollectorType = metricsCollectorType.MakeGenericType(metricsCollectorTypeParams);
 			}
 
 			if (metricsCollectorInterfaceType.IsGenericTypeDefinition)
 			{
-				var metricsCollectorInterfaceTypeParams = new[] { typeof(object), typeof(int) };
+				var metricsCollectorInterfaceTypeParams = new[] {typeof(object), typeof(int)};
 				metricsCollectorInterfaceType = metricsCollectorInterfaceType.MakeGenericType(metricsCollectorInterfaceTypeParams);
 			}
 

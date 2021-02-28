@@ -96,7 +96,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				var methodConstraintClauses = method.MethodDeclarationSyntax.ConstraintClauses
 					.GetAllowedImplicitImplementationConstraintClause();
 
-				var methodParameters = method.MethodSymbol.Parameters.Select((parameterSymbol, index)=>
+				var methodParameters = method.MethodSymbol.Parameters.Select((parameterSymbol, index) =>
 				{
 					var aliasQualifiedName = parameterSymbol.Type.ToGlobalAliasQualifiedName();
 					var parameterSyntax = method.MethodDeclarationSyntax.ParameterList.Parameters[index];
@@ -165,12 +165,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 							.WithArgumentList(
 								ArgumentList(
 									SeparatedList<ArgumentSyntax>(
-										new SyntaxNodeOrToken[]
-										{
-											Argument(IdentifierName(ContextNameFieldName)),
-											Token(SyntaxKind.CommaToken),
-											Argument(IdentifierName(metricNameVariableName))
-										})))));
+										new SyntaxNodeOrToken[] {Argument(IdentifierName(ContextNameFieldName)), Token(SyntaxKind.CommaToken), Argument(IdentifierName(metricNameVariableName))})))));
 				return IfStatement(
 					condition,
 					Block(
@@ -242,14 +237,11 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 									{
 										Argument(
 											IdentifierName(ContextNameFieldName)),
-										Token(SyntaxKind.CommaToken),
-										Argument(
+										Token(SyntaxKind.CommaToken), Argument(
 											IdentifierName(metricNameVariableName)),
-										Token(SyntaxKind.CommaToken),
-										Argument(
+										Token(SyntaxKind.CommaToken), Argument(
 											IdentifierName(metricUnitVariableName)),
-										Token(SyntaxKind.CommaToken),
-										Argument(
+										Token(SyntaxKind.CommaToken), Argument(
 											IdentifierName(TagsVariableName))
 									}))));
 			}
@@ -281,8 +273,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 															LiteralExpression(
 																SyntaxKind.StringLiteralExpression,
 																Literal(parameter.Identifier.WithoutTrivia().Text))),
-														Token(SyntaxKind.CommaToken),
-														Argument(parameter.Identifier.GetToStringExpression())
+														Token(SyntaxKind.CommaToken), Argument(parameter.Identifier.GetToStringExpression())
 													}))))))));
 		}
 
@@ -325,9 +316,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 													SeparatedList<ArgumentSyntax>(
 														new SyntaxNodeOrToken[]
 														{
-															Argument(IdentifierName(metricsCollectorMethodDescriptor.MethodKeysFieldName)),
-															Token(SyntaxKind.CommaToken),
-															Argument(
+															Argument(IdentifierName(metricsCollectorMethodDescriptor.MethodKeysFieldName)), Token(SyntaxKind.CommaToken), Argument(
 																IdentifierName(ValuesVariableName))
 														}))))))));
 		}
@@ -355,12 +344,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 						.WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(MetricsPolicyFieldName)))))
 				.WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)));
 
-			return new MemberDeclarationSyntax[]
-			{
-				contextNameFieldDeclaration,
-				metricsProviderFieldDeclaration,
-				metricsPolicyFieldDeclaration
-			};
+			return new MemberDeclarationSyntax[] {contextNameFieldDeclaration, metricsProviderFieldDeclaration, metricsPolicyFieldDeclaration};
 		}
 
 		private static MemberDeclarationSyntax[] GetMetricsCollectorTagKeyFields(

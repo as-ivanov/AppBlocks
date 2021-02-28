@@ -12,7 +12,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		private readonly string _aliasTypeName;
 		private readonly AttributeData[] _attributeDataList;
 
-		private MethodParameterData(string name, Type type, object value, string aliasTypeName,  AttributeData[] attributeDataList)
+		private MethodParameterData(string name, Type type, object value, string aliasTypeName, AttributeData[] attributeDataList)
 		{
 			_name = name;
 			_type = type;
@@ -33,7 +33,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 
 		public override string ToString()
 		{
-			var attributes = string.Join(Environment.NewLine, AttributeDataList.Select(_=>_.ToString()));
+			var attributes = string.Join(Environment.NewLine, AttributeDataList.Select(_ => _.ToString()));
 			return $"{attributes} {_aliasTypeName ?? ParameterType.Name.ToString()} {Name}";
 		}
 
@@ -61,7 +61,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 						index++;
 						var prefix = index % 2 == 0 ? "@" : "";
 						var aliasTypeName = index % 1 == 0 ? "AliasType" + index : null;
-						yield  return (context)=> new MethodParameterData(prefix + "param" + context.NextId(), type, value, aliasTypeName, parameterAttributeCombination(context).ToArray());
+						yield return (context) => new MethodParameterData(prefix + "param" + context.NextId(), type, value, aliasTypeName, parameterAttributeCombination(context).ToArray());
 					}
 				}
 			}

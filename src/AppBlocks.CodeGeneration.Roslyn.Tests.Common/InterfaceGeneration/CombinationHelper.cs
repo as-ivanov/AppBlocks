@@ -17,7 +17,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 			IEnumerable<IEnumerable<T>> Runner(IEnumerable<T> list, int n)
 			{
 				var skip = 1;
-				foreach (var headList in list.Take(size - k + 1).Select(h => new[] {h}))
+				foreach (var headList in list.Take((size - k) + 1).Select(h => new[] {h}))
 				{
 					if (n == 1)
 					{

@@ -17,7 +17,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		public static T GetConstructorArgumentValue<T>(this AttributeData attributeData, int index = 0)
 		{
 			var constructorArgument = attributeData.ConstructorArguments[index];
-			return (T) constructorArgument.Value;
+			return (T)constructorArgument.Value;
 		}
 
 		public static string GetNamedArgumentValueOrDefault(this AttributeData attributeData, string name, string @default = default)
@@ -38,7 +38,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				return @default;
 			}
 
-			return (T) namedArgument.Value.Value;
+			return (T)namedArgument.Value.Value;
 		}
 
 		private static string[] GetNamedArgumentValueArray(this AttributeData attributeData, string name,
@@ -60,7 +60,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				return Array.Empty<T>();
 			}
 
-			return namedArgument.Value.Values.Select(_ => (T) _.Value).ToArray();
+			return namedArgument.Value.Values.Select(_ => (T)_.Value).ToArray();
 		}
 	}
 }

@@ -58,11 +58,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			}
 
 			return _subLevels
-				.Select(_ => new
-				{
-					Sublevel = _,
-					Parametes = Parameters.Where(parameter => !parameter.MinLogLevel.HasValue || parameter.MinLogLevel >= _)
-				}).ToDictionary(_ => _.Sublevel, _ => _.Parametes.ToImmutableArray());
+				.Select(_ => new {Sublevel = _, Parametes = Parameters.Where(parameter => !parameter.MinLogLevel.HasValue || parameter.MinLogLevel >= _)}).ToDictionary(_ => _.Sublevel, _ => _.Parametes.ToImmutableArray());
 		}
 	}
 }

@@ -15,6 +15,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 				var underlyingType = Nullable.GetUnderlyingType(type);
 				return GetValuesInternal(underlyingType);
 			}
+
 			return GetValuesInternal(type);
 		}
 
@@ -35,7 +36,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 			}
 			else if (type.IsFloatingNumericType())
 			{
-				yield return (float) Guid.NewGuid().GetHashCode() / Guid.NewGuid().GetHashCode();
+				yield return (float)Guid.NewGuid().GetHashCode() / Guid.NewGuid().GetHashCode();
 			}
 			else if (type.IsUnsignedNumericType())
 			{

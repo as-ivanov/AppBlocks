@@ -89,6 +89,16 @@ namespace AppBlocks.Monitoring.Abstractions
 			_values = values;
 		}
 
+		public static bool operator == (Tags left, Tags right)
+		{
+			return left.Equals(right);
+		}
+
+		public static bool operator != (Tags left, Tags right)
+		{
+			return !left.Equals(right);
+		}
+
 		public string Key => _key;
 
 		public string[] Keys => _keys;
@@ -100,8 +110,8 @@ namespace AppBlocks.Monitoring.Abstractions
 		public bool Equals(Tags other)
 		{
 			return _key == other._key && _value == other._value &&
-			       (_values == null && _keys == null ||
-			        _values.SequenceEqual(other._values) && _keys.SequenceEqual(other._keys));
+			       ((_values == null && _keys == null) ||
+			        (_values.SequenceEqual(other._values) && _keys.SequenceEqual(other._keys)));
 		}
 
 		public override bool Equals(object obj)
@@ -112,16 +122,6 @@ namespace AppBlocks.Monitoring.Abstractions
 		public override int GetHashCode()
 		{
 			return HashCode.Combine(_key, _keys, _value, _values);
-		}
-
-		public static bool operator ==(Tags left, Tags right)
-		{
-			return left.Equals(right);
-		}
-
-		public static bool operator !=(Tags left, Tags right)
-		{
-			return !left.Equals(right);
 		}
 
 		public override string ToString()

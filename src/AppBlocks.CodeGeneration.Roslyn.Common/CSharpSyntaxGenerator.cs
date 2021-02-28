@@ -10,8 +10,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		{
 			return SyntaxFactory.MemberAccessExpression(
 				SyntaxKind.SimpleMemberAccessExpression,
-				ParenthesizeLeft((ExpressionSyntax) expression),
-				(SimpleNameSyntax) memberName);
+				ParenthesizeLeft((ExpressionSyntax)expression),
+				(SimpleNameSyntax)memberName);
 		}
 
 		internal static ExpressionSyntax ParenthesizeLeft(ExpressionSyntax expression)
@@ -33,7 +33,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 		private static ExpressionSyntax Parenthesize(SyntaxNode expression)
 		{
-			return ((ExpressionSyntax) expression).Parenthesize();
+			return ((ExpressionSyntax)expression).Parenthesize();
 		}
 
 		public static SyntaxNode DefaultExpression(ITypeSymbol type)

@@ -71,8 +71,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		{
 			var baseTypes = GetClassBaseList(implementationDescriptor, implementationDescriptor.InheritedInterfaceTypes);
 
-			var classModifiers = new List<SyntaxToken>
-				{Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.PartialKeyword)};
+			var classModifiers = new List<SyntaxToken> {Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.PartialKeyword)};
 
 			var classDeclaration = ClassDeclaration(implementationDescriptor.ClassName)
 				.WithModifiers(TokenList(classModifiers))

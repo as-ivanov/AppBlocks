@@ -14,7 +14,11 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
 			SymbolDisplayGenericsOptions.IncludeTypeParameters,
 			miscellaneousOptions: SymbolDisplayMiscellaneousOptions.ExpandNullable);
-		public static string GetFullTypeName(this ITypeSymbol symbol) => symbol.ToDisplayString(_format);
+
+		public static string GetFullTypeName(this ITypeSymbol symbol)
+		{
+			return symbol.ToDisplayString(_format);
+		}
 
 
 		public static IEnumerable<(MethodDeclarationSyntax MethodDeclaration, IMethodSymbol methodSymbol, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)>

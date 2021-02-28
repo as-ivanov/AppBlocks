@@ -6,12 +6,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
 	public class MemberDeclarationSorter : IComparer<MemberDeclarationSyntax>
 	{
-		private readonly MemberDeclarationByModifierSorter[] _sorters =
-		{
-			new MemberDeclarationByModifierSorter(SyntaxKind.ConstKeyword),
-			new MemberDeclarationByModifierSorter(SyntaxKind.StaticKeyword),
-			new MemberDeclarationByModifierSorter(SyntaxKind.ReadOnlyKeyword),
-		};
+		private readonly MemberDeclarationByModifierSorter[] _sorters = {new MemberDeclarationByModifierSorter(SyntaxKind.ConstKeyword), new MemberDeclarationByModifierSorter(SyntaxKind.StaticKeyword), new MemberDeclarationByModifierSorter(SyntaxKind.ReadOnlyKeyword)};
 
 		public int Compare(MemberDeclarationSyntax x, MemberDeclarationSyntax y)
 		{

@@ -39,13 +39,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests.Fixtures
 			var syntaxTrees = context.CompilationEntries.Select(entry => CSharpSyntaxTree.ParseText(entry.ToString()))
 				.ToArray();
 
-			var extraTypes = new[]
-			{
-				typeof(GeneratedCodeAttribute),
-				typeof(GenerateLoggerAttribute),
-				typeof(ImplementInterfaceAttribute),
-				typeof(ILogger)
-			};
+			var extraTypes = new[] {typeof(GeneratedCodeAttribute), typeof(GenerateLoggerAttribute), typeof(ImplementInterfaceAttribute), typeof(ILogger)};
 
 			Assembly assembly = null;
 			try
@@ -125,13 +119,13 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests.Fixtures
 				var loggerFactory = new TestLoggerFactory(internalLogger);
 				if (loggerType.IsGenericTypeDefinition)
 				{
-					var loggerTypeParams = new[] { typeof(object), typeof(int) };
+					var loggerTypeParams = new[] {typeof(object), typeof(int)};
 					loggerType = loggerType.MakeGenericType(loggerTypeParams);
 				}
 
 				if (loggerInterfaceType.IsGenericTypeDefinition)
 				{
-					var loggerTypeParams = new[] { typeof(object), typeof(int) };
+					var loggerTypeParams = new[] {typeof(object), typeof(int)};
 					loggerInterfaceType = loggerInterfaceType.MakeGenericType(loggerTypeParams);
 				}
 
@@ -145,8 +139,8 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests.Fixtures
 
 				loggerMethod = loggerMethod.MakeGenericMethod(typeof(string), typeof(Guid));
 				var parameters = interfaceMethod.Parameters.Select(p => p.Value).ToArray();
-				 loggerMethod.Invoke(logger, parameters);
-				 internalLogger.Verify();
+				loggerMethod.Invoke(logger, parameters);
+				internalLogger.Verify();
 			}
 
 			foreach (var inheritedInterface in interfaceData.InheritedInterfaces)

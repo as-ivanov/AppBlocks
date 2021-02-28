@@ -13,7 +13,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 	{
 		public static string ToCamelCase(this SyntaxToken syntaxToken)
 		{
-			var id = (string) syntaxToken.Value;
+			var id = (string)syntaxToken.Value;
 			return id.ToCamelCase();
 		}
 
@@ -80,7 +80,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				var typeArguments = type.TypeParameterList?.ChildNodes()
 					.Count(node => node is TypeParameterSyntax) ?? 0;
 				if (typeArguments != 0)
+				{
 					builder.Append(type.TypeParameterList);
+				}
 			}
 
 			for (var item = types.First; item is object; item = item.Next)

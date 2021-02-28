@@ -65,7 +65,6 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 					SyntaxFactory.SeparatedList(typeParameters.Select(GenerateTypeParameter)));
 		}
 
-
 		private static MemberDeclarationSyntax[] GetMembers(INamedTypeSymbol namedType)
 		{
 			static TypeSyntax GenerateReturnTypeSyntax(IMethodSymbol method)
@@ -88,11 +87,11 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 					{
 						return refKind switch
 						{
-							RefKind.None => new SyntaxTokenList(),
+							RefKind.None => default(SyntaxTokenList),
 							RefKind.Out => SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.OutKeyword)),
 							RefKind.Ref => SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.RefKeyword)),
 							RefKind.In => SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.InKeyword)),
-							_ => throw new Exception($"Unexpected kind:{refKind}"),
+							_ => throw new Exception($"Unexpected kind:{refKind}")
 						};
 					}
 

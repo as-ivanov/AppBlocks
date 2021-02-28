@@ -111,7 +111,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			var needsEscaping = SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None;
 
 			// Check if we need to escape this contextual keyword
-			needsEscaping = needsEscaping || isQueryContext && SyntaxFacts.IsQueryContextualKeyword(SyntaxFacts.GetContextualKeywordKind(identifier));
+			needsEscaping = needsEscaping || (isQueryContext && SyntaxFacts.IsQueryContextualKeyword(SyntaxFacts.GetContextualKeywordKind(identifier)));
 
 			return needsEscaping ? "@" + identifier : identifier;
 		}

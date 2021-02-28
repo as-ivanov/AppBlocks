@@ -9,8 +9,6 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 {
 	public class MetricsCollectorInterfaceGeneratorOptions : ITestInterfaceGenerationOptions
 	{
-		private const string _interfaceNamespace = "TestNamespace";
-
 		private readonly IInheritanceListBuilder _inheritanceListBuilder =
 			new MetricsCollectorInterfaceInheritanceListBuilder();
 
@@ -21,15 +19,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 
 		private readonly int[] _interfaceCounts = Enumerable.Range(1, 2).ToArray();
 
-		private readonly Type[] _interfaceMethodReturnTypes =
-		{
-			typeof(ICounter),
-			typeof(IHistogram),
-			typeof(IHitPercentageGauge),
-			typeof(IMeter),
-			typeof(IGauge),
-			typeof(ITimer)
-		};
+		private readonly Type[] _interfaceMethodReturnTypes = {typeof(ICounter), typeof(IHistogram), typeof(IHitPercentageGauge), typeof(IMeter), typeof(IGauge), typeof(ITimer)};
 
 		private readonly int[] _interfaceMethodsCounts = Enumerable.Range(0, 3).ToArray();
 
@@ -41,32 +31,19 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 
 		private static readonly Type[] _methodParameterTypes =
 		{
-			typeof(string),
-			typeof(char),
-			typeof(byte),
-			typeof(byte?),
-			typeof(sbyte),
+			typeof(string), typeof(char), typeof(byte), typeof(byte?), typeof(sbyte),
 			//typeof(ushort),
-			typeof(short),
-			typeof(uint),
+			typeof(short), typeof(uint),
 			//typeof(int),
 			//typeof(ulong),
 			//typeof(long),
 			typeof(float),
 			// typeof(double),
 			// typeof(decimal),
-			typeof(DateTime),
-			typeof(object),
-			typeof(Exception),
-			typeof(Task)
+			typeof(DateTime), typeof(object), typeof(Exception), typeof(Task)
 		};
 
-		private readonly string[] _usingNamespaces = _methodParameterTypes.Select(_=>_.Namespace).Union(new[]
-		{
-			typeof(Action).Namespace,
-			typeof(GenerateMetricsCollectorAttribute).Namespace,
-			typeof(ICounter).Namespace
-		}).Distinct().ToArray();
+		private readonly string[] _usingNamespaces = _methodParameterTypes.Select(_ => _.Namespace).Union(new[] {typeof(Action).Namespace, typeof(GenerateMetricsCollectorAttribute).Namespace, typeof(ICounter).Namespace}).Distinct().ToArray();
 
 		private readonly IParameterValuesBuilder _parameterValuesBuilder = new MetricsCollectorInterfaceParameterValuesBuilder();
 
@@ -90,7 +67,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn.Tests
 
 		public Type[] MethodParameterTypes => _methodParameterTypes;
 
-		public string InterfaceNamespace => _interfaceNamespace;
+		public string InterfaceNamespace => "TestNamespace";
 
 		public IInheritanceListBuilder InheritanceListBuilder => _inheritanceListBuilder;
 

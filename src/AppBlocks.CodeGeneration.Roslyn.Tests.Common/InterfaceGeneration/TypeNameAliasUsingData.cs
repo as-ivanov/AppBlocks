@@ -11,6 +11,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Tests.Common.InterfaceGeneration
 		private readonly Type _type;
 		private readonly string _alias;
 		private readonly bool _isEmpty;
+
 		private TypeNameAliasUsingData()
 		{
 			_isEmpty = true;

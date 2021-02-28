@@ -57,6 +57,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				fieldNameCounter[methodNameCamelCase] = currentFiledCounter + 1;
 				methodKeysFieldName = $"_{methodNameCamelCase}Keys{currentFiledCounter}";
 			}
+
 			return new MetricsCollectorMethod(methodDeclaration, declaredInterfaceSymbol, metricName, methodKeysFieldName, unitName,
 				metricsCollectorType, methodSymbol);
 		}

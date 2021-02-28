@@ -39,7 +39,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 			foreach (var methodParameter in methodParameters)
 			{
 				var logConditionAttributeData = methodParameter.AttributeDataList.OfType<LogConditionAttributeData>().FirstOrDefault();
-				if (logConditionAttributeData !=null && logConditionAttributeData.MinLogLevel < logLevel)
+				if (logConditionAttributeData != null && logConditionAttributeData.MinLogLevel < logLevel)
 				{
 					continue;
 				}
@@ -53,6 +53,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 				{
 					sb.Append(" ");
 				}
+
 				var value = methodParameter.GetFormattedValue();
 				sb.Append($"{methodParameter.Name.ToPascalCase()}: '{value}'");
 			}

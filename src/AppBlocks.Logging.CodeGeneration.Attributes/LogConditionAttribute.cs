@@ -10,6 +10,7 @@ namespace AppBlocks.Logging.CodeGeneration.Attributes
 	public class LogConditionAttribute : Attribute
 	{
 		private readonly LogLevel _minLevel;
+
 		public LogConditionAttribute(LogLevel minLevel)
 		{
 			_minLevel = minLevel;

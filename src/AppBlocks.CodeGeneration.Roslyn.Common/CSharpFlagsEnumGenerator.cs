@@ -32,7 +32,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				if (member.Kind == SymbolKind.Field)
 				{
-					var field = (IFieldSymbol) member;
+					var field = (IFieldSymbol)member;
 					if (field.HasConstantValue)
 					{
 						var fieldValue =
@@ -77,7 +77,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				return expression;
 			}
 
-			return SyntaxFactory.CastExpression((TypeSyntax) enumType, expression.Parenthesize());
+			return SyntaxFactory.CastExpression((TypeSyntax)enumType, expression.Parenthesize());
 		}
 
 		private static void GetSortedEnumFieldsAndValues(
@@ -89,7 +89,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				if (member.Kind == SymbolKind.Field)
 				{
-					var field = (IFieldSymbol) member;
+					var field = (IFieldSymbol)member;
 					if (field.HasConstantValue)
 					{
 						var value = EnumUtilities.ConvertEnumUnderlyingTypeToUInt64(field.ConstantValue, underlyingSpecialType);
@@ -206,7 +206,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 						var containingSymbol = type.ContainingSymbol;
 						if (containingSymbol.Kind == SymbolKind.Namespace &&
 						    containingSymbol.Name == "System" &&
-						    ((INamespaceSymbol) containingSymbol.ContainingSymbol).IsGlobalNamespace)
+						    ((INamespaceSymbol)containingSymbol.ContainingSymbol).IsGlobalNamespace)
 						{
 							return true;
 						}
@@ -224,9 +224,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				unchecked
 				{
 					return
-						(long) x.value < (long) y.value
+						(long)x.value < (long)y.value
 							? -1
-							: (long) x.value > (long) y.value
+							: (long)x.value > (long)y.value
 								? 1
 								: -x.field.Name.CompareTo(y.field.Name);
 				}

@@ -12,6 +12,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		{
 			_minLogLevel = minLogLevel;
 		}
+
 		public LogLevel MinLogLevel => _minLogLevel;
 
 		public static AttributeData Create(LogLevel minLogLevel)

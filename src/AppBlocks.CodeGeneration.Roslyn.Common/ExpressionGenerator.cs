@@ -27,7 +27,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 				case TypedConstantKind.Type:
 					return typedConstant.Value is ITypeSymbol
-						? SyntaxFactory.TypeOfExpression(((ITypeSymbol) typedConstant.Value).GenerateTypeSyntax())
+						? SyntaxFactory.TypeOfExpression(((ITypeSymbol)typedConstant.Value).GenerateTypeSyntax())
 						: GenerateNullLiteral();
 
 				case TypedConstantKind.Array:
@@ -56,8 +56,8 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				if (type.TypeKind == TypeKind.Enum)
 				{
-					var enumType = (INamedTypeSymbol) type;
-					return (ExpressionSyntax) CSharpFlagsEnumGenerator.CreateEnumConstantValue(enumType, value);
+					var enumType = (INamedTypeSymbol)type;
+					return (ExpressionSyntax)CSharpFlagsEnumGenerator.CreateEnumConstantValue(enumType, value);
 				}
 
 				if (type.IsNullable())
@@ -65,7 +65,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 					// If the type of the argument is T?, then the type of the supplied default value can either be T
 					// (e.g. int? x = 5) or it can be T? (e.g. SomeStruct? x = null). The below statement handles the case
 					// where the type of the supplied default value is T.
-					return GenerateExpression(((INamedTypeSymbol) type).TypeArguments[0], value, canUseFieldReference);
+					return GenerateExpression(((INamedTypeSymbol)type).TypeArguments[0], value, canUseFieldReference);
 				}
 			}
 
@@ -81,9 +81,9 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				string val => GenerateStringLiteralExpression(val),
 				char val => GenerateCharLiteralExpression(val),
 				sbyte val => GenerateLiteralExpression(type, val, LiteralSpecialValues.SByteSpecialValues, null,
-					canUseFieldReference, (s, v) => SyntaxFactory.Literal(s, v), x => x < 0, x => (sbyte) -x, "128"),
+					canUseFieldReference, (s, v) => SyntaxFactory.Literal(s, v), x => x < 0, x => (sbyte)-x, "128"),
 				short val => GenerateLiteralExpression(type, val, LiteralSpecialValues.Int16SpecialValues, null,
-					canUseFieldReference, (s, v) => SyntaxFactory.Literal(s, v), x => x < 0, x => (short) -x, "32768"),
+					canUseFieldReference, (s, v) => SyntaxFactory.Literal(s, v), x => x < 0, x => (short)-x, "32768"),
 				int val => GenerateLiteralExpression(type, val, LiteralSpecialValues.Int32SpecialValues, null,
 					canUseFieldReference, SyntaxFactory.Literal, x => x < 0, x => -x, "2147483648"),
 				long val => GenerateLiteralExpression(type, val, LiteralSpecialValues.Int64SpecialValues, null,
@@ -91,7 +91,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				byte val => GenerateNonNegativeLiteralExpression(type, val, LiteralSpecialValues.ByteSpecialValues, null,
 					canUseFieldReference, (s, v) => SyntaxFactory.Literal(s, v)),
 				ushort val => GenerateNonNegativeLiteralExpression(type, val, LiteralSpecialValues.UInt16SpecialValues, null,
-					canUseFieldReference, (s, v) => SyntaxFactory.Literal(s, (uint) v)),
+					canUseFieldReference, (s, v) => SyntaxFactory.Literal(s, (uint)v)),
 				uint val => GenerateNonNegativeLiteralExpression(type, val, LiteralSpecialValues.UInt32SpecialValues, null,
 					canUseFieldReference, SyntaxFactory.Literal),
 				ulong val => GenerateNonNegativeLiteralExpression(type, val, LiteralSpecialValues.UInt64SpecialValues, null,
@@ -102,7 +102,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 					canUseFieldReference, SyntaxFactory.Literal, x => x < 0, x => -x, null),
 				_ => type == null || type.IsReferenceType || type is IPointerTypeSymbol || type.IsNullable()
 					? GenerateNullLiteral()
-					: (ExpressionSyntax) CSharpSyntaxGenerator.DefaultExpression(type),
+					: (ExpressionSyntax)CSharpSyntaxGenerator.DefaultExpression(type)
 			};
 		}
 
@@ -131,7 +131,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		{
 			if (value is float f)
 			{
-				var stringValue = ((IFormattable) value).ToString("R", CultureInfo.InvariantCulture);
+				var stringValue = ((IFormattable)value).ToString("R", CultureInfo.InvariantCulture);
 
 				var isNotSingle = !IsSpecialType(type, SpecialType.System_Single);
 				var containsDoubleCharacter =
@@ -166,7 +166,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 			if (value is decimal d)
 			{
-				var scale = unchecked((byte) (decimal.GetBits(d)[3] >> 16));
+				var scale = unchecked((byte)(decimal.GetBits(d)[3] >> 16));
 
 				var isNotDecimal = !IsSpecialType(type, SpecialType.System_Decimal);
 				var isOutOfRange = d < long.MinValue || d > long.MaxValue;
@@ -285,14 +285,14 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 			var stringValue = negative && nonNegativeValue.Equals(value)
 				? integerMinValueString
-				: ((IFormattable) nonNegativeValue).ToString(formatString, CultureInfo.InvariantCulture) + suffix;
+				: ((IFormattable)nonNegativeValue).ToString(formatString, CultureInfo.InvariantCulture) + suffix;
 
 			var literal = SyntaxFactory.LiteralExpression(
 				SyntaxKind.NumericLiteralExpression, tokenFactory(stringValue, nonNegativeValue));
 
 			return negative
 				? SyntaxFactory.PrefixUnaryExpression(SyntaxKind.UnaryMinusExpression, literal)
-				: (ExpressionSyntax) literal;
+				: (ExpressionSyntax)literal;
 		}
 
 		private static ExpressionSyntax GenerateFieldReference<T>(ITypeSymbol type, T value,
@@ -320,7 +320,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				var name = SyntaxFactory.IdentifierName(names[i]);
 				if (i == 0)
 				{
-					result = SyntaxFactory.AliasQualifiedName((IdentifierNameSyntax) result, name);
+					result = SyntaxFactory.AliasQualifiedName((IdentifierNameSyntax)result, name);
 				}
 				else
 				{

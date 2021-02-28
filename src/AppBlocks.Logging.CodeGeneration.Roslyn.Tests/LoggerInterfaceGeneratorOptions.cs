@@ -9,8 +9,6 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 {
 	public class LoggerInterfaceGeneratorOptions : ITestInterfaceGenerationOptions
 	{
-		private const string _interfaceNamespace = "TestNamespace";
-
 		private readonly IInheritanceListBuilder _inheritanceListBuilder = new LoggerInterfaceInheritanceListBuilder();
 		private readonly int[] _inheritedInterfaceCounts = Enumerable.Range(0, 3).ToArray();
 
@@ -23,31 +21,12 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 		private readonly IAttributeDataBuilder _parameterAttributeDataBuilder = new LoggerMethodParameterAttributeDataBuilder();
 
 
-		private static readonly Type[] _methodParameterTypes =
-		{
-			typeof(string),
-			typeof(char),
-			typeof(byte),
-			typeof(byte?),
-			typeof(short),
-			typeof(long),
-			typeof(float),
-			typeof(decimal),
-			typeof(DateTime),
-			typeof(object),
-			typeof(Exception),
-			typeof(Task)
-		};
+		private static readonly Type[] _methodParameterTypes = {typeof(string), typeof(char), typeof(byte), typeof(byte?), typeof(short), typeof(long), typeof(float), typeof(decimal), typeof(DateTime), typeof(object), typeof(Exception), typeof(Task)};
 
 		private readonly IParameterValuesBuilder _parameterValuesBuilder = new LoggerInterfaceParameterValuesBuilder();
 
 		private readonly string[] _usingNamespaces = _methodParameterTypes.Select(_ => _.Namespace).Union(
-			new[]
-			{
-				typeof(Action).Namespace,
-				typeof(GenerateLoggerAttribute).Namespace,
-				typeof(ILogger).Namespace
-			}).Distinct().ToArray();
+			new[] {typeof(Action).Namespace, typeof(GenerateLoggerAttribute).Namespace, typeof(ILogger).Namespace}).Distinct().ToArray();
 
 		public string[] UsingNamespaces => _usingNamespaces;
 
@@ -69,7 +48,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn.Tests
 
 		public Type[] MethodParameterTypes => _methodParameterTypes;
 
-		public string InterfaceNamespace => _interfaceNamespace;
+		public string InterfaceNamespace => "TestNamespace";
 
 		public IInheritanceListBuilder InheritanceListBuilder => _inheritanceListBuilder;
 

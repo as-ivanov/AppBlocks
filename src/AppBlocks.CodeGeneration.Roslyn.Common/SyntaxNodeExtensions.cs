@@ -7,21 +7,23 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 	{
 		public static T WithPrependedLeadingTrivia<T>(
 			this T node,
-			params SyntaxTrivia[] trivia) where T : SyntaxNode
+			params SyntaxTrivia[] trivia)
+			where T : SyntaxNode
 		{
 			if (trivia.Length == 0)
 			{
 				return node;
 			}
 
-			return node.WithPrependedLeadingTrivia((IEnumerable<SyntaxTrivia>) trivia);
+			return node.WithPrependedLeadingTrivia((IEnumerable<SyntaxTrivia>)trivia);
 		}
 
 		public static T WithPrependedLeadingTrivia<T>(
 			this T node,
-			IEnumerable<SyntaxTrivia> trivia) where T : SyntaxNode
+			IEnumerable<SyntaxTrivia> trivia)
+			where T : SyntaxNode
 		{
-			var list = new SyntaxTriviaList();
+			var list = default(SyntaxTriviaList);
 			list = list.AddRange(trivia);
 
 			return node.WithPrependedLeadingTrivia(list);
@@ -29,21 +31,23 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 		public static T WithAppendedTrailingTrivia<T>(
 			this T node,
-			params SyntaxTrivia[] trivia) where T : SyntaxNode
+			params SyntaxTrivia[] trivia)
+			where T : SyntaxNode
 		{
 			if (trivia.Length == 0)
 			{
 				return node;
 			}
 
-			return node.WithAppendedTrailingTrivia((IEnumerable<SyntaxTrivia>) trivia);
+			return node.WithAppendedTrailingTrivia((IEnumerable<SyntaxTrivia>)trivia);
 		}
 
 		public static T WithAppendedTrailingTrivia<T>(
 			this T node,
-			IEnumerable<SyntaxTrivia> trivia) where T : SyntaxNode
+			IEnumerable<SyntaxTrivia> trivia)
+			where T : SyntaxNode
 		{
-			var list = new SyntaxTriviaList();
+			var list = default(SyntaxTriviaList);
 			list = list.AddRange(trivia);
 
 			return node.WithAppendedTrailingTrivia(list);
