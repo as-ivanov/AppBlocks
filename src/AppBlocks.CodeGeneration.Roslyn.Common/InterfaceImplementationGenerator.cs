@@ -112,7 +112,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 		private AttributeSyntax GetGeneratedCodeAttributeSyntax()
 		{
-			return Attribute(ParseName(typeof(GeneratedCodeAttribute).FullName))
+			return Attribute(typeof(GeneratedCodeAttribute).GetGlobalTypeSyntax())
 				.AddArgumentListArguments(AttributeArgument(GetType().Name.GetLiteralExpression()),
 					AttributeArgument(_version.ToString().GetLiteralExpression()));
 		}

@@ -7,7 +7,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 {
 	public static class TypeExtensions
 	{
-		public static TypeSyntax GetGlobalTypeSyntax(this Type type)
+		public static AliasQualifiedNameSyntax GetGlobalTypeSyntax(this Type type)
 		{
 			return AliasQualifiedName(IdentifierName(Token(SyntaxKind.GlobalKeyword)), IdentifierName(type.FullName));
 		}
