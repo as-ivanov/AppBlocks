@@ -6,5 +6,6 @@ namespace AppBlocks.CodeGeneration.Attributes.Common
 	public abstract class ImplementInterfaceAttribute : Attribute
 	{
 		public string[] InheritedInterfaceTypes { get; set; }
+		public bool AttachDebuggerOnNode { get; set; }
 	}
 }
