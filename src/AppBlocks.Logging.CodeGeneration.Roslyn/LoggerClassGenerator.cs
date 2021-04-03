@@ -156,6 +156,10 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			for (var index = 0; index < loggerDescriptor.Methods.Length; index++)
 			{
 				var method = loggerDescriptor.Methods[index];
+				if (method.InnerLoggerMethod)
+				{
+					continue;
+				}
 				if (method.SubLevels.Length > 0)
 				{
 					var defaultDeclaration = GetLoggingMethodDelegateLoggerField(loggerDescriptor, method, index, method.Level);
@@ -271,31 +275,51 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		protected override IEnumerable<MemberDeclarationSyntax> GetMethods(LoggerDescriptor loggerDescriptor)
 		{
 			var members = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
+
 			foreach (var method in loggerDescriptor.Methods)
 			{
-				var interfaceGlobalQualifiedName = method.DeclaredInterfaceSymbol.ToGlobalAliasQualifiedName();
-				;
+
+				var interfaceGlobalQualifiedName = method.DeclaredInterfaceSymbol.ToGlobalAliasQualifiedName(); ;
 				var explicitInterfaceSpecifier = ExplicitInterfaceSpecifier(interfaceGlobalQualifiedName);
 
 				var methodConstraintClauses = method.MethodDeclarationSyntax.ConstraintClauses
 					.GetAllowedImplicitImplementationConstraintClause();
 
-
-				var methodParameters = method.Parameters.Select(delegate(LoggerMethodParameter _)
+				MethodDeclarationSyntax methodDeclaration;
+				if (!method.InnerLoggerMethod)
 				{
-					var aliasQualifiedName = _.ParameterSymbol.Type.ToGlobalAliasQualifiedName();
-					return _.ParameterSyntax
-						.WithType(aliasQualifiedName)
-						.OmitNullableAttribute();
-				}).ToArray();
+					var methodParameters = method.Parameters.Select(delegate(LoggerMethodParameter _)
+					{
+						var aliasQualifiedName = _.ParameterSymbol.Type.ToGlobalAliasQualifiedName();
+						return _.ParameterSyntax.WithType(aliasQualifiedName).OmitNullableAttribute();
+					}).ToArray();
 
-				var methodDeclaration =
-					MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), method.MethodDeclarationSyntax.Identifier)
-						.WithExplicitInterfaceSpecifier(explicitInterfaceSpecifier)
-						.WithTypeParameterList(method.MethodDeclarationSyntax.TypeParameterList)
-						.WithConstraintClauses(methodConstraintClauses)
-						.AddParameterListParameters(methodParameters)
-						.WithBody(Block(GetLoggerMethodBody(method)));
+					methodDeclaration =
+						MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), method.MethodDeclarationSyntax.Identifier)
+							.AddParameterListParameters(methodParameters)
+							.WithBody(Block(GetLoggerMethodBody(method)));
+				}
+				else
+				{
+
+					var arguments = method.MethodDeclarationSyntax.ParameterList.Parameters.Select(_ => Argument(IdentifierName(_.Identifier)));
+
+					methodDeclaration = method
+						.MethodDeclarationSyntax
+						.WithExpressionBody(ArrowExpressionClause(
+							InvocationExpression(
+									MemberAccessExpression(
+										SyntaxKind.SimpleMemberAccessExpression,
+										IdentifierName(LoggerFieldName),
+										IdentifierName(method.MethodDeclarationSyntax.Identifier)))
+								.WithArgumentList(
+									ArgumentList(SeparatedList(arguments)))));
+				}
+
+				methodDeclaration = methodDeclaration.WithExplicitInterfaceSpecifier(explicitInterfaceSpecifier)
+					.WithTypeParameterList(method.MethodDeclarationSyntax.TypeParameterList)
+					.WithConstraintClauses(methodConstraintClauses);
+
 				members.Add(methodDeclaration);
 			}
 

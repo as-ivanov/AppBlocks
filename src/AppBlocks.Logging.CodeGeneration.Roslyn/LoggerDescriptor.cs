@@ -13,8 +13,13 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		private readonly INamedTypeSymbol _objectTypeSymbol;
 		private readonly TypeDeclarationSyntax _typeDeclarationSyntax;
 
-		public LoggerDescriptor(TypeDeclarationSyntax typeDeclarationSyntax, string className,
-			string[] inheritedInterfaceTypes, ImmutableArray<LoggerMethod> methods, INamedTypeSymbol objectTypeSymbol)
+		public LoggerDescriptor(
+			TypeDeclarationSyntax typeDeclarationSyntax,
+			string className,
+			string[] inheritedInterfaceTypes,
+			ImmutableArray<LoggerMethod> methods,
+			INamedTypeSymbol objectTypeSymbol
+			)
 		{
 			_className = className;
 			_inheritedInterfaceTypes = inheritedInterfaceTypes;

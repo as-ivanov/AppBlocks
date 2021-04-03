@@ -17,11 +17,19 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		private readonly MethodDeclarationSyntax _methodDeclarationSyntax;
 		private readonly ImmutableArray<LoggerMethodParameter> _parameters;
 		private readonly LogLevel[] _subLevels;
+		private readonly bool _innerLoggerMethod;
 
-		public LoggerMethod(MethodDeclarationSyntax methodDeclarationSyntax, INamedTypeSymbol declaredInterfaceSymbol,
-			LogLevel logLevel, string message, string delegateFieldName, ImmutableArray<LoggerMethodParameter> parameters,
+		public LoggerMethod(
+			MethodDeclarationSyntax methodDeclarationSyntax,
+			INamedTypeSymbol declaredInterfaceSymbol,
+			LogLevel logLevel,
+			string message,
+			string delegateFieldName,
+			ImmutableArray<LoggerMethodParameter> parameters,
 			LogLevel[] subLevels)
 		{
+
+			_innerLoggerMethod = false;
 			_logLevel = logLevel;
 			_message = message;
 			_delegateFieldName = delegateFieldName;
@@ -31,6 +39,16 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			_subLevels = subLevels;
 		}
 
+		public LoggerMethod(
+			MethodDeclarationSyntax methodDeclarationSyntax,
+			INamedTypeSymbol declaredInterfaceSymbol
+			)
+		{
+			_innerLoggerMethod = true;
+			_methodDeclarationSyntax = methodDeclarationSyntax;
+			_declaredInterfaceSymbol = declaredInterfaceSymbol;
+		}
+
 		public MethodDeclarationSyntax MethodDeclarationSyntax => _methodDeclarationSyntax;
 		public ImmutableArray<LoggerMethodParameter> Parameters => _parameters;
 		public LogLevel Level => _logLevel;
@@ -38,6 +56,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		public string DelegateFieldName => _delegateFieldName;
 		public INamedTypeSymbol DeclaredInterfaceSymbol => _declaredInterfaceSymbol;
 		public LogLevel[] SubLevels => _subLevels;
+		public bool InnerLoggerMethod => _innerLoggerMethod;
 
 		public ImmutableArray<LoggerMethodParameter> GetLoggerMethodParametersForSubLevel(LogLevel logLevel)
 		{
