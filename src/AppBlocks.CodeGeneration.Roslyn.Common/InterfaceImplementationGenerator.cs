@@ -39,7 +39,6 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				throw new Exception("Generator attribute must be declared on interface.");
 			}
-
 			return GenerateAsync(tds, context, Data);
 		}
 
