@@ -9,6 +9,7 @@ using CodeGeneration.Roslyn;
 using Humanizer;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace AppBlocks.Logging.CodeGeneration.Roslyn
@@ -22,9 +23,19 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 			var methodDeclarations = typeDeclarationSyntax.GetAllMethodDeclarations(context);
 
+			var innerLoggerTypeSymbol = context.Compilation.GetTypeByMetadataName(typeof(ILogger).FullName);
+
+			var filtered = methodDeclarations.Where(_ =>
+			{
+				var conversion = context.Compilation.ClassifyCommonConversion(_.DeclaredInterfaceSymbol, innerLoggerTypeSymbol);
+				return conversion.Exists && conversion.IsImplicit;
+			});
+
+			//var exposeInnerLogger = filtered.Count() < methodDeclarations.Count();
+
 			var exceptionTypeSymbol = context.Compilation.GetTypeByMetadataName(typeof(Exception).FullName);
 			var objectTypeSymbol = context.Compilation.GetTypeByMetadataName(typeof(object).FullName);
-			var methods = methodDeclarations.GetLoggerMethods(context, exceptionTypeSymbol);
+			var methods = methodDeclarations.GetLoggerMethods(context, innerLoggerTypeSymbol, exceptionTypeSymbol);
 
 			var inheritedInterfaceTypes = attributeData.GetInheritedInterfaceTypes();
 
@@ -36,17 +47,15 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				objectTypeSymbol);
 		}
 
-		private static ImmutableArray<LoggerMethod> GetLoggerMethods(
-			this IEnumerable<(MethodDeclarationSyntax MethodDeclaration, IMethodSymbol methodSymbol, TypeDeclarationSyntax
-				DeclaredInterface,
-				INamedTypeSymbol DeclaredInterfaceSymbol)> methodDeclarations,
-			TransformationContext context, INamedTypeSymbol exceptionType)
+		private static ImmutableArray<LoggerMethod> GetLoggerMethods(this IEnumerable<(MethodDeclarationSyntax MethodDeclaration, IMethodSymbol methodSymbol, TypeDeclarationSyntax DeclaredInterface, INamedTypeSymbol DeclaredInterfaceSymbol)> methodDeclarations,
+			TransformationContext context, INamedTypeSymbol innerLoggerTypeSymbol, INamedTypeSymbol exceptionType)
 		{
 			var fieldNameCounter = new Dictionary<string, int>(); //Consider that methods may have the same name
 			return methodDeclarations
 				.Select((entry) =>
 					entry.MethodDeclaration.ToLoggerMethod(entry.methodSymbol, context, entry.DeclaredInterfaceSymbol,
 						fieldNameCounter,
+						innerLoggerTypeSymbol,
 						exceptionType))
 				.ToImmutableArray();
 			;
@@ -54,9 +63,20 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 		private static LoggerMethod ToLoggerMethod(this MethodDeclarationSyntax methodDeclarationSyntax,
 			IMethodSymbol methodSymbol,
-			TransformationContext context, INamedTypeSymbol declaredInterfaceSymbol, Dictionary<string, int> fieldNameCounter,
+			TransformationContext context,
+			INamedTypeSymbol declaredInterfaceSymbol,
+			Dictionary<string, int> fieldNameCounter,
+			INamedTypeSymbol innerLoggerTypeSymbol,
 			INamedTypeSymbol exceptionType)
 		{
+
+			var conversion = context.Compilation.ClassifyCommonConversion(declaredInterfaceSymbol, innerLoggerTypeSymbol);
+			var innerLoggerMethod = conversion.Exists && conversion.IsImplicit;
+			if (innerLoggerMethod)
+			{
+				return new LoggerMethod(methodDeclarationSyntax, declaredInterfaceSymbol);
+			}
+
 			var attributeData = methodSymbol.GetAttributes();
 			var logOptionsAttributeAttributeData =
 				attributeData.FirstOrDefault(_ => _.AttributeClass.Name == nameof(LogOptionsAttribute));
