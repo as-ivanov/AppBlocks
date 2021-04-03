@@ -100,7 +100,7 @@ namespace AppBlocks.Monitoring.CodeGeneration.Roslyn
 				{
 					var aliasQualifiedName = parameterSymbol.Type.ToGlobalAliasQualifiedName();
 					var parameterSyntax = method.MethodDeclarationSyntax.ParameterList.Parameters[index];
-					return parameterSyntax.WithType(aliasQualifiedName);
+					return parameterSyntax.WithType(aliasQualifiedName).OmitNullableAttribute();
 				}).ToArray();
 
 				var methodDeclaration =

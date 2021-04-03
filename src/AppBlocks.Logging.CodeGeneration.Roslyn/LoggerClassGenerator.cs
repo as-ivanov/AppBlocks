@@ -284,7 +284,9 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 				var methodParameters = method.Parameters.Select(delegate(LoggerMethodParameter _)
 				{
 					var aliasQualifiedName = _.ParameterSymbol.Type.ToGlobalAliasQualifiedName();
-					return _.ParameterSyntax.WithType(aliasQualifiedName);
+					return _.ParameterSyntax
+						.WithType(aliasQualifiedName)
+						.OmitNullableAttribute();
 				}).ToArray();
 
 				var methodDeclaration =

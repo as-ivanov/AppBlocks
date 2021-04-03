@@ -5,5 +5,6 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 		public const char NestedClassDelimiter = '+';
 		public const char NamespaceClassDelimiter = '.';
 		public const char TypeParameterClassDelimiter = '`';
+		public const string NullableAttributeName = "System.Runtime.CompilerServices.NullableAttribute";
 	}
 }
