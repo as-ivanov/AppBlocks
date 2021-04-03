@@ -272,6 +272,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			yield return constructorDeclaration;
 		}
 
+
 		protected override IEnumerable<MemberDeclarationSyntax> GetMethods(LoggerDescriptor loggerDescriptor)
 		{
 			var members = new List<MemberDeclarationSyntax>(loggerDescriptor.Methods.Length);
@@ -294,8 +295,10 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 						return _.ParameterSyntax.WithType(aliasQualifiedName).OmitNullableAttribute();
 					}).ToArray();
 
+					var comment = TriviaList(Comment($"/// <summary>Writes message: {method.Message} with log level {method.Level}.</summary>"));
 					methodDeclaration =
 						MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), method.MethodDeclarationSyntax.Identifier)
+							.WithLeadingTrivia(comment)
 							.AddParameterListParameters(methodParameters)
 							.WithBody(Block(GetLoggerMethodBody(method)));
 				}
