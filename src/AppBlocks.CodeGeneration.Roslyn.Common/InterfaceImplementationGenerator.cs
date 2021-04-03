@@ -1,3 +1,4 @@
+using AppBlocks.CodeGeneration.Attributes.Common;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using CodeGeneration.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace AppBlocks.CodeGeneration.Roslyn.Common
@@ -51,6 +53,11 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				throw new Exception($"Failed to determine namespace for type:'{context.ProcessingNode.Parent}'.");
 			}
 
+			var attachDebuggerOnNode = attributeData.GetNamedArgumentValueOrDefault<bool>(nameof(ImplementInterfaceAttribute.AttachDebuggerOnNode));
+			if (attachDebuggerOnNode)
+			{
+				Debugger.Launch();
+			}
 			var descriptor = GetImplementationDescriptor(typeDeclaration, context, attributeData);
 
 			var implementationMemberDeclaration = GetImplementation(descriptor);
