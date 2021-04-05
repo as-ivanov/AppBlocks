@@ -65,7 +65,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 				.AddMembers(implementationMemberDeclaration);
 
 			var generatedMembers = new List<MemberDeclarationSyntax> {@namespace};
-			var result = new RichGenerationResult {Members = new SyntaxList<MemberDeclarationSyntax>(generatedMembers)};
+			var result = new RichGenerationResult { Members = new SyntaxList<MemberDeclarationSyntax>(generatedMembers) };
 
 			return Task.FromResult(result);
 		}

@@ -73,7 +73,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			var innerLoggerMethod = declaredInterfaceSymbol.Equals(innerLoggerTypeSymbol);
 			if (innerLoggerMethod)
 			{
-				return new LoggerMethod(methodDeclarationSyntax, declaredInterfaceSymbol);
+				return new LoggerMethod(methodDeclarationSyntax, declaredInterfaceSymbol, innerLoggerTypeSymbol);
 			}
 
 			var attributeData = methodSymbol.GetAttributes();
