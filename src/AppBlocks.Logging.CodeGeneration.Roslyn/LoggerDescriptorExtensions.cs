@@ -70,8 +70,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 			INamedTypeSymbol exceptionType)
 		{
 
-			var conversion = context.Compilation.ClassifyCommonConversion(declaredInterfaceSymbol, innerLoggerTypeSymbol);
-			var innerLoggerMethod = conversion.Exists && conversion.IsImplicit;
+			var innerLoggerMethod = declaredInterfaceSymbol.Equals(innerLoggerTypeSymbol);
 			if (innerLoggerMethod)
 			{
 				return new LoggerMethod(methodDeclarationSyntax, declaredInterfaceSymbol);
