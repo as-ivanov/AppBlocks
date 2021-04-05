@@ -307,8 +307,13 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 					var arguments = method.MethodDeclarationSyntax.ParameterList.Parameters.Select(_ => Argument(IdentifierName(_.Identifier)));
 
+					var returnTypeSyntax = method.MethodDeclarationSyntax.ReturnType.ToString() == "Void"
+						? PredefinedType(Token(SyntaxKind.VoidKeyword))
+						: method.MethodDeclarationSyntax.ReturnType;
+
 					methodDeclaration = method
 						.MethodDeclarationSyntax
+						.WithReturnType(returnTypeSyntax)
 						.WithExpressionBody(ArrowExpressionClause(
 							InvocationExpression(
 									MemberAccessExpression(
