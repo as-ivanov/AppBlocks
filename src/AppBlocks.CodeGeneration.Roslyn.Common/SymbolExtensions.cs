@@ -45,7 +45,7 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 
 			var allInterfaceSymbols = GetAllInterfaceSymbolsRecursive(targetInterfaceSymbol);
 
-			foreach (var interfaceSymbol in allInterfaceSymbols)
+			foreach (var interfaceSymbol in allInterfaceSymbols.Distinct())
 			{
 				var interfaceMethodSymbols = interfaceSymbol.GetMembers().OfType<IMethodSymbol>().ToArray();
 				var interfaceDeclarations = interfaceSymbol.DeclaringSyntaxReferences.SelectMany(_ => _.SyntaxTree.GetRoot().DescendantNodesAndSelf())
