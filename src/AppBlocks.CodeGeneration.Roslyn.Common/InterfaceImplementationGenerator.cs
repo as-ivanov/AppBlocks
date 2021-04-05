@@ -51,12 +51,13 @@ namespace AppBlocks.CodeGeneration.Roslyn.Common
 			{
 				throw new Exception($"Failed to determine namespace for type:'{context.ProcessingNode.Parent}'.");
 			}
-
+#if DEBUG
 			var attachDebuggerOnNode = attributeData.GetNamedArgumentValueOrDefault<bool>(nameof(ImplementInterfaceAttribute.AttachDebuggerOnNode));
 			if (attachDebuggerOnNode)
 			{
 				Debugger.Launch();
 			}
+#endif
 			var descriptor = GetImplementationDescriptor(typeDeclaration, context, attributeData);
 
 			var implementationMemberDeclaration = GetImplementation(descriptor);
