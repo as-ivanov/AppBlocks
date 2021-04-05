@@ -307,13 +307,17 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 
 					var arguments = method.MethodDeclarationSyntax.ParameterList.Parameters.Select(_ => Argument(IdentifierName(_.Identifier)));
 
-					var returnTypeSyntax = method.MethodDeclarationSyntax.ReturnType.ToString() == "Void"
-						? PredefinedType(Token(SyntaxKind.VoidKeyword))
-						: method.MethodDeclarationSyntax.ReturnType;
+					IMethodSymbol innerLoggerTypeSymbolMethodSymbol = method.InnerLoggerTypeSymbol.GetMembers()
+						.OfType<IMethodSymbol>()
+						.FirstOrDefault(_ => _.Kind == SymbolKind.Method && _.Name == method.MethodDeclarationSyntax.Identifier.Text);
+
+					var returnType = innerLoggerTypeSymbolMethodSymbol.ReturnType.Name == "Void"
+						? (TypeSyntax)PredefinedType(Token(SyntaxKind.VoidKeyword))
+						: innerLoggerTypeSymbolMethodSymbol.ReturnType.ToGlobalAliasQualifiedName();
 
 					methodDeclaration = method
 						.MethodDeclarationSyntax
-						.WithReturnType(returnTypeSyntax)
+						.WithReturnType(returnType)
 						.WithExpressionBody(ArrowExpressionClause(
 							InvocationExpression(
 									MemberAccessExpression(
@@ -406,7 +410,7 @@ namespace AppBlocks.Logging.CodeGeneration.Roslyn
 		{
 			var parameters = subLevel.HasValue ? loggerMethod.GetLoggerMethodParametersForSubLevel(subLevel.Value) : loggerMethod.Parameters;
 
-			var arguments = new List<SyntaxNodeOrToken> {Argument(IdentifierName(LoggerFieldName))};
+			var arguments = new List<SyntaxNodeOrToken> { Argument(IdentifierName(LoggerFieldName)) };
 			foreach (var parameter in parameters)
 			{
 				if (arguments.Any())
